@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shoutout Song – Instant Custom Songs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #050713;
+      --card: #0b1021;
+      --card-soft: #11172a;
+      --accent: #ff8a3c;
+      --accent-soft: rgba(255, 138, 60, 0.18);
+      --accent2: #ff4dd2;
+      --accent3: #4ddcff;
+      --text: #f7f7ff;
+      --muted: #9ca3c7;
+      --border-subtle: rgba(148, 163, 204, 0.2);
+      --error: #ff4b6a;
+      --success: #4ade80;
+      --radius-lg: 18px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 18px 50px rgba(0, 0, 0, 0.55);
+      --shadow-glow: 0 0 40px rgba(255, 138, 60, 0.4);
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Inter", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: var(--font-sans);
+      color: var(--text);
+      background: radial-gradient(circle at top left, #151932 0, #050713 48%);
+    }
+
+    body {
+      padding: 18px;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1120px;
+      background: radial-gradient(circle at top left, #151932 0, #050713 55%);
+      border-radius: 28px;
+      border: 1px solid rgba(148, 163, 204, 0.2);
+      box-shadow: var(--shadow-soft);
+      padding: 22px 22px 24px;
+      display: grid;
+      grid-template-columns: minmax(280px, 1.1fr) minmax(360px, 1.25fr);
+      gap: 22px;
+    }
+
+    @media (max-width: 880px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+        padding: 18px;
+      }
+    }
+
+    /* LEFT SIDE – hero / marketing */
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: conic-gradient(
+        from 180deg,
+        #ffb347,
+        #ff4dd2,
+        #4ddcff,
+        #ffb347
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .brand-logo span {
+      font-size: 20px;
+    }
+
+    .brand-name {
+      font-size: 14px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .brand-name strong {
+      font-weight: 700;
+      color: #e5e7ff;
+    }
+
+    .hero-title {
+      font-size: 32px;
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+
+    .hero-title .accent {
+      background: linear-gradient(120deg, var(--accent2), var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-copy {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 360px;
+      margin-bottom: 14px;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .tag {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 204, 0.2);
+      color: #e5e7ff;
+      background: radial-gradient(circle at top left, #1c233d, #060818);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tag span {
+      display: inline-block;
+      font-size: 13px;
+    }
+
+    .tag-pill {
+      padding: 6px 11px;
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 204, 0.28);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .tag-pill strong {
+      color: #e5e7ff;
+    }
+
+    .steps {
+      margin-top: 10px;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .step-number {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 204, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #e5e7ff;
+      background: #050713;
+    }
+
+    .step b {
+      color: #e5e7ff;
+      font-weight: 600;
+    }
+
+    .footer-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 16px;
+      max-width: 360px;
+    }
+
+    .footer-note b {
+      color: #e5e7ff;
+    }
+
+    /* RIGHT SIDE – card */
+
+    .panel-card {
+      background: radial-gradient(circle at top right, #1f2937, #020617 68%);
+      border-radius: 22px;
+      padding: 16px 16px 18px;
+      border: 1px solid rgba(148, 163, 204, 0.35);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .tab-row {
+      display: inline-flex;
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: var(--radius-pill);
+      padding: 4px;
+      border: 1px solid rgba(148, 163, 204, 0.35);
+      align-self: center;
+      gap: 3px;
+    }
+
+    .tab-btn {
+      border: none;
+      padding: 7px 16px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.18s, color 0.18s, transform 0.16s;
+    }
+
+    .tab-btn span {
+      font-size: 14px;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(120deg, var(--accent3), var(--accent));
+      color: #050713;
+      font-weight: 600;
+      transform: translateY(-1px);
+    }
+
+    .tab-btn:not(.active):hover {
+      color: #e5e7ff;
+      background: rgba(148, 163, 204, 0.15);
+    }
+
+    .form-section {
+      background: rgba(9, 9, 18, 0.85);
+      border-radius: 16px;
+      padding: 12px 12px 14px;
+      border: 1px solid rgba(148, 163, 204, 0.25);
+    }
+
+    .form-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .form-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .form-subtitle {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field label {
+      font-size: 11px;
+      color: #cbd5ff;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      background: #020617;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 204, 0.45);
+      padding: 7px 9px;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+      transition: border 0.18s, box-shadow 0.18s, background 0.18s;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--accent3);
+      box-shadow: 0 0 0 1px rgba(77, 220, 255, 0.65);
+      background: #020617;
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 80px;
+      max-height: 160px;
+      line-height: 1.4;
+    }
+
+    .inline-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .pill-radio {
+      position: relative;
+    }
+
+    .pill-radio input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .pill-radio label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 204, 0.4);
+      font-size: 11px;
+      cursor: pointer;
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.9);
+      transition: border 0.18s, background 0.18s, color 0.18s, box-shadow 0.18s,
+        transform 0.16s;
+    }
+
+    .pill-radio input:checked + label {
+      border-color: var(--accent);
+      background: radial-gradient(circle at top left, #1f2937, #020617);
+      color: #ffe9d4;
+      box-shadow: 0 0 0 1px rgba(255, 138, 60, 0.8);
+      transform: translateY(-1px);
+    }
+
+    .pill-radio label span {
+      font-size: 13px;
+    }
+
+    .btn-row {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-primary {
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 8px 18px;
+      font-size: 13px;
+      cursor: pointer;
+      background: linear-gradient(120deg, var(--accent), #ffb347);
+      color: #050713;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow-glow);
+      transition: transform 0.15s ease, box-shadow 0.18s ease, opacity 0.18s;
+    }
+
+    .btn-primary span {
+      font-size: 16px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 26px rgba(0, 0, 0, 0.85);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(148, 163, 204, 0.4);
+      border-radius: var(--radius-pill);
+      padding: 7px 16px;
+      font-size: 12px;
+      cursor: pointer;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.18s, color 0.18s, border 0.18s, transform 0.16s;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(15, 23, 42, 0.6);
+      color: #e5e7ff;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary:disabled {
+      opacity: 0.55;
+      cursor: default;
+    }
+
+    .btn-cta {
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 7px 16px;
+      font-size: 12px;
+      cursor: pointer;
+      background: linear-gradient(120deg, var(--accent), var(--accent2));
+      color: #050713;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.7);
+      transition: transform 0.15s ease, box-shadow 0.18s ease, opacity 0.18s;
+    }
+
+    .btn-cta:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 30px rgba(0, 0, 0, 0.9);
+    }
+
+    .btn-cta:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .status-text {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .status-text.success {
+      color: var(--success);
+    }
+
+    .status-text.error {
+      color: var(--error);
+    }
+
+    .result-section {
+      background: rgba(7, 10, 24, 0.98);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 204, 0.35);
+      padding: 10px 12px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .result-header h3 {
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .result-header h3 span {
+      font-size: 15px;
+    }
+
+    .result-badge {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(148, 163, 204, 0.2);
+      color: #e5e7ff;
+      border: 1px solid rgba(148, 163, 204, 0.35);
+      white-space: nowrap;
+    }
+
+    .result-badge.ready {
+      background: rgba(34, 197, 94, 0.12);
+      color: #bbf7d0;
+      border-color: rgba(74, 222, 128, 0.4);
+    }
+
+    .lyrics-box {
+      background: #020617;
+      border-radius: 12px;
+      padding: 10px;
+      border: 1px solid rgba(148, 163, 204, 0.4);
+      min-height: 110px;
+      max-height: 210px;
+      overflow-y: auto;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+
+    .lyrics-placeholder {
+      color: rgba(148, 163, 204, 0.8);
+      font-style: italic;
+    }
+
+    .audio-row {
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+
+
+
+/* Ensure loader is visible and animation plays */
+.audio-row {
+  position: relative;
+  overflow: visible !important;
+}
+
+/* Center the overlay inside audio block */
+.loader-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(3px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 12px;
+  z-index: 20;
+}
+
+/* Loading bar container */
+.loader-bar-outer {
+  width: 80%;
+  max-width: 360px;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 204, 0.45);
+}
+
+/* Animated bar — THIS is the movement */
+.loader-bar-inner {
+  width: 40%;
+  height: 100%;
+  border-radius: 999px;
+  background-image: linear-gradient(90deg, var(--accent), var(--accent3), var(--accent));
+  background-size: 200% 100%;
+  animation: loaderSlide 1.2s infinite linear;
+  box-shadow: 0 0 12px rgba(255,138,60,0.45);
+}
+
+/* Slide animation */
+@keyframes loaderSlide {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(220%); }
+}
+
+
+
+
+
+    .audio-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .audio-meta strong {
+      color: #e5e7ff;
+    }
+
+    /* Wrap controls so loader covers only audio/buttons */
+    .audio-controls {
+  position: relative;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 120px;  /* Ensures loader has space */
+}
+
+
+    .audio-player {
+      width: 100%;
+      border-radius: 12px;
+      background: #020617;
+      border: 1px solid rgba(148, 163, 204, 0.4);
+      padding: 6px;
+    }
+
+  /*  .download-link {
+      font-size: 11px;
+      color: var(--accent3);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+    }*/
+
+  /*  .download-link:hover {
+      text-decoration: underline;
+    }*/
+
+    .early-access {
+      font-size: 11px;
+      color: var(--muted);
+      border-radius: 10px;
+      padding: 7px 9px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px dashed rgba(148, 163, 204, 0.4);
+      margin-top: 4px;
+    }
+
+    .early-access b {
+      color: #e5e7ff;
+    }
+
+    /* Loader overlay – now inside audio-controls only */
+
+    .loader-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.99));
+  display: flex;
+  flex-direction: column;
+  align-items: center;      /* Center content properly */
+  justify-content: center;
+  padding: 14px;
+  gap: 8px;
+  z-index: 10;
+  border-radius: 12px;
+  overflow: hidden;         /* Prevents overlapping text outside container */
+}
+
+
+    .loader-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #e5e7ff;
+      margin-bottom: 4px;
+    }
+
+    .loader-header span {
+      font-size: 18px;
+    }
+
+    .loader-subtext {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .loader-bar-outer {
+      margin-top: 8px;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 1);
+      border: 1px solid rgba(148, 163, 204, 0.45);
+      overflow: hidden;
+    }
+
+
+
+    .loader-bar-inner {
+      width: 40%;
+      height: 100%;
+      border-radius: 999px;
+      background-image: linear-gradient(120deg, var(--accent), var(--accent3));
+      background-size: 200% 100%;
+      animation: loaderSlide 1.3s infinite linear;
+      box-shadow: 0 0 20px rgba(255, 138, 60, 0.8);
+    }
+
+    @keyframes loaderSlide {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(220%);
+      }
+    }
+
+    .loader-tip {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+    
+    /* --- Floating Notes (very subtle) --- */
+    .note {
+      position: absolute;
+      font-size: 16px;
+      animation: floatNote 1.2s ease-out forwards;
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    @keyframes floatNote {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-30px); opacity: 0; }
+    }
+
+    /* --- Subtle button hover glow --- */
+    button:hover:not(:disabled) {
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+      transition: 0.15s ease-out;
+    }
+
+    /* --- Smooth tab switch --- */
+    .form-section {
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .form-section.hidden {
+      opacity: 0;
+      transform: translateX(6px);
+    }
+
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- LEFT PANEL -->
+    <div>
+      <div class="brand-row">
+        <div class="brand-logo">
+          <span>📣</span>
+        </div>
+        <div class="brand-name"><strong>Shoutout Song</strong></div>
+      </div>
+
+      <h1 class="hero-title">
+        Instant <span class="accent">custom shoutout songs</span><br />
+        for kids, friends &amp; family.
+      </h1>
+
+      <p class="hero-copy">
+        Type a name and what they love. Shoutout Song writes the lyrics, sings them,
+        and sends you a fully produced track in about a minute. No music skills
+        needed.
+      </p>
+
+      <div class="tag-row">
+        <div class="tag"><span>🎧</span> Kids songs about anything</div>
+        <div class="tag"><span>🎉</span> Special occasion anthems</div>
+        <div class="tag"><span>📲</span> Shareable MP3 in seconds</div>
+      </div>
+
+      <div class="tag-pill">
+        <span>💡</span>
+        <span>
+          <strong>Perfect for birthdays</strong>, holidays, or “just because”
+          surprises.
+        </span>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div><b>Tell us who &amp; what they love.</b> Monster trucks, dinosaurs,
+            girlfriends, inside jokes—anything.</div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div><b>Shoutout Song writes the lyrics &amp; sings them.</b> Pick the vibe
+            and voice you want.</div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div><b>Preview, download, share.</b> MP3 that works everywhere—texts,
+            party speakers, social posts.</div>
+        </div>
+      </div>
+
+      <p class="footer-note">
+        <b>Early access:</b> shoutout songs are still “hot off the studio.” We’re
+        tuning the models toward full-on “how is this not from a real band?!” wow. 📣✨
+      </p>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="panel-card">
+      <!-- Tabs -->
+      <div class="tab-row">
+        <button class="tab-btn active" id="tab-kid" data-target="kid-form">
+          <span>🧒</span> Kids Song
+        </button>
+        <button class="tab-btn" id="tab-adult" data-target="adult-form">
+          <span>🎁</span> Adult / Special Occasion
+        </button>
+      </div>
+
+      <!-- Kids Form -->
+      <div id="kid-form" class="form-section">
+        <div class="form-title-row">
+          <div>
+            <div class="form-title">Kids song</div>
+            <div class="form-subtitle">
+              Turn their favorite thing into a bouncy sing-along shoutout.
+            </div>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="field">
+            <label for="kidName">Child’s name</label>
+            <input
+              id="kidName"
+              type="text"
+              placeholder="Ella"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field">
+            <label for="kidLove">What do they love?</label>
+            <input
+              id="kidLove"
+              type="text"
+              placeholder="Santa, monster trucks, dinosaurs..."
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field">
+            <label for="kidOccasion">Occasion</label>
+            <select id="kidOccasion">
+              <option value="everyday">Just because</option>
+              <option value="birthday">Birthday</option>
+              <option value="holiday">Holiday</option>
+              <option value="milestone">Big milestone</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Voice vibe</label>
+            <div class="inline-row">
+              <div class="pill-radio">
+                <input
+                  type="radio"
+                  name="kidVoice"
+                  id="kidVoiceBoy"
+                  value="boy"
+                  checked
+                />
+                <label for="kidVoiceBoy"><span>👦</span> Boy / male</label>
+              </div>
+              <div class="pill-radio">
+                <input
+                  type="radio"
+                  name="kidVoice"
+                  id="kidVoiceGirl"
+                  value="girl"
+                />
+                <label for="kidVoiceGirl"><span>👧</span> Girl / female</label>
+              </div>
+              <div class="pill-radio">
+                <input
+                  type="radio"
+                  name="kidVoice"
+                  id="kidVoiceChild"
+                  value="childlike"
+                />
+                <label for="kidVoiceChild"><span>🧸</span> Child-like</label>
+              </div>
+              <div class="pill-radio">
+                <input
+                  type="radio"
+                  name="kidVoice"
+                  id="kidVoiceSurprise"
+                  value="surprise"
+                />
+                <label for="kidVoiceSurprise"><span>🎲</span> Surprise me</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button id="generateKidBtn" class="btn-primary">
+            <span>🎵</span> Generate kids song
+          </button>
+          <div class="status-text" id="kidStatus">Idle – no song generated yet.</div>
+        </div>
+      </div>
+
+      <!-- Adult / Special Occasion Form -->
+      <div id="adult-form" class="form-section hidden">
+        <div class="form-title-row">
+          <div>
+            <div class="form-title">Adult / special occasion song</div>
+            <div class="form-subtitle">
+              Perfect for birthdays, anniversaries, roasts, and ridiculous inside
+              jokes.
+            </div>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="field">
+            <label for="adultName">Who is this for?</label>
+            <input
+              id="adultName"
+              type="text"
+              placeholder="Jess, Uncle Mike, Mom..."
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field">
+            <label for="adultRelationship">Relationship</label>
+            <input
+              id="adultRelationship"
+              type="text"
+              placeholder="Friend, partner, dad, coworker..."
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field">
+            <label for="adultOccasion">Occasion</label>
+            <input
+              id="adultOccasion"
+              type="text"
+              placeholder="40th birthday, wedding toast, promotion, breakup anthem..."
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field">
+            <label>Vibe &amp; genre</label>
+            <div class="inline-row">
+              <!-- Funny / roast FIRST and default -->
+              <div class="pill-radio">
+                <input
+                  type="radio"
+                  name="adultVibe"
+                  id="adultVibeFunny"
+                  value="funny"
+                  checked
+                />
+                <label for="adultVibeFunny"><span>🤣</span> Funny / roast</label>
+              </div>
+              <div class="pill-radio">
+                <input
+                  type="radio"
+                  name="adultVibe"
+                  id="adultVibeHappy"
+                  value="happy"
+                />
+                <label for="adultVibeHappy"><span>😊</span> Happy</label>
+              </div>
+              <div class="pill-radio">
+                <input
+                  type="radio"
+                  name="adultVibe"
+                  id="adultVibeEmotional"
+                  value="emotional"
+                />
+                <label for="adultVibeEmotional"><span>💖</span> Emotional</label>
+              </div>
+              <div class="pill-radio">
+                <input
+                  type="radio"
+                  name="adultVibe"
+                  id="adultVibeHype"
+                  value="hype"
+                />
+                <label for="adultVibeHype"><span>🔥</span> Hype</label>
+              </div>
+            </div>
+            <div class="inline-row">
+              <select id="adultGenre">
+                <option value="pop">Pop</option>
+                <option value="rock">Rock</option>
+                <option value="country">Country</option>
+                <option value="reggae">Reggae</option>
+                <option value="metal">Metal</option>
+                <option value="punk">Punk</option>
+                <option value="edm">EDM</option>
+                <option value="ballad">Ballad</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Voice</label>
+            <div class="inline-row">
+              <div class="pill-radio">
+                <input
+                  type="radio"
+                  name="adultVoice"
+                  id="adultVoiceMale"
+                  value="male"
+                  checked
+                />
+                <label for="adultVoiceMale"><span>🎙️</span> Male</label>
+              </div>
+              <div class="pill-radio">
+                <input
+                  type="radio"
+                  name="adultVoice"
+                  id="adultVoiceFemale"
+                  value="female"
+                />
+                <label for="adultVoiceFemale"><span>🎤</span> Female</label>
+              </div>
+              <div class="pill-radio">
+                <input
+                  type="radio"
+                  name="adultVoice"
+                  id="adultVoiceSurprise"
+                  value="surprise"
+                />
+                <label for="adultVoiceSurprise"><span>🎲</span> Surprise me</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="adultDetails">Anything we should mention?</label>
+            <textarea
+              id="adultDetails"
+              placeholder="Inside jokes, hobbies, favorite bar, how you met, etc."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button id="generateAdultBtn" class="btn-primary">
+            <span>✨</span> Generate adult song
+          </button>
+          <div class="status-text" id="adultStatus">
+            Idle – no song generated yet.
+          </div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="result-section">
+        <div class="result-header">
+          <h3>
+            <span>📝</span> Lyrics preview
+          </h3>
+          <div class="result-badge" id="resultBadge">Waiting for a song…</div>
+        </div>
+
+        <div id="lyricsBox" class="lyrics-box">
+          <div class="lyrics-placeholder">
+            Your lyrics will appear here after Shoutout Song finishes writing the song.
+          </div>
+        </div>
+
+        <div class="audio-row">
+          <div class="audio-meta">
+            <div>
+              <strong>Your song preview</strong>
+              <span id="audioMetaNote">– not generated yet</span>
+            </div>
+          </div>
+
+          <div class="audio-controls">
+            <!-- Loader overlay now ONLY over audio + buttons -->
+            <div id="loaderOverlay" class="loader-overlay hidden">
+              <div class="loader-header">
+                <span>📣</span>
+                <div>Producing your shoutout…</div>
+              </div>
+              <div class="loader-subtext">
+                Writing, singing, and mixing your track. This usually takes 30–60 seconds.
+              </div>
+              <div class="loader-bar-outer">
+                <div class="loader-bar-inner"></div>
+              </div>
+              <div class="loader-tip">
+                <span>💿</span>
+                <span>Your preview will appear here as soon as it’s ready.</span>
+              </div>
+            </div>
+
+            <audio id="audioPlayer" class="audio-player hidden" controls></audio>
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:4px;">
+              <button id="previewBtn" class="btn-secondary" disabled>
+                ▶ Preview shoutout (15s)
+              </button>
+              <button id="buyBtn" class="btn-cta" disabled>
+                💿 Buy full-quality version ($4.99)
+              </button>
+            </div>
+
+          
+          </div>
+        </div>
+
+        <div class="early-access">
+          Love this song? <b>Shoutout Song</b> will soon let you buy individual songs,
+          packs, and gift codes for friends. For now, enjoy <b>unlimited test runs</b>
+          while we dial in the magic. 📣✨
+        </div>
+      </div>
+    </div>
+  </div>
+
+ 
+ <script>
+const API_BASE = "http://127.0.0.1:8000";
+const PRICE_CENTS = 499;
+
+// Tabs & forms
+const tabKid = document.getElementById("tab-kid");
+const tabAdult = document.getElementById("tab-adult");
+const kidForm = document.getElementById("kid-form");
+const adultForm = document.getElementById("adult-form");
+
+// Status / results
+const kidStatus = document.getElementById("kidStatus");
+const adultStatus = document.getElementById("adultStatus");
+const resultBadge = document.getElementById("resultBadge");
+const lyricsBox = document.getElementById("lyricsBox");
+
+// Audio / preview
+const audioPlayer = document.getElementById("audioPlayer");
+const audioMetaNote = document.getElementById("audioMetaNote");
+const previewBtn = document.getElementById("previewBtn");
+const buyBtn = document.getElementById("buyBtn");
+
+// Loader
+const loaderOverlay = document.getElementById("loaderOverlay");
+
+// Generate buttons
+const generateKidBtn = document.getElementById("generateKidBtn");
+const generateAdultBtn = document.getElementById("generateAdultBtn");
+
+// State
+let currentTaskId = null;
+let currentMode = "kid";
+let pollTimer = null;
+let currentAudioUrl = null;
+let previewStartTime = 15;
+let previewTimer = null;
+let hasUnlockedFullSong = false;
+
+let kidSavedState = {
+  lyrics: null,
+  audioUrl: null,
+  previewStart: 15,
+  ready: false,
+};
+
+let adultSavedState = {
+  lyrics: null,
+  audioUrl: null,
+  previewStart: 15,
+  ready: false,
+};
+
+// -----------------------------
+// Tab switching 
+// -----------------------------
+function setTab(mode) {
+  currentMode = mode;
+
+  if (mode === "kid") {
+    tabKid.classList.add("active");
+    tabAdult.classList.remove("active");
+    kidForm.classList.remove("hidden");
+    adultForm.classList.add("hidden");
+
+    restoreState(kidSavedState);
+  } else {
+    tabAdult.classList.add("active");
+    tabKid.classList.remove("active");
+    adultForm.classList.remove("hidden");
+    kidForm.classList.add("hidden");
+
+    restoreState(adultSavedState);
+  }
+}
+
+tabKid.addEventListener("click", () => setTab("kid"));
+tabAdult.addEventListener("click", () => setTab("adult"));
+
+// -----------------------------
+// Reset for NEW song generation
+// -----------------------------
+function resetResults() {
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
+
+  if (previewTimer) {
+    clearTimeout(previewTimer);
+    previewTimer = null;
+  }
+
+  currentTaskId = null;
+  currentAudioUrl = null;
+  previewStartTime = 15;
+  hasUnlockedFullSong = false;
+
+  lyricsBox.innerHTML =
+    '<div class="lyrics-placeholder">Your lyrics will appear here after Shoutout Song finishes writing the song.</div>';
+
+  audioPlayer.classList.add("hidden");
+  audioPlayer.src = "";
+  previewBtn.disabled = true;
+  buyBtn.disabled = true;
+
+  audioMetaNote.textContent = "– not generated yet";
+  resultBadge.textContent = "Waiting for a song…";
+  resultBadge.classList.remove("ready");
+
+  hideLoader();
+}
+
+// -----------------------------
+// Restore tab-specific state
+// -----------------------------
+function restoreState(state) {
+  if (!state.ready) {
+    // Empty-state display (no resetResults here!)
+    lyricsBox.innerHTML =
+      '<div class="lyrics-placeholder">Your lyrics will appear here after Shoutout Song finishes writing the song.</div>';
+
+    audioPlayer.classList.add("hidden");
+    audioPlayer.src = "";
+    previewBtn.disabled = true;
+    buyBtn.disabled = true;
+
+    resultBadge.textContent = "Waiting for a song…";
+    resultBadge.classList.remove("ready");
+    audioMetaNote.textContent = "– not generated yet";
+
+    return;
+  }
+
+  // Restore lyrics
+  lyricsBox.textContent = state.lyrics;
+
+  // Restore audio
+  if (state.audioUrl) {
+    audioPlayer.src = state.audioUrl;
+    audioPlayer.classList.remove("hidden");
+    previewBtn.disabled = false;
+    buyBtn.disabled = false;
+  }
+
+  previewStartTime = state.previewStart || 15;
+
+  resultBadge.textContent = "Song ready";
+  resultBadge.classList.add("ready");
+  audioMetaNote.textContent = "– preview your 15-second snippet";
+}
+
+// -----------------------------
+// Helpers
+// -----------------------------
+function getSelectedRadio(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : null;
+}
+
+function setStatus(mode, message, kind = "info") {
+  const el = mode === "kid" ? kidStatus : adultStatus;
+  el.textContent = message;
+  el.classList.remove("success", "error");
+  if (kind === "success") el.classList.add("success");
+  if (kind === "error") el.classList.add("error");
+}
+
+function setLyrics(text) {
+  lyricsBox.innerHTML = "";
+  const pre = document.createElement("div");
+  pre.textContent = text;
+  pre.style.whiteSpace = "pre-wrap";
+  lyricsBox.appendChild(pre);
+}
+
+function showLoader() {
+  loaderOverlay.classList.remove("hidden");
+}
+
+function hideLoader() {
+  loaderOverlay.classList.add("hidden");
+}
+
+function mapKidVoice(value) {
+  if (value === "boy") return "male";
+  if (value === "girl") return "female";
+  if (value === "childlike") return "child";
+  return "any";
+}
+
+function mapAdultVibe(value) {
+  switch (value) {
+    case "happy":
+      return "fun";
+    case "emotional":
+      return "heartfelt";
+    case "funny":
+      return "silly";
+    case "hype":
+      return "epic";
+    default:
+      return "fun";
+  }
+}
+
+function mapAdultVoice(value) {
+  if (value === "male") return "male";
+  if (value === "female") return "female";
+  return "any";
+}
+
+function extractPreviewTimeFromChoices(choices) {
+  try {
+    if (!Array.isArray(choices) || !choices.length) return null;
+    const first = choices[0];
+    const sections = first.lyrics_sections;
+    if (!Array.isArray(sections)) return null;
+    const chorusSection = sections.find(
+      (s) => s.section_type && s.section_type.toLowerCase() === "chorus"
+    );
+    if (chorusSection && typeof chorusSection.start === "number") {
+      return chorusSection.start / 1000;
+    }
+  } catch (e) {
+    console.warn("Could not derive chorus start:", e);
+  }
+  return null;
+}
+
+async function safeJson(res) {
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+// -----------------------------
+// Polling
+// -----------------------------
+function startPolling(taskId) {
+  if (pollTimer) clearInterval(pollTimer);
+
+  pollTimer = setInterval(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/song-status/${taskId}`);
+      const data = await res.json();
+
+      if (!data || !data.status) return;
+
+      if (data.status === "running" || data.status === "preparing") {
+        return;
+      }
+
+      if (data.status === "failed" || data.status === "error") {
+        clearInterval(pollTimer);
+        pollTimer = null;
+        hideLoader();
+        setStatus(currentMode, data.error || "Song generation failed.", "error");
+        resultBadge.textContent = "Generation failed";
+        audioMetaNote.textContent = "– failed to generate";
+        return;
+      }
+
+      if (data.status === "succeeded") {
+        clearInterval(pollTimer);
+        pollTimer = null;
+        hideLoader();
+
+        let url = null;
+        if (Array.isArray(data.choices) && data.choices.length > 0) {
+          url = data.choices[0].url || data.choices[0].audio_url;
+          const chorusTime = extractPreviewTimeFromChoices(data.choices);
+          if (chorusTime) {
+            previewStartTime = Math.max(chorusTime - 2, 0);
+          }
+        }
+        if (!url && data.result) {
+          url = data.result.audio_url || data.result.url;
+        }
+
+        if (!url) {
+          setStatus(currentMode, "Song finished but no audio URL.", "error");
+          resultBadge.textContent = "No audio URL";
+          audioMetaNote.textContent = "– finished, but no URL";
+          return;
+        }
+
+        currentAudioUrl = url;
+
+        // Save mode-specific state
+        if (currentMode === "kid") {
+          kidSavedState = {
+            lyrics: lyricsBox.innerText,
+            audioUrl: url,
+            previewStart: previewStartTime,
+            ready: true,
+          };
+        } else {
+          adultSavedState = {
+            lyrics: lyricsBox.innerText,
+            audioUrl: url,
+            previewStart: previewStartTime,
+            ready: true,
+          };
+        }
+
+        audioPlayer.src = url;
+        audioPlayer.classList.remove("hidden");
+        previewBtn.disabled = false;
+        buyBtn.disabled = false;
+
+        setStatus(currentMode, "🔥 Your shout-out anthem is hot off the mic!", "success");
+        resultBadge.textContent = "Song ready";
+        resultBadge.classList.add("ready");
+        audioMetaNote.textContent = "– preview your 15-second snippet";
+      }
+    } catch (err) {
+      console.error("Polling error:", err);
+    }
+  }, 2000);
+}
+
+// -----------------------------
+// Generate kids song
+// -----------------------------
+async function generateKidSong() {
+  resetResults();
+
+  const name = document.getElementById("kidName").value.trim();
+  const love = document.getElementById("kidLove").value.trim();
+  const occasion = document.getElementById("kidOccasion").value;
+  const voiceRaw = getSelectedRadio("kidVoice");
+
+  if (!name || !love) {
+    setStatus("kid", "Please enter a name and what they love.", "error");
+    return;
+  }
+
+  setStatus("kid", "Writing lyrics and sending to the studio…");
+  resultBadge.textContent = "Generating…";
+
+  const payload = {
+    child_name: name,
+    theme: love,
+    occasion: occasion,
+    vibe: "sunny_kids",
+    voice_type: mapKidVoice(voiceRaw),
+    duration_seconds: 60,
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/generate-kid-song`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await safeJson(res);
+      const msg =
+        (err && (err.detail || err.error || err.message)) ||
+        `Backend error (${res.status})`;
+      setStatus("kid", msg, "error");
+      resultBadge.textContent = "Error generating";
+      return;
+    }
+
+    const data = await res.json();
+    currentTaskId = data.task_id;
+    setLyrics(data.lyrics);
+
+    setStatus("kid", "Lyrics ready – generating music…");
+    resultBadge.textContent = "Music generating…";
+    audioMetaNote.textContent = "– generating… your shoutout is in the studio";
+    showLoader();
+
+    if (currentTaskId) startPolling(currentTaskId);
+  } catch (err) {
+    console.error(err);
+    setStatus("kid", "Network error talking to the backend.", "error");
+    resultBadge.textContent = "Network error";
+  }
+}
+
+// -----------------------------
+// Generate adult song
+// -----------------------------
+async function generateAdultSong() {
+  resetResults();
+
+  const name = document.getElementById("adultName").value.trim();
+  const relationship =
+    document.getElementById("adultRelationship").value.trim() || "friend";
+  const occasion =
+    document.getElementById("adultOccasion").value.trim() ||
+    "special occasion";
+  const vibeRaw = getSelectedRadio("adultVibe");
+  const genre = document.getElementById("adultGenre").value;
+  const voiceRaw = getSelectedRadio("adultVoice");
+  const extra = document.getElementById("adultDetails").value.trim();
+
+  if (!name) {
+    setStatus("adult", "Please tell us who the song is for.", "error");
+    return;
+  }
+
+  setStatus("adult", "Writing lyrics and sending to the studio…");
+  resultBadge.textContent = "Generating…";
+
+  const payload = {
+    recipient_name: name,
+    relationship,
+    occasion,
+    story_or_details: extra || "No extra notes.",
+    genre,
+    vibe: mapAdultVibe(vibeRaw),
+    voice_type: mapAdultVoice(voiceRaw),
+    duration_seconds: 75,
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/generate-adult-song`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await safeJson(res);
+      const msg =
+        (err && (err.detail || err.error || err.message)) ||
+        `Backend error (${res.status})`;
+      setStatus("adult", msg, "error");
+      resultBadge.textContent = "Error generating";
+      return;
+    }
+
+    const data = await res.json();
+    currentTaskId = data.task_id;
+    setLyrics(data.lyrics);
+
+    setStatus("adult", "Lyrics ready – generating music…");
+    resultBadge.textContent = "Music generating…";
+    audioMetaNote.textContent = "– generating… your shoutout is in the studio";
+    showLoader();
+
+    if (currentTaskId) startPolling(currentTaskId);
+  } catch (err) {
+    console.error(err);
+    setStatus("adult", "Network error talking to backend.", "error");
+    resultBadge.textContent = "Network error";
+  }
+}
+
+// -----------------------------
+// Preview button (15 seconds)
+// -----------------------------
+previewBtn.addEventListener("click", () => {
+  if (!currentAudioUrl) return;
+
+  if (previewTimer) {
+    clearTimeout(previewTimer);
+    previewTimer = null;
+  }
+
+  try {
+    audioPlayer.currentTime = previewStartTime || 15;
+  } catch {}
+
+  audioPlayer.play().catch(console.error);
+
+  previewTimer = setTimeout(() => {
+    audioPlayer.pause();
+  }, 15000);
+});
+
+// Hard gate playback unless unlocked
+audioPlayer.addEventListener("timeupdate", () => {
+  if (!currentAudioUrl || hasUnlockedFullSong) return;
+
+  const start = previewStartTime || 15;
+  const end = start + 15;
+
+  if (audioPlayer.currentTime < start - 0.1) {
+    audioPlayer.currentTime = start;
+  } else if (audioPlayer.currentTime > end + 0.1) {
+    audioPlayer.pause();
+    audioPlayer.currentTime = end;
+  }
+});
+
+// -----------------------------
+// Buy button
+// -----------------------------
+buyBtn.addEventListener("click", async () => {
+  if (!currentTaskId || !currentAudioUrl) {
+    alert("Generate a song first so we know what you’re buying!");
+    return;
+  }
+
+  buyBtn.disabled = true;
+  buyBtn.textContent = "Unlocking…";
+
+  try {
+    await fetch(`${API_BASE}/create-checkout-session`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        song_id: currentTaskId,
+        price_cents: PRICE_CENTS,
+      }),
+    });
+
+    hasUnlockedFullSong = true;
+    alert("Full song unlocked for testing! 🎉");
+    buyBtn.textContent = "Full song unlocked ✅";
+  } catch (err) {
+    console.error(err);
+    alert("Checkout not fully wired yet — enjoy free previews!");
+    buyBtn.textContent = "💿 Buy full-quality version ($4.99)";
+  } finally {
+    buyBtn.disabled = hasUnlockedFullSong;
+  }
+});
+
+// -----------------------------
+// Wire up generate buttons
+// -----------------------------
+generateKidBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  generateKidSong();
+});
+
+generateAdultBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  generateAdultSong();
+});
+
+// -----------------------------
+// Default tab
+// -----------------------------
+setTab("kid");
+
+</script>
+
+
+</body>
+</html>
