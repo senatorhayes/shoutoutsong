@@ -17,7 +17,7 @@ app = FastAPI(title="Shoutout Song API 🎵")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # safe for now, same-origin later if desired
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -81,7 +81,7 @@ def generate_kid_song(req: KidSongRequest):
 
         style_prompt = (
             f"Song for {req.child_name}. Theme: {req.theme}. "
-            f"Occasion: {req.occasion}. Fun, playful kids music."
+            f"Occasion: {req.occasion}. Bright, playful kids music."
         )
 
         task_id = start_song_generation(
@@ -153,24 +153,19 @@ def song_status(task_id: str):
 
 
 # -------------------------------------------------------------------
-# STRIPE CHECKOUT (TEST MODE, SAFE FALLBACK)
+# STRIPE CHECKOUT (REAL – TEST MODE)
 # -------------------------------------------------------------------
 @app.post("/create-checkout-session")
 async def create_checkout_session(request: Request):
     """
-    Creates a Stripe Checkout Session (TEST MODE).
-    Falls back to mock checkout if Stripe is not configured.
+    Creates a real Stripe Checkout Session (TEST MODE).
+    Frontend must redirect the browser to the returned URL.
     """
+    if not STRIPE_SECRET_KEY or not STRIPE_PRICE_ID:
+        raise HTTPException(status_code=500, detail="Stripe not configured")
+
     body = await request.json()
     song_id = body.get("song_id", "unknown")
-
-    # Safe fallback (local dev / missing env vars)
-    if not STRIPE_SECRET_KEY or not STRIPE_PRICE_ID:
-        return {
-            "checkout_url": "https://checkout.stripe.com/pay/mock_session",
-            "mode": "mock",
-            "message": "Stripe not configured — mock checkout used.",
-        }
 
     session = stripe.checkout.Session.create(
         mode="payment",
@@ -180,12 +175,13 @@ async def create_checkout_session(request: Request):
                 "quantity": 1,
             }
         ],
-        success_url=f"https://shoutoutsong.com/success?song_id={song_id}",
+        success_url="https://shoutoutsong.com/success",
         cancel_url="https://shoutoutsong.com/cancel",
-        metadata={"song_id": song_id},
+        metadata={
+            "song_id": song_id,
+        },
     )
 
     return {
-        "checkout_url": session.url,
-        "mode": "stripe_test",
+        "checkout_url": session.url
     }
