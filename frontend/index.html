@@ -1662,21 +1662,20 @@ audioPlayer.addEventListener("timeupdate", () => {
     audioPlayer.currentTime = end;
   }
 });
-
 // -----------------------------
-// Buy button
+// Buy button → Stripe Checkout
 // -----------------------------
 buyBtn.addEventListener("click", async () => {
-  if (!currentTaskId || !currentAudioUrl) {
-    alert("Generate a song first so we know what you’re buying!");
+  if (!currentTaskId) {
+    alert("Generate a song first.");
     return;
   }
 
   buyBtn.disabled = true;
-  buyBtn.textContent = "Unlocking…";
+  buyBtn.textContent = "Redirecting to checkout…";
 
   try {
-    await fetch(`${API_BASE}/create-checkout-session`, {
+    const res = await fetch(`${API_BASE}/create-checkout-session`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1685,17 +1684,23 @@ buyBtn.addEventListener("click", async () => {
       }),
     });
 
-    hasUnlockedFullSong = true;
-    alert("Full song unlocked for testing! 🎉");
-    buyBtn.textContent = "Full song unlocked ✅";
+    const data = await res.json();
+
+    if (!data.checkout_url) {
+      throw new Error("No checkout URL returned");
+    }
+
+    // 🚀 THIS IS THE KEY LINE — SEND USER TO STRIPE
+    window.location.href = data.checkout_url;
+
   } catch (err) {
-    console.error(err);
-    alert("Checkout not fully wired yet — enjoy free previews!");
+    console.error("Stripe checkout error:", err);
+    alert("Checkout failed. Please try again.");
+    buyBtn.disabled = false;
     buyBtn.textContent = "💿 Buy full-quality version ($4.99)";
-  } finally {
-    buyBtn.disabled = hasUnlockedFullSong;
   }
 });
+
 
 // -----------------------------
 // Wire up generate buttons
