@@ -1,20 +1,20 @@
 # main.py
 import os
-from fastapi import FastAPI, HTTPException
+
+import stripe
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from lyrics_ai import generate_kid_lyrics, generate_adult_lyrics
 from mureka_api import start_song_generation, query_song_status
 
 
-app = FastAPI(title="Songprinter API 🎵")
-
-
 # -------------------------------------------------------------------
-# CORS – allow local dev
+# APP SETUP
 # -------------------------------------------------------------------
+app = FastAPI(title="Shoutout Song API 🎵")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -25,7 +25,17 @@ app.add_middleware(
 
 
 # -------------------------------------------------------------------
-# Request Models
+# STRIPE CONFIG
+# -------------------------------------------------------------------
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_PRICE_ID = os.getenv("STRIPE_PRICE_ID")
+
+if STRIPE_SECRET_KEY:
+    stripe.api_key = STRIPE_SECRET_KEY
+
+
+# -------------------------------------------------------------------
+# REQUEST MODELS
 # -------------------------------------------------------------------
 class KidSongRequest(BaseModel):
     child_name: str
@@ -52,7 +62,7 @@ class AdultSongRequest(BaseModel):
 # -------------------------------------------------------------------
 @app.get("/")
 def root():
-    return {"message": "Songprinter backend is running 🎵"}
+    return {"message": "Shoutout Song backend is running 🎵"}
 
 
 # -------------------------------------------------------------------
@@ -69,40 +79,9 @@ def generate_kid_song(req: KidSongRequest):
             voice_type=req.voice_type,
         )
 
-        style_bits = []
-
-        if req.vibe == "sunny_kids":
-            style_bits.append(
-                "bright, playful kids music with catchy melodies and fun energy"
-            )
-        elif req.vibe == "lullaby":
-            style_bits.append(
-                "gentle lullaby with soft instrumentation and soothing vocals"
-            )
-        elif req.vibe == "pop_kids":
-            style_bits.append(
-                "modern kid-friendly pop with a hooky chorus and bounce"
-            )
-        elif req.vibe == "party_kids":
-            style_bits.append(
-                "upbeat energetic kids party track with exciting builds"
-            )
-        else:
-            style_bits.append("fun melodic kids music")
-
-        vt = req.voice_type.lower()
-        if vt == "male":
-            style_bits.append("natural-sounding male vocal")
-        elif vt == "female":
-            style_bits.append("natural-sounding female vocal")
-        elif vt == "child":
-            style_bits.append("natural child-like expressive vocal")
-        else:
-            style_bits.append("natural expressive vocal")
-
         style_prompt = (
-            f"Song for {req.child_name}. Theme: {req.theme}. Occasion: {req.occasion}. "
-            + " ".join(style_bits)
+            f"Song for {req.child_name}. Theme: {req.theme}. "
+            f"Occasion: {req.occasion}. Fun, playful kids music."
         )
 
         task_id = start_song_generation(
@@ -124,7 +103,7 @@ def generate_kid_song(req: KidSongRequest):
 
 
 # -------------------------------------------------------------------
-# ADULT / SPECIAL OCCASION SONG GENERATION
+# ADULT SONG GENERATION
 # -------------------------------------------------------------------
 @app.post("/generate-adult-song")
 def generate_adult_song(req: AdultSongRequest):
@@ -139,35 +118,9 @@ def generate_adult_song(req: AdultSongRequest):
             voice_type=req.voice_type,
         )
 
-        style_bits = []
-
-        if req.vibe == "fun":
-            style_bits.append("fun upbeat production with a catchy chorus")
-        elif req.vibe == "heartfelt":
-            style_bits.append("emotional heartfelt arrangement")
-        elif req.vibe == "epic":
-            style_bits.append("big cinematic anthemic production")
-        elif req.vibe == "silly":
-            style_bits.append("playful comedic timing")
-        elif req.vibe == "romantic":
-            style_bits.append("romantic intimate melodic")
-        else:
-            style_bits.append("modern engaging production")
-
-        style_bits.append(f"genre: {req.genre}")
-
-        vt = req.voice_type.lower()
-        if vt == "male":
-            style_bits.append("natural-sounding male vocal")
-        elif vt == "female":
-            style_bits.append("natural-sounding female vocal")
-        else:
-            style_bits.append("natural expressive vocal")
-
         style_prompt = (
             f"Song for {req.recipient_name} ({req.relationship}). "
-            f"Occasion: {req.occasion}. Include provided details. "
-            + " ".join(style_bits)
+            f"Occasion: {req.occasion}. Genre: {req.genre}. Vibe: {req.vibe}."
         )
 
         task_id = start_song_generation(
@@ -197,33 +150,42 @@ def song_status(task_id: str):
         return query_song_status(task_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-        
-        # -------------------------------------------------------------------
-# MOCK CHECKOUT (Temporary until real Stripe account is connected)
+
+
 # -------------------------------------------------------------------
-
-from fastapi import Request
-
+# STRIPE CHECKOUT (TEST MODE, SAFE FALLBACK)
+# -------------------------------------------------------------------
 @app.post("/create-checkout-session")
 async def create_checkout_session(request: Request):
     """
-    Fake checkout session so the frontend flow works
-    even before Stripe is activated.
-    No payments are processed.
+    Creates a Stripe Checkout Session (TEST MODE).
+    Falls back to mock checkout if Stripe is not configured.
     """
     body = await request.json()
     song_id = body.get("song_id", "unknown")
-    price_cents = body.get("price_cents", 499)  # default $4.99
 
-    # Generate a fake Stripe-style URL
-    fake_url = (
-        "https://checkout.stripe.com/pay/"
-        f"mock_session_{song_id}_{price_cents}"
+    # Safe fallback (local dev / missing env vars)
+    if not STRIPE_SECRET_KEY or not STRIPE_PRICE_ID:
+        return {
+            "checkout_url": "https://checkout.stripe.com/pay/mock_session",
+            "mode": "mock",
+            "message": "Stripe not configured — mock checkout used.",
+        }
+
+    session = stripe.checkout.Session.create(
+        mode="payment",
+        line_items=[
+            {
+                "price": STRIPE_PRICE_ID,
+                "quantity": 1,
+            }
+        ],
+        success_url=f"https://shoutoutsong.com/success?song_id={song_id}",
+        cancel_url="https://shoutoutsong.com/cancel",
+        metadata={"song_id": song_id},
     )
 
     return {
-        "checkout_url": fake_url,
-        "mode": "mock",
-        "message": "Mock checkout active — no real payments are being processed."
+        "checkout_url": session.url,
+        "mode": "stripe_test",
     }
-
