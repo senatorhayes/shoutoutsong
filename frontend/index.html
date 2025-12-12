@@ -1675,23 +1675,23 @@ buyBtn.addEventListener("click", async () => {
   buyBtn.textContent = "Redirecting to checkout…";
 
   try {
-    const res = await fetch(`${API_BASE}/create-checkout-session`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        song_id: currentTaskId,
-      }),
-    });
+    const res = await fetch(
+      "https://shoutoutsong.onrender.com/create-checkout-session",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          song_id: currentTaskId,
+        }),
+      }
+    );
 
     if (!res.ok) throw new Error("Checkout failed");
 
     const data = await res.json();
+    if (!data.checkout_url) throw new Error("No checkout URL returned");
 
-    if (!data.checkout_url) {
-      throw new Error("No checkout URL returned");
-    }
-
-    // 🚀 REAL STRIPE REDIRECT
+    // 🚀 REAL redirect to Stripe
     window.location.href = data.checkout_url;
 
   } catch (err) {
@@ -1701,6 +1701,7 @@ buyBtn.addEventListener("click", async () => {
     buyBtn.textContent = "💿 Buy full-quality version ($4.99)";
   }
 });
+
 
 // -----------------------------
 // Wire up generate buttons
