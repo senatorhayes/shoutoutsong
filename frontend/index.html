@@ -1666,8 +1666,8 @@ audioPlayer.addEventListener("timeupdate", () => {
 // Buy button → Stripe Checkout
 // -----------------------------
 buyBtn.addEventListener("click", async () => {
-  if (!currentTaskId) {
-    alert("Generate a song first.");
+  if (!currentTaskId || !currentAudioUrl) {
+    alert("Generate a song first so we know what you’re buying!");
     return;
   }
 
@@ -1679,8 +1679,7 @@ buyBtn.addEventListener("click", async () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        song_id: currentTaskId,
-        price_cents: PRICE_CENTS,
+        song_id: currentTaskId
       }),
     });
 
@@ -1690,16 +1689,17 @@ buyBtn.addEventListener("click", async () => {
       throw new Error("No checkout URL returned");
     }
 
-    // 🚀 THIS IS THE KEY LINE — SEND USER TO STRIPE
+    // 🚀 THIS IS THE IMPORTANT PART
     window.location.href = data.checkout_url;
 
   } catch (err) {
-    console.error("Stripe checkout error:", err);
+    console.error(err);
     alert("Checkout failed. Please try again.");
     buyBtn.disabled = false;
     buyBtn.textContent = "💿 Buy full-quality version ($4.99)";
   }
 });
+
 
 
 // -----------------------------
