@@ -188,10 +188,13 @@ async def create_checkout_session(request: Request):
     session = stripe.checkout.Session.create(
         mode="payment",
         line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
-        success_url="https://shoutoutsong.com/success",
-        cancel_url="https://shoutoutsong.com/cancel",
+         success_url=f"https://shoutoutsong.com/success?song_id={song_id}",
+		cancel_url="https://shoutoutsong.com/cancel",
+		client_reference_id=song_id,
         metadata={"song_id": song_id},
     )
+    
+   
 
     return {"checkout_url": session.url}
 
