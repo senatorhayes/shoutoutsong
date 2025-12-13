@@ -1,20 +1,239 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Payment successful</title>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
+  <title>Your Shoutout Song is Ready 🎉</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg: #0b0f1a;
+      --panel: #12182a;
+      --border: rgba(255,255,255,0.08);
+      --text: #e6e9f0;
+      --muted: #9aa3b2;
+      --accent: linear-gradient(135deg, #ff5fd8, #ffb86c);
+      --accent-solid: #ff7ac3;
+      --success: #3ddc97;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(1200px 600px at 20% -10%, #1a2140 0%, transparent 40%), var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 720px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(61,220,151,0.15);
+      color: var(--success);
+      border: 1px solid rgba(61,220,151,0.3);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 34px;
+      margin: 0 0 8px;
+      line-height: 1.2;
+    }
+
+    .sub {
+      color: var(--muted);
+      margin-bottom: 28px;
+      font-size: 16px;
+    }
+
+    .primary-actions {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      color: #000;
+      background: var(--accent);
+    }
+
+    .btn.secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 28px 0;
+    }
+
+    .next {
+      display: grid;
+      gap: 14px;
+    }
+
+    .small {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 18px;
+    }
+
+    .error {
+      color: #ff6b6b;
+      background: rgba(255,107,107,0.1);
+      border: 1px solid rgba(255,107,107,0.3);
+      padding: 16px;
+      border-radius: 12px;
+    }
+  </style>
 </head>
+
 <body>
+  <div class="container">
+    <div class="card">
+
+      <div class="badge">✔ Payment confirmed</div>
+
+      <h1>🎉 Your shoutout is ready!</h1>
+      <div class="sub">
+        Your full-quality song has been unlocked and is ready to download.
+      </div>
+
+      <div id="error" class="error" style="display:none;"></div>
+
+      <div class="primary-actions">
+        <a id="downloadBtn" class="btn" href="#" download style="display:none;">
+          ⬇ Download your full song (MP3)
+        </a>
+
+        <button id="playBtn" class="btn secondary" style="display:none;">
+          ▶ Play full song
+        </button>
+
+        <audio id="audio" controls></audio>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="next">
+        <a href="/" class="btn secondary">
+          🎁 Make another shoutout
+        </a>
+
+        <button class="btn secondary" onclick="shareSong()">
+          📤 Share this song
+        </button>
+      </div>
+
+      <div class="small">
+        Tip: Save this MP3 forever — it works on phones, cars, and party speakers.
+      </div>
+
+    </div>
+  </div>
+
   <script>
     const params = new URLSearchParams(window.location.search);
     const songId = params.get("song_id");
 
-    if (songId) {
-      localStorage.setItem("unlocked_song_id", songId);
+    const errorEl = document.getElementById("error");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const playBtn = document.getElementById("playBtn");
+    const audio = document.getElementById("audio");
+
+    if (!songId) {
+      errorEl.textContent = "Missing song ID. Please check your email or return home.";
+      errorEl.style.display = "block";
+      throw new Error("Missing song_id");
     }
 
-    // Send them back to the app
-    window.location.href = "/";
+    async function loadSong() {
+      try {
+        const res = await fetch(`/song-status/${songId}`);
+        if (!res.ok) throw new Error("Failed to fetch song");
+
+        const data = await res.json();
+
+        if (!data.audio_url) {
+          throw new Error("Song is not ready yet");
+        }
+
+        const url = data.audio_url;
+
+        downloadBtn.href = url;
+        downloadBtn.style.display = "flex";
+
+        audio.src = url;
+        playBtn.style.display = "flex";
+
+        playBtn.onclick = () => {
+          audio.style.display = "block";
+          audio.play();
+        };
+
+      } catch (err) {
+        errorEl.textContent = "Your song is still finishing up. Refresh in a moment.";
+        errorEl.style.display = "block";
+      }
+    }
+
+    function shareSong() {
+      if (navigator.share) {
+        navigator.share({
+          title: "My Shoutout Song 🎶",
+          text: "Check out this custom shoutout song!",
+          url: window.location.href
+        });
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert("Link copied to clipboard!");
+      }
+    }
+
+    loadSong();
   </script>
 </body>
 </html>
