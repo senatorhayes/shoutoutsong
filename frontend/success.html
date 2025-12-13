@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Payment successful</title>
+  <meta charset="utf-8" />
+</head>
+<body>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const songId = params.get("song_id");
+
+    if (songId) {
+      localStorage.setItem("unlocked_song_id", songId);
+    }
+
+    // Send them back to the app
+    window.location.href = "/";
+  </script>
+</body>
+</html>
