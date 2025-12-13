@@ -1,5 +1,7 @@
 # main.py
 import os
+import time
+import secrets
 
 import stripe
 from fastapi import FastAPI, HTTPException, Request
@@ -10,23 +12,40 @@ from lyrics_ai import generate_kid_lyrics, generate_adult_lyrics
 from mureka_api import start_song_generation, query_song_status
 
 
-# -------------------------------------------------------------------
+# =====================================================
+# TEMP SHARE STORE (ephemeral, safe for now)
+# =====================================================
+SHARE_STORE = {}  # token -> record
+SHARE_TTL_SECONDS = 60 * 60 * 24 * 7  # 7 days
+
+
+def _cleanup_share_store():
+    now = time.time()
+    expired = [
+        token for token, rec in SHARE_STORE.items()
+        if now - rec.get("created_at", now) > SHARE_TTL_SECONDS
+    ]
+    for token in expired:
+        del SHARE_STORE[token]
+
+
+# =====================================================
 # APP SETUP
-# -------------------------------------------------------------------
+# =====================================================
 app = FastAPI(title="Shoutout Song API 🎵")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # safe for now, same-origin later if desired
+    allow_origins=["*"],  # fine for now
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-# -------------------------------------------------------------------
+# =====================================================
 # STRIPE CONFIG
-# -------------------------------------------------------------------
+# =====================================================
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PRICE_ID = os.getenv("STRIPE_PRICE_ID")
 
@@ -34,9 +53,9 @@ if STRIPE_SECRET_KEY:
     stripe.api_key = STRIPE_SECRET_KEY
 
 
-# -------------------------------------------------------------------
+# =====================================================
 # REQUEST MODELS
-# -------------------------------------------------------------------
+# =====================================================
 class KidSongRequest(BaseModel):
     child_name: str
     theme: str
@@ -57,17 +76,23 @@ class AdultSongRequest(BaseModel):
     duration_seconds: int = Field(75, ge=30, le=240)
 
 
-# -------------------------------------------------------------------
+class CreateShareLinkRequest(BaseModel):
+    song_id: str
+    preview_url: str | None = None
+    title: str | None = None
+
+
+# =====================================================
 # HEALTH CHECK
-# -------------------------------------------------------------------
+# =====================================================
 @app.get("/")
 def root():
     return {"message": "Shoutout Song backend is running 🎵"}
 
 
-# -------------------------------------------------------------------
-# KIDS SONG GENERATION
-# -------------------------------------------------------------------
+# =====================================================
+# SONG GENERATION
+# =====================================================
 @app.post("/generate-kid-song")
 def generate_kid_song(req: KidSongRequest):
     try:
@@ -102,9 +127,6 @@ def generate_kid_song(req: KidSongRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# -------------------------------------------------------------------
-# ADULT SONG GENERATION
-# -------------------------------------------------------------------
 @app.post("/generate-adult-song")
 def generate_adult_song(req: AdultSongRequest):
     try:
@@ -141,9 +163,9 @@ def generate_adult_song(req: AdultSongRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# -------------------------------------------------------------------
-# POLLING ENDPOINT
-# -------------------------------------------------------------------
+# =====================================================
+# POLLING
+# =====================================================
 @app.get("/song-status/{task_id}")
 def song_status(task_id: str):
     try:
@@ -152,15 +174,11 @@ def song_status(task_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# -------------------------------------------------------------------
-# STRIPE CHECKOUT (REAL – TEST MODE)
-# -------------------------------------------------------------------
+# =====================================================
+# STRIPE CHECKOUT
+# =====================================================
 @app.post("/create-checkout-session")
 async def create_checkout_session(request: Request):
-    """
-    Creates a real Stripe Checkout Session (TEST MODE).
-    Frontend must redirect the browser to the returned URL.
-    """
     if not STRIPE_SECRET_KEY or not STRIPE_PRICE_ID:
         raise HTTPException(status_code=500, detail="Stripe not configured")
 
@@ -169,19 +187,43 @@ async def create_checkout_session(request: Request):
 
     session = stripe.checkout.Session.create(
         mode="payment",
-        line_items=[
-            {
-                "price": STRIPE_PRICE_ID,
-                "quantity": 1,
-            }
-        ],
+        line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
         success_url="https://shoutoutsong.com/success",
         cancel_url="https://shoutoutsong.com/cancel",
-        metadata={
-            "song_id": song_id,
-        },
+        metadata={"song_id": song_id},
     )
 
-    return {
-        "checkout_url": session.url
+    return {"checkout_url": session.url}
+
+
+# =====================================================
+# SHARE LINKS (PREVIEW PAGE)
+# =====================================================
+@app.post("/create-share-link")
+def create_share_link(req: CreateShareLinkRequest):
+    _cleanup_share_store()
+
+    token = "s_" + secrets.token_urlsafe(24)
+
+    SHARE_STORE[token] = {
+        "song_id": req.song_id,
+        "preview_url": req.preview_url,
+        "title": req.title,
+        "created_at": time.time(),
     }
+
+    return {
+        "share_url": f"https://shoutoutsong.com/s/{token}",
+        "token": token,
+    }
+
+
+@app.get("/share/{token}")
+def get_share(token: str):
+    _cleanup_share_store()
+
+    rec = SHARE_STORE.get(token)
+    if not rec:
+        raise HTTPException(status_code=404, detail="Share link expired or invalid")
+
+    return rec
