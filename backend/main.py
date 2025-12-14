@@ -78,8 +78,9 @@ class AdultSongRequest(BaseModel):
 
 class CreateShareLinkRequest(BaseModel):
     song_id: str
-    preview_url: str | None = None
+    audio_url: str
     title: str | None = None
+    subtitle: str | None = None
 
 
 # =====================================================
@@ -198,25 +199,34 @@ async def create_checkout_session(request: Request):
 
     return {"checkout_url": session.url}
 
-
 # =====================================================
 # SHARE LINKS (PREVIEW PAGE)
 # =====================================================
+
+from fastapi.responses import HTMLResponse
+
+
 @app.post("/create-share-link")
 def create_share_link(req: CreateShareLinkRequest):
     _cleanup_share_store()
 
-    token = "s_" + secrets.token_urlsafe(24)
+    token = secrets.token_urlsafe(16)
 
     SHARE_STORE[token] = {
         "song_id": req.song_id,
-        "preview_url": req.preview_url,
-        "title": req.title,
+        "audio_url": req.audio_url,   # FULL song (Mureka hosted)
+        "title": req.title or "A Shoutout Song 🎵",
+        "subtitle": req.subtitle or "Made on Shoutout Song",
         "created_at": time.time(),
     }
 
     return {
+        # Canonical share URL (used by social platforms)
         "share_url": f"https://shoutoutsong.com/s/{token}",
+
+        # Human viewer page
+        "viewer_url": f"https://shoutoutsong.com/share.html?t={token}",
+
         "token": token,
     }
 
@@ -230,3 +240,80 @@ def get_share(token: str):
         raise HTTPException(status_code=404, detail="Share link expired or invalid")
 
     return rec
+
+
+@app.get("/s/{token}", response_class=HTMLResponse)
+def share_unfurl(token: str):
+    _cleanup_share_store()
+
+    rec = SHARE_STORE.get(token)
+    if not rec:
+        return HTMLResponse("Link expired", status_code=404)
+
+    title = rec["title"]
+    subtitle = rec["subtitle"]
+    image = "https://shoutoutsong.com/assets/share-default.png"  # placeholder
+    viewer = f"https://shoutoutsong.com/share.html?t={token}"
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{title}</title>
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="music.song" />
+  <meta property="og:title" content="{title}" />
+  <meta property="og:description" content="{subtitle}" />
+  <meta property="og:image" content="{image}" />
+  <meta property="og:url" content="https://shoutoutsong.com/s/{token}" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Redirect humans -->
+  <meta http-equiv="refresh" content="0; url={viewer}" />
+</head>
+<body>
+  <script>
+    window.location.replace("{viewer}");
+  </script>
+</body>
+</html>
+"""
+    return HTMLResponse(html)
+
+# -------------------------------------------------------------------
+# AUDIO ACCESS
+# -------------------------------------------------------------------
+
+@app.get("/preview-audio/{task_id}")
+def preview_audio(task_id: str):
+    """
+    Returns a SHORT preview URL (handled by Mureka).
+    This is safe to expose before purchase.
+    """
+    result = query_song_status(task_id)
+
+    preview_url = result.get("preview_url")
+    if not preview_url:
+        raise HTTPException(status_code=404, detail="Preview not ready")
+
+    return {"url": preview_url}
+
+
+@app.get("/full-audio/{task_id}")
+def full_audio(task_id: str):
+    """
+    Returns FULL audio URL.
+    Should only be called AFTER successful payment.
+    """
+    # TODO later: verify Stripe session or receipt
+    result = query_song_status(task_id)
+
+    full_url = result.get("audio_url")
+    if not full_url:
+        raise HTTPException(status_code=404, detail="Audio not ready")
+
+    return {"url": full_url}
+

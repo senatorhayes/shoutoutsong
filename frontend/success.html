@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Your Shoutout Is Ready 🎉</title>
+  <title>Your Shoutout Song Is Ready 🎉</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
@@ -33,7 +33,7 @@
     }
 
     h1 {
-      margin: 0 0 8px;
+      margin: 0 0 10px;
       font-size: 2.2rem;
     }
 
@@ -67,6 +67,12 @@
       color: #fff;
     }
 
+    audio {
+      width: 100%;
+      margin-top: 18px;
+      display: none;
+    }
+
     .share {
       margin-top: 36px;
       padding-top: 24px;
@@ -77,128 +83,76 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 12px;
-      margin-top: 14px;
+      margin-top: 16px;
     }
 
     .share-btn {
-      padding: 12px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.07);
       color: #fff;
-      text-align: center;
+      border: none;
+      font-weight: 600;
       cursor: pointer;
-      font-weight: 500;
     }
 
-    .footer-tip {
-      margin-top: 28px;
-      font-size: 0.9rem;
-      color: #8b92ff;
-      text-align: center;
+    .share-btn:hover {
+      background: rgba(255,255,255,0.12);
     }
-    
-    .share-buttons {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.share-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 14px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.07);
-  color: #fff;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.share-btn img {
-  width: 18px;
-  height: 18px;
-}
-
-.share-btn:hover {
-  background: rgba(255,255,255,0.12);
-}
-
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <div class="badge">✓ Payment confirmed</div>
+<div class="card">
+  <div class="badge">✓ Payment confirmed</div>
 
-    <h1>🎉 Your shoutout is ready!</h1>
-    <p>Your full-quality song is unlocked and ready to enjoy.</p>
+  <h1>🎉 Your shoutout song is ready!</h1>
+  <p>Your full-quality song has been unlocked and is ready to enjoy.</p>
 
-    <div class="actions">
-      <button class="btn primary" id="downloadBtn">⬇️ Download your song (MP3)</button>
-      <button class="btn secondary" id="playBtn">▶️ Play now</button>
+  <div class="actions">
+    <button class="btn primary" id="downloadBtn">⬇️ Download your song (MP3)</button>
+    <button class="btn secondary" id="playBtn">▶️ Play now</button>
+  </div>
+
+  <audio id="audioPlayer" controls controlsList="nodownload"></audio>
+
+  <div class="share">
+    <h2>📣 Share the surprise</h2>
+    <p>
+      Send it to the person it’s for — or post it and tag them.
+      Friends can hear the full song.
+    </p>
+
+    <div class="share-buttons">
+      <button class="share-btn" onclick="copyForInstagram()">Instagram</button>
+      <button class="share-btn" onclick="copyForTikTok()">TikTok</button>
+      <button class="share-btn" onclick="shareFacebook()">Facebook</button>
+      <button class="share-btn" onclick="shareX()">X</button>
+      <button class="share-btn" onclick="copyLink()">🔗 Copy link</button>
     </div>
+  </div>
 
-    <audio id="audioPlayer" controls style="width:100%; display:none;"></audio>
-
-    <div class="share">
-  <h2>📣 Share the surprise</h2>
-  <p>Send it to the person it’s for — or show friends what you made.</p>
-
-  <div class="share-buttons">
-
-    <!-- Instagram -->
-    <button class="share-btn ig" onclick="copyForInstagram()">
-      <img src="/icons/instagram.svg" alt="Instagram" />
-      Instagram
+  <div class="actions">
+    <button class="btn secondary" onclick="window.location.href='/'">
+      🎁 Make another shoutout
     </button>
-
-    <!-- TikTok -->
-    <button class="share-btn tiktok" onclick="copyForTikTok()">
-      <img src="/icons/tiktok.svg" alt="TikTok" />
-      TikTok
-    </button>
-
-    <!-- Facebook -->
-    <button class="share-btn fb" onclick="shareFacebook()">
-      <img src="/icons/facebook.svg" alt="Facebook" />
-      Facebook
-    </button>
-
-    <!-- X -->
-    <button class="share-btn x" onclick="shareX()">
-      <img src="/icons/x.svg" alt="X" />
-      X
-    </button>
-
-    <!-- Copy -->
-    <button class="share-btn copy" onclick="copyLink()">
-      🔗 Copy link
-    </button>
-
   </div>
 </div>
-
-
-    <div class="actions">
-      <button class="btn secondary" onclick="window.location.href='/'">
-        🎁 Make another shoutout
-      </button>
-    </div>
-
-   
-  </div>
 
 <script>
   const params = new URLSearchParams(window.location.search);
   const songId = params.get("song_id");
 
-  const audioUrl = songId
-    ? `/api/song-file/${songId}` // placeholder — we’ll wire this
-    : null;
+  if (!songId) {
+    alert("Missing song ID. Please check your email or return home.");
+  }
+
+  // Full song endpoint (temporary – backed by Mureka)
+  const audioUrl = songId ? `/api/song-file/${songId}` : null;
 
   const audio = document.getElementById("audioPlayer");
 
@@ -216,7 +170,10 @@
     audio.play();
   };
 
-   const shareUrl = window.location.href;
+  // Public share page (NOT success page)
+  const shareUrl = songId
+    ? `${window.location.origin}/share?song_id=${songId}`
+    : window.location.origin;
 
   function copyLink() {
     navigator.clipboard.writeText(shareUrl);
@@ -242,12 +199,10 @@
 
   function shareX() {
     window.open(
-      `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=Check%20out%20this%20custom%20shoutout%20song!`,
+      `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=I%20made%20a%20custom%20shoutout%20song%20🎵`,
       "_blank"
     );
   }
-
-
 </script>
 
 </body>

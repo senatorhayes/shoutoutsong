@@ -1146,7 +1146,14 @@
               </div>
             </div>
 
-            <audio id="audioPlayer" class="audio-player hidden" controls></audio>
+            <audio
+			  id="audioPlayer"
+			  class="audio-player hidden"
+			  controls
+			  controlsList="nodownload noplaybackrate"
+			  disableRemotePlayback
+			></audio>
+
 
             <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:4px;">
               <button id="previewBtn" class="btn-secondary" disabled>
