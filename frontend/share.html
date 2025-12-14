@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Your Shoutout Song 🎉</title>
+
+  <!-- Social previews -->
+  <meta property="og:title" content="A custom Shoutout Song 🎉" />
+  <meta property="og:description" content="Someone made a personalized shoutout song — listen now!" />
+  <meta property="og:type" content="music.song" />
+  <meta property="og:url" content="https://shoutoutsong.com/share" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(1200px 600px at top, #1a2238, #0b0f1a);
+      color: #fff;
+    }
+
+    .card {
+      max-width: 720px;
+      margin: 80px auto;
+      padding: 48px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.04);
+      box-shadow: 0 20px 80px rgba(0,0,0,0.5);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(0,255,170,0.15);
+      color: #7dffd0;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 40px;
+      margin: 12px 0;
+    }
+
+    p.sub {
+      font-size: 18px;
+      color: #b7c0ff;
+      margin-bottom: 32px;
+    }
+
+    audio {
+      width: 100%;
+      margin: 24px 0 8px;
+    }
+
+    .cta {
+      display: block;
+      margin-top: 36px;
+      padding: 18px;
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+      border-radius: 16px;
+      text-decoration: none;
+      color: #000;
+      background: linear-gradient(90deg, #ff9a3c, #ff4d6d);
+    }
+
+    .share-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+
+    .share-btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .share-btn:hover {
+      background: rgba(255,255,255,0.12);
+    }
+
+    .note {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #9aa3ff;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <div class="badge">🎉 Shoutout Song</div>
+
+    <h1 id="songTitle">Your shoutout song</h1>
+    <p class="sub" id="songSubtitle">A personalized surprise</p>
+
+    <!-- FULL SONG PLAYER (NO DOWNLOAD CONTROL) -->
+    <audio id="audioPlayer" controls controlsList="nodownload" preload="metadata"></audio>
+
+    <a href="/" class="cta">🎁 Make your own shoutout song</a>
+
+    <div class="share-row">
+      <div class="share-btn" onclick="shareNative()">📲 Share</div>
+      <div class="share-btn" onclick="copyLink()">🔗 Copy link</div>
+      <div class="share-btn" onclick="shareFacebook()">📘 Facebook</div>
+      <div class="share-btn" onclick="shareX()">🐦 X</div>
+    </div>
+
+    <div class="note">
+      Tip: You can also upload the MP3 to Instagram or TikTok and tag the person it’s for.
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const songId = params.get("song_id");
+
+    if (!songId) {
+      document.body.innerHTML = "<p style='color:red;text-align:center'>Missing song.</p>";
+      throw new Error("Missing song_id");
+    }
+
+    // TODO: replace with real API call
+    const mock = {
+      title: "Ella Loves Dinosaurs 🦖",
+      subtitle: "A custom shoutout song",
+      full_audio_url: "FULL_AUDIO_URL_HERE"
+    };
+
+    document.getElementById("songTitle").textContent = mock.title;
+    document.getElementById("songSubtitle").textContent = mock.subtitle;
+    document.getElementById("audioPlayer").src = mock.full_audio_url;
+
+    function copyLink() {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Link copied!");
+    }
+
+    function shareNative() {
+      if (navigator.share) {
+        navigator.share({
+          title: document.title,
+          url: window.location.href
+        });
+      } else {
+        copyLink();
+      }
+    }
+
+    function shareFacebook() {
+      window.open(
+        "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(window.location.href),
+        "_blank"
+      );
+    }
+
+    function shareX() {
+      window.open(
+        "https://twitter.com/intent/tweet?url=" + encodeURIComponent(window.location.href),
+        "_blank"
+      );
+    }
+  </script>
+</body>
+</html>
