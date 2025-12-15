@@ -32,6 +32,22 @@
       margin-bottom: 16px;
     }
 
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2.2rem;
+    }
+
+    p {
+      color: #b9c0ff;
+      line-height: 1.5;
+    }
+
+    .actions {
+      margin: 28px 0;
+      display: grid;
+      gap: 14px;
+    }
+
     .btn {
       padding: 16px;
       font-size: 1.05rem;
@@ -57,6 +73,19 @@
       display: none;
     }
 
+    .share {
+      margin-top: 36px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .share-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
     .share-btn {
       padding: 14px;
       border-radius: 14px;
@@ -66,79 +95,108 @@
       font-weight: 600;
       cursor: pointer;
     }
+
+    .share-btn:hover {
+      background: rgba(255,255,255,0.12);
+    }
   </style>
 </head>
-
 <body>
+
 <div class="card">
   <div class="badge">✓ Payment confirmed</div>
 
   <h1>🎉 Your shoutout song is ready!</h1>
-  <p>Your full-quality song has been unlocked.</p>
+  <p>Your full-quality song has been unlocked and is ready to enjoy.</p>
 
-  <button class="btn primary" id="downloadBtn">⬇️ Download MP3</button>
-  <button class="btn secondary" id="playBtn">▶️ Play now</button>
+  <div class="actions">
+    <button class="btn primary" id="downloadBtn">⬇️ Download your song (MP3)</button>
+    <button class="btn secondary" id="playBtn">▶️ Play now</button>
+  </div>
 
-  <audio id="audioPlayer" controls></audio>
+  <audio id="audioPlayer" controls controlsList="nodownload"></audio>
 
-  <h2>📣 Share the surprise</h2>
+  <div class="share">
+    <h2>📣 Share the surprise</h2>
+    <p>
+      Send it to the person it’s for — or post it and tag them.
+      Friends can hear the full song.
+    </p>
 
-  <button class="share-btn" onclick="copyLink()">🔗 Copy share link</button>
-  <button class="share-btn" onclick="copyForInstagram()">Instagram</button>
-  <button class="share-btn" onclick="copyForTikTok()">TikTok</button>
-  <button class="share-btn" onclick="shareFacebook()">Facebook</button>
-  <button class="share-btn" onclick="shareX()">X</button>
+    <div class="share-buttons">
+      <button class="share-btn" onclick="copyLink()">🔗 Copy link</button>
+      <button class="share-btn" onclick="shareFacebook()">Facebook</button>
+      <button class="share-btn" onclick="shareX()">X</button>
+    </div>
+  </div>
 
-  <p style="margin-top:12px;color:#9aa3ff">
-    Tip: Download the MP3, upload it to Instagram or TikTok, and tag the person it’s for 🎉
-  </p>
+  <div class="actions">
+    <button class="btn secondary" onclick="window.location.href='/'">
+      🎁 Make another shoutout
+    </button>
+  </div>
 </div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-const songId = params.get("song_id");
+  const params = new URLSearchParams(window.location.search);
+  const songId = params.get("song_id");
 
-const fullAudioUrl = `/full-audio/${songId}`;
-const audio = document.getElementById("audioPlayer");
+  if (!songId) {
+    alert("Missing song ID.");
+  }
 
-document.getElementById("playBtn").onclick = () => {
-  audio.src = fullAudioUrl;
-  audio.style.display = "block";
-  audio.play();
-};
+  const fullAudioUrl = `/full-audio/${songId}`;
+  const audioPlayer = document.getElementById("audioPlayer");
+  const playBtn = document.getElementById("playBtn");
+  const downloadBtn = document.getElementById("downloadBtn");
 
-document.getElementById("downloadBtn").onclick = () => {
-  window.location.href = fullAudioUrl;
-};
+  // ---- Play ----
+  playBtn.onclick = () => {
+    audioPlayer.src = fullAudioUrl;
+    audioPlayer.style.display = "block";
+    audioPlayer.play();
+  };
 
-let shareUrl = null;
+  // ---- Download ----
+  downloadBtn.onclick = () => {
+    window.location.href = fullAudioUrl;
+  };
 
-fetch("/create-share-link", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ song_id: songId })
-})
-.then(res => res.json())
-.then(data => shareUrl = data.share_url);
+  // ---- Create share link ----
+  let shareUrl = null;
 
-function copyLink() {
-  navigator.clipboard.writeText(shareUrl);
-  alert("Link copied!");
-}
-function copyForInstagram() {
-  copyLink();
-  alert("Paste this into Instagram (story, bio, or DM).");
-}
-function copyForTikTok() {
-  copyLink();
-  alert("Paste this into your TikTok caption or bio.");
-}
-function shareFacebook() {
-  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`);
-}
-function shareX() {
-  window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=I%20made%20a%20custom%20shoutout%20song%20🎵`);
-}
+  fetch("/create-share-link", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ song_id: songId })
+  })
+    .then(res => res.json())
+    .then(data => {
+      shareUrl = data.share_url;
+    });
+
+  function copyLink() {
+    if (!shareUrl) return alert("Share link still loading…");
+    navigator.clipboard.writeText(shareUrl);
+    alert("Link copied!");
+  }
+
+  function shareFacebook() {
+    if (!shareUrl) return;
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+      "_blank"
+    );
+  }
+
+  function shareX() {
+    if (!shareUrl) return;
+    window.open(
+      `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=I%20made%20a%20custom%20shoutout%20song%20🎵`,
+      "_blank"
+    );
+  }
 </script>
+
 </body>
 </html>
