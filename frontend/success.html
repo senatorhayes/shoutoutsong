@@ -125,6 +125,9 @@
 </div>
 
 <script>
+  // Backend API URL
+  const API_BASE = "https://shoutoutsong.onrender.com";
+  
   const params = new URLSearchParams(window.location.search);
   const songId = params.get("song_id");
 
@@ -133,7 +136,7 @@
   }
 
   // 🚀 FULL AUDIO URL IS INSTANT
-  const fullAudioUrl = `/full-audio/${songId}`;
+  const fullAudioUrl = `${API_BASE}/full-audio/${songId}`;
   const audio = document.getElementById("audioPlayer");
 
   document.getElementById("playBtn").onclick = () => {
@@ -149,13 +152,14 @@
   // 🔗 Share link (created in background)
   let shareUrl = null;
 
-  fetch("/create-share-link", {
+  fetch(`${API_BASE}/create-share-link`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ song_id: songId })
   })
     .then(res => res.json())
-    .then(data => { shareUrl = data.share_url; });
+    .then(data => { shareUrl = data.share_url; })
+    .catch(err => console.error("Share link error:", err));
 
   function copyLink() {
     if (!shareUrl) return alert("Share link still generating, try again in a second.");

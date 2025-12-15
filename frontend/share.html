@@ -159,16 +159,9 @@
         document.getElementById("songSubtitle").textContent =
           share.subtitle || "Made with Shoutout Song";
 
-        // 2️⃣ Resolve FULL audio from backend
-        const audioRes = await fetch(
-          `${API_BASE}/full-audio/${share.song_id}`
-        );
-        if (!audioRes.ok) throw new Error("Audio unavailable");
-
-        const audioData = await audioRes.json();
-
+        // 2️⃣ Use audio_url directly from share data (not from separate endpoint)
         const audio = document.getElementById("audioPlayer");
-        audio.src = audioData.url;
+        audio.src = share.audio_url;
         audio.load();
 
       } catch (err) {

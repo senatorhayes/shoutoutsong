@@ -79,7 +79,7 @@ class CreateShareLinkRequest(BaseModel):
 # =====================================================
 @app.get("/")
 def root():
-    return {"status": "ok"}
+    return {"status": "ok", "message": "Shoutout Song API"}
 
 
 @app.head("/")
@@ -203,6 +203,7 @@ def create_share_link(req: CreateShareLinkRequest):
     token = secrets.token_urlsafe(16)
 
     SHARE_STORE[token] = {
+        "song_id": req.song_id,
         "audio_url": audio_url,
         "title": req.title or "A Shoutout Song 🎵",
         "subtitle": "Made with Shoutout Song",

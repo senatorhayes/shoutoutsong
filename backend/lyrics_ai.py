@@ -100,7 +100,7 @@ Chorus:
 Do NOT use markdown formatting like **bold** or bullet points.
 """
     response = client.chat.completions.create(
-        model="gpt-4.1-mini",
+        model="gpt-4o-mini",  # Fixed: was "gpt-4.1-mini"
         messages=[
             {
                 "role": "system",
@@ -207,7 +207,7 @@ Do NOT use markdown formatting like **bold** or bullet points.
 """
 
     response = client.chat.completions.create(
-        model="gpt-4.1-mini",
+        model="gpt-4o-mini",  # Fixed: was "gpt-4.1-mini"
         messages=[
             {
                 "role": "system",
