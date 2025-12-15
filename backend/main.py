@@ -48,9 +48,10 @@ app.add_middleware(
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PRICE_ID = os.getenv("STRIPE_PRICE_ID")
 
-if STRIPE_SECRET_KEY:
-    stripe.api_key = STRIPE_SECRET_KEY
+if not STRIPE_SECRET_KEY or not STRIPE_PRICE_ID:
+    print("⚠️ Stripe is NOT configured")
 
+stripe.api_key = STRIPE_SECRET_KEY
 
 # =====================================================
 # MODELS
@@ -74,11 +75,16 @@ class CreateShareLinkRequest(BaseModel):
 
 
 # =====================================================
-# HEALTH
+# HEALTH (GET + HEAD)
 # =====================================================
 @app.get("/")
 def root():
     return {"status": "ok"}
+
+
+@app.head("/")
+def head_root():
+    return
 
 
 # =====================================================
@@ -122,6 +128,35 @@ def generate_adult_song(req: AdultSongRequest):
 @app.get("/song-status/{task_id}")
 def song_status(task_id: str):
     return query_song_status(task_id)
+
+
+# =====================================================
+# STRIPE CHECKOUT (🔥 THIS WAS MISSING)
+# =====================================================
+@app.post("/create-checkout-session")
+async def create_checkout_session(request: Request):
+    if not STRIPE_SECRET_KEY or not STRIPE_PRICE_ID:
+        raise HTTPException(status_code=500, detail="Stripe not configured")
+
+    body = await request.json() or {}
+    song_id = body.get("song_id")
+
+    if not song_id:
+        raise HTTPException(status_code=400, detail="Missing song_id")
+
+    try:
+        session = stripe.checkout.Session.create(
+            mode="payment",
+            line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
+            success_url=f"https://shoutoutsong.com/success?song_id={song_id}",
+            cancel_url="https://shoutoutsong.com/cancel",
+            client_reference_id=song_id,
+            metadata={"song_id": song_id},
+        )
+        return {"checkout_url": session.url}
+    except Exception as e:
+        print("Stripe error:", e)
+        raise HTTPException(status_code=500, detail="Stripe checkout failed")
 
 
 # =====================================================
