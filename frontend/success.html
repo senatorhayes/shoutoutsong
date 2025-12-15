@@ -87,10 +87,6 @@
     }
 
     .share-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
       padding: 14px;
       border-radius: 14px;
       background: rgba(255,255,255,0.07);
@@ -128,11 +124,9 @@
     </p>
 
     <div class="share-buttons">
-      <button class="share-btn" onclick="copyForInstagram()">Instagram</button>
-      <button class="share-btn" onclick="copyForTikTok()">TikTok</button>
+      <button class="share-btn" onclick="copyLink()">🔗 Copy link</button>
       <button class="share-btn" onclick="shareFacebook()">Facebook</button>
       <button class="share-btn" onclick="shareX()">X</button>
-      <button class="share-btn" onclick="copyLink()">🔗 Copy link</button>
     </div>
   </div>
 
@@ -142,67 +136,82 @@
     </button>
   </div>
 </div>
-
 <script>
-  const params = new URLSearchParams(window.location.search);
-  const songId = params.get("song_id");
+const API_BASE = "https://shoutoutsong.onrender.com";
 
-  if (!songId) {
-    alert("Missing song ID. Please check your email or return home.");
-  }
+const params = new URLSearchParams(window.location.search);
+const songId = params.get("song_id");
 
-  // Full song endpoint (temporary – backed by Mureka)
-  const audioUrl = songId ? `/api/song-file/${songId}` : null;
+if (!songId) alert("Missing song ID.");
 
-  const audio = document.getElementById("audioPlayer");
+const audioPlayer = document.getElementById("audioPlayer");
 
-  if (audioUrl) {
-    audio.src = audioUrl;
-  }
+let murekaFullMp3Url = null;
+let shareUrl = null;
 
-  document.getElementById("downloadBtn").onclick = () => {
-    if (!audioUrl) return alert("Missing song link.");
-    window.location.href = audioUrl;
-  };
+// ---- Load FULL audio from backend (JSON -> {url}) ----
+fetch(`${API_BASE}/full-audio/${songId}`)
+  .then(res => res.json())
+  .then(data => {
+    murekaFullMp3Url = data.url;
+    audioPlayer.src = murekaFullMp3Url;
+  })
+  .catch(() => alert("Could not load audio. Try again in a moment."));
 
-  document.getElementById("playBtn").onclick = () => {
-    audio.style.display = "block";
-    audio.play();
-  };
+// ---- Play ----
+document.getElementById("playBtn").onclick = () => {
+  if (!murekaFullMp3Url) return alert("Audio still loading…");
+  audioPlayer.style.display = "block";
+  audioPlayer.play();
+};
 
-  // Public share page (NOT success page)
-  const shareUrl = songId
-    ? `${window.location.origin}/share?song_id=${songId}`
-    : window.location.origin;
+// ---- Download (redirect to the real MP3 URL) ----
+document.getElementById("downloadBtn").onclick = () => {
+  if (!murekaFullMp3Url) return alert("Audio still loading…");
+  window.location.href = murekaFullMp3Url;
+};
 
-  function copyLink() {
-    navigator.clipboard.writeText(shareUrl);
-    alert("Link copied!");
-  }
+// ---- Create share link (backend) ----
+// IMPORTANT: your backend currently REQUIRES audio_url in CreateShareLinkRequest.
+// Either you update backend to make audio_url optional, OR pass it here once loaded.
+function createShareLinkIfReady() {
+  if (!murekaFullMp3Url || shareUrl) return;
 
-  function copyForInstagram() {
-    navigator.clipboard.writeText(shareUrl);
-    alert("Link copied! Paste it into an Instagram story or DM.");
-  }
+  fetch(`${API_BASE}/create-share-link`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      song_id: songId,
+      audio_url: murekaFullMp3Url,
+      title: "A Shoutout Song 🎵",
+      subtitle: "Made on Shoutout Song"
+    })
+  })
+    .then(res => res.json())
+    .then(data => { shareUrl = data.share_url; })
+    .catch(() => console.log("Share link creation failed"));
+}
 
-  function copyForTikTok() {
-    navigator.clipboard.writeText(shareUrl);
-    alert("Link copied! Paste it into your TikTok caption or bio.");
-  }
+// try once immediately + again after audio loads
+createShareLinkIfReady();
+setInterval(createShareLinkIfReady, 500);
 
-  function shareFacebook() {
-    window.open(
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-      "_blank"
-    );
-  }
+// ---- Sharing helpers ----
+function copyLink() {
+  if (!shareUrl) return alert("Share link still loading…");
+  navigator.clipboard.writeText(shareUrl);
+  alert("Link copied!");
+}
 
-  function shareX() {
-    window.open(
-      `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=I%20made%20a%20custom%20shoutout%20song%20🎵`,
-      "_blank"
-    );
-  }
+function shareFacebook() {
+  if (!shareUrl) return alert("Share link still loading…");
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, "_blank");
+}
+
+function shareX() {
+  if (!shareUrl) return alert("Share link still loading…");
+  window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=I%20made%20a%20custom%20shoutout%20song%20🎵`, "_blank");
+}
 </script>
 
 </body>

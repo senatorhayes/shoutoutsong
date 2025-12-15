@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Your Shoutout Song 🎉</title>
+  <title>Shoutout Song 🎉</title>
 
-  <!-- Social previews (used by /s/{token}, not this page directly) -->
-  <meta property="og:title" content="A custom Shoutout Song 🎉" />
-  <meta property="og:description" content="Someone made a personalized shoutout song — listen now!" />
-  <meta property="og:type" content="music.song" />
-  <meta property="og:url" content="https://shoutoutsong.com/share.html" />
+  <!-- NOTE:
+       Social previews are handled by /s/{token}
+       This page is JS-driven and NOT scraped
+  -->
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -136,13 +135,11 @@
     const API_BASE = "https://shoutoutsong.onrender.com";
 
     function getToken() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get("t");
+      return new URLSearchParams(window.location.search).get("t");
     }
 
     async function loadSharedSong() {
       const token = getToken();
-
       if (!token) {
         document.body.innerHTML =
           "<p style='color:red;text-align:center'>Invalid share link.</p>";
@@ -150,20 +147,28 @@
       }
 
       try {
-        const res = await fetch(`${API_BASE}/share/${token}`);
-        if (!res.ok) throw new Error("Share expired");
+        // 1️⃣ Load share metadata
+        const shareRes = await fetch(`${API_BASE}/share/${token}`);
+        if (!shareRes.ok) throw new Error("Expired");
 
-        const data = await res.json();
+        const share = await shareRes.json();
 
-        // Populate UI
         document.getElementById("songTitle").textContent =
-          data.title || "A Shoutout Song 🎵";
+          share.title || "A Shoutout Song 🎵";
 
         document.getElementById("songSubtitle").textContent =
-          data.subtitle || "Made with Shoutout Song";
+          share.subtitle || "Made with Shoutout Song";
+
+        // 2️⃣ Resolve FULL audio from backend
+        const audioRes = await fetch(
+          `${API_BASE}/full-audio/${share.song_id}`
+        );
+        if (!audioRes.ok) throw new Error("Audio unavailable");
+
+        const audioData = await audioRes.json();
 
         const audio = document.getElementById("audioPlayer");
-        audio.src = data.audio_url;
+        audio.src = audioData.url;
         audio.load();
 
       } catch (err) {
@@ -182,7 +187,7 @@
       if (navigator.share) {
         navigator.share({
           title: document.title,
-          url: window.location.href,
+          url: window.location.href
         });
       } else {
         copyLink();
