@@ -23,7 +23,8 @@ SHARE_TTL_SECONDS = 60 * 60 * 24 * 7  # 7 days
 def _cleanup_share_store():
     now = time.time()
     expired = [
-        token for token, rec in SHARE_STORE.items()
+        token
+        for token, rec in SHARE_STORE.items()
         if now - rec.get("created_at", now) > SHARE_TTL_SECONDS
     ]
     for token in expired:
@@ -234,8 +235,8 @@ def create_share_link(req: CreateShareLinkRequest):
     SHARE_STORE[token] = {
         "song_id": req.song_id,
         "audio_url": audio_url,
-        "title": req.title or "A Shoutout Song 🎉",
-        "subtitle": "Made on Shoutout Song",
+        "title": req.title or "A custom shoutout song 🎵",
+        "subtitle": "Made with Shoutout Song",
         "created_at": time.time(),
     }
 
@@ -270,12 +271,20 @@ def share_unfurl(token: str):
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8" />
+  <title>{rec['title']}</title>
+
+  <!-- Open Graph -->
   <meta property="og:type" content="music.song" />
   <meta property="og:title" content="{rec['title']}" />
   <meta property="og:description" content="{rec['subtitle']}" />
   <meta property="og:image" content="https://shoutoutsong.com/assets/share-default.png" />
   <meta property="og:url" content="https://shoutoutsong.com/s/{token}" />
+
+  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Redirect humans -->
   <meta http-equiv="refresh" content="0; url={viewer}" />
 </head>
 <body>
