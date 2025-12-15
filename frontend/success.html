@@ -101,8 +101,8 @@
     }
   </style>
 </head>
-<body>
 
+<body>
 <div class="card">
   <div class="badge">✓ Payment confirmed</div>
 
@@ -138,43 +138,83 @@
 </div>
 
 <script>
+  // -----------------------------
+  // CONFIG
+  // -----------------------------
+  const API_BASE = "https://shoutoutsong.onrender.com";
+
   const params = new URLSearchParams(window.location.search);
   const songId = params.get("song_id");
 
   if (!songId) {
     alert("Missing song ID.");
+    throw new Error("Missing song_id");
   }
 
-  const fullAudioUrl = `/full-audio/${songId}`;
   const audioPlayer = document.getElementById("audioPlayer");
   const playBtn = document.getElementById("playBtn");
   const downloadBtn = document.getElementById("downloadBtn");
 
-  // ---- Play ----
+  let fullAudioUrl = null;
+  let shareUrl = null;
+
+  // -----------------------------
+  // LOAD FULL AUDIO URL
+  // -----------------------------
+  fetch(`${API_BASE}/full-audio/${songId}`)
+    .then(res => {
+      if (!res.ok) throw new Error("Audio not ready");
+      return res.url; // redirect URL
+    })
+    .then(url => {
+      fullAudioUrl = url;
+      audioPlayer.src = fullAudioUrl;
+      createShareLink();
+    })
+    .catch(() => {
+      alert("Audio is still processing. Please refresh in a moment.");
+    });
+
+  // -----------------------------
+  // PLAY
+  // -----------------------------
   playBtn.onclick = () => {
-    audioPlayer.src = fullAudioUrl;
+    if (!fullAudioUrl) return alert("Audio still loading…");
     audioPlayer.style.display = "block";
     audioPlayer.play();
   };
 
-  // ---- Download ----
+  // -----------------------------
+  // DOWNLOAD
+  // -----------------------------
   downloadBtn.onclick = () => {
+    if (!fullAudioUrl) return alert("Audio still loading…");
     window.location.href = fullAudioUrl;
   };
 
-  // ---- Create share link ----
-  let shareUrl = null;
+  // -----------------------------
+  // CREATE SHARE LINK
+  // -----------------------------
+  function createShareLink() {
+    if (shareUrl) return;
 
-  fetch("/create-share-link", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ song_id: songId })
-  })
-    .then(res => res.json())
-    .then(data => {
-      shareUrl = data.share_url;
-    });
+    fetch(`${API_BASE}/create-share-link`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ song_id: songId })
+    })
+      .then(res => res.json())
+      .then(data => {
+        shareUrl = data.share_url;
+      })
+      .catch(() => {
+        console.log("Share link creation failed");
+      });
+  }
 
+  // -----------------------------
+  // SHARE HELPERS
+  // -----------------------------
   function copyLink() {
     if (!shareUrl) return alert("Share link still loading…");
     navigator.clipboard.writeText(shareUrl);
@@ -182,7 +222,7 @@
   }
 
   function shareFacebook() {
-    if (!shareUrl) return;
+    if (!shareUrl) return alert("Share link still loading…");
     window.open(
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
       "_blank"
@@ -190,13 +230,12 @@
   }
 
   function shareX() {
-    if (!shareUrl) return;
+    if (!shareUrl) return alert("Share link still loading…");
     window.open(
       `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=I%20made%20a%20custom%20shoutout%20song%20🎵`,
       "_blank"
     );
   }
 </script>
-
 </body>
 </html>
