@@ -1,3 +1,4 @@
+# main.py
 import os
 import time
 import secrets
@@ -14,9 +15,9 @@ from mureka_api import start_song_generation, query_song_status
 
 
 # =====================================================
-# TEMP SHARE STORE (ephemeral, safe for now)
+# TEMP SHARE STORE (ephemeral)
 # =====================================================
-SHARE_STORE = {}  # token -> record
+SHARE_STORE = {}
 SHARE_TTL_SECONDS = 60 * 60 * 24 * 7  # 7 days
 
 
@@ -38,7 +39,7 @@ app = FastAPI(title="Shoutout Song API 🎵")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # OK for now
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -219,7 +220,7 @@ def full_audio(task_id: str):
     safe_title = re.sub(
         r"[^a-z0-9\-]+",
         "",
-        title.lower().replace(" ", "-"),
+        title.lower().replace(" ", "-")
     )
 
     response = RedirectResponse(audio_url)
@@ -230,7 +231,7 @@ def full_audio(task_id: str):
 
 
 # =====================================================
-# SHARE LINKS (TOKEN-BASED, FULL SONG)
+# SHARE LINKS (TOKEN-BASED)
 # =====================================================
 @app.post("/create-share-link")
 def create_share_link(req: CreateShareLinkRequest):
@@ -289,15 +290,12 @@ def share_unfurl(token: str):
 <head>
   <meta charset="utf-8" />
   <title>{rec['title']}</title>
-
   <meta property="og:type" content="music.song" />
   <meta property="og:title" content="{rec['title']}" />
   <meta property="og:description" content="{rec['subtitle']}" />
   <meta property="og:image" content="https://shoutoutsong.com/assets/share-default.png" />
   <meta property="og:url" content="https://shoutoutsong.com/s/{token}" />
-
   <meta name="twitter:card" content="summary_large_image" />
-
   <meta http-equiv="refresh" content="0; url={viewer}" />
 </head>
 <body>
