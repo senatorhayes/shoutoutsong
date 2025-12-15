@@ -1,16 +1,13 @@
-# main.py
 import os
 import time
 import secrets
- import re
+import re
 
 import stripe
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
-from fastapi.responses import RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel, Field
-
 
 from lyrics_ai import generate_kid_lyrics, generate_adult_lyrics
 from mureka_api import start_song_generation, query_song_status
@@ -213,21 +210,17 @@ def full_audio(task_id: str):
     if not audio_url:
         raise HTTPException(status_code=404, detail="Audio not ready")
 
-    # Friendly filename (safe fallback)
     title = (
-	    result.get("title")
-	    or result.get("prompt")
-	    or "my-shoutout-song"
-	)
+        result.get("title")
+        or result.get("prompt")
+        or "my-shoutout-song"
+    )
 
-   
-
-safe_title = re.sub(
-    r"[^a-z0-9\-]+",
-    "",
-    title.lower().replace(" ", "-")
-)
-
+    safe_title = re.sub(
+        r"[^a-z0-9\-]+",
+        "",
+        title.lower().replace(" ", "-"),
+    )
 
     response = RedirectResponse(audio_url)
     response.headers["Content-Disposition"] = (
@@ -297,17 +290,14 @@ def share_unfurl(token: str):
   <meta charset="utf-8" />
   <title>{rec['title']}</title>
 
-  <!-- Open Graph -->
   <meta property="og:type" content="music.song" />
   <meta property="og:title" content="{rec['title']}" />
   <meta property="og:description" content="{rec['subtitle']}" />
   <meta property="og:image" content="https://shoutoutsong.com/assets/share-default.png" />
   <meta property="og:url" content="https://shoutoutsong.com/s/{token}" />
 
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
 
-  <!-- Redirect humans -->
   <meta http-equiv="refresh" content="0; url={viewer}" />
 </head>
 <body>
