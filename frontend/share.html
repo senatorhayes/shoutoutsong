@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <title>Your Shoutout Song 🎉</title>
 
-  <!-- Social previews -->
+  <!-- Social previews (used by /s/{token}, not this page directly) -->
   <meta property="og:title" content="A custom Shoutout Song 🎉" />
   <meta property="og:description" content="Someone made a personalized shoutout song — listen now!" />
   <meta property="og:type" content="music.song" />
-  <meta property="og:url" content="https://shoutoutsong.com/share" />
+  <meta property="og:url" content="https://shoutoutsong.com/share.html" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -85,6 +85,7 @@
       text-align: center;
       cursor: pointer;
       font-weight: 600;
+      user-select: none;
     }
 
     .share-btn:hover {
@@ -104,11 +105,17 @@
   <div class="card">
     <div class="badge">🎉 Shoutout Song</div>
 
-    <h1 id="songTitle">Your shoutout song</h1>
-    <p class="sub" id="songSubtitle">A personalized surprise</p>
+    <h1 id="songTitle">Loading song…</h1>
+    <p class="sub" id="songSubtitle">Please wait</p>
 
-    <!-- FULL SONG PLAYER (NO DOWNLOAD CONTROL) -->
-    <audio id="audioPlayer" controls controlsList="nodownload" preload="metadata"></audio>
+    <!-- FULL SONG PLAYER (no download) -->
+    <audio
+      id="audioPlayer"
+      controls
+      controlsList="nodownload noplaybackrate"
+      disableRemotePlayback
+      preload="metadata"
+    ></audio>
 
     <a href="/" class="cta">🎁 Make your own shoutout song</a>
 
@@ -120,29 +127,51 @@
     </div>
 
     <div class="note">
-      Tip: You can also upload the MP3 to Instagram or TikTok and tag the person it’s for.
+      Tip: For Instagram or TikTok, download the MP3, upload it as a Reel or video,
+      and tag the person it’s for 🎉
     </div>
   </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const songId = params.get("song_id");
+    const API_BASE = "https://shoutoutsong.onrender.com";
 
-    if (!songId) {
-      document.body.innerHTML = "<p style='color:red;text-align:center'>Missing song.</p>";
-      throw new Error("Missing song_id");
+    function getToken() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("t");
     }
 
-    // TODO: replace with real API call
-    const mock = {
-      title: "Ella Loves Dinosaurs 🦖",
-      subtitle: "A custom shoutout song",
-      full_audio_url: "FULL_AUDIO_URL_HERE"
-    };
+    async function loadSharedSong() {
+      const token = getToken();
 
-    document.getElementById("songTitle").textContent = mock.title;
-    document.getElementById("songSubtitle").textContent = mock.subtitle;
-    document.getElementById("audioPlayer").src = mock.full_audio_url;
+      if (!token) {
+        document.body.innerHTML =
+          "<p style='color:red;text-align:center'>Invalid share link.</p>";
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/share/${token}`);
+        if (!res.ok) throw new Error("Share expired");
+
+        const data = await res.json();
+
+        // Populate UI
+        document.getElementById("songTitle").textContent =
+          data.title || "A Shoutout Song 🎵";
+
+        document.getElementById("songSubtitle").textContent =
+          data.subtitle || "Made with Shoutout Song";
+
+        const audio = document.getElementById("audioPlayer");
+        audio.src = data.audio_url;
+        audio.load();
+
+      } catch (err) {
+        console.error(err);
+        document.body.innerHTML =
+          "<p style='color:red;text-align:center'>This share link has expired.</p>";
+      }
+    }
 
     function copyLink() {
       navigator.clipboard.writeText(window.location.href);
@@ -153,7 +182,7 @@
       if (navigator.share) {
         navigator.share({
           title: document.title,
-          url: window.location.href
+          url: window.location.href,
         });
       } else {
         copyLink();
@@ -162,17 +191,21 @@
 
     function shareFacebook() {
       window.open(
-        "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(window.location.href),
+        "https://www.facebook.com/sharer/sharer.php?u=" +
+          encodeURIComponent(window.location.href),
         "_blank"
       );
     }
 
     function shareX() {
       window.open(
-        "https://twitter.com/intent/tweet?url=" + encodeURIComponent(window.location.href),
+        "https://twitter.com/intent/tweet?url=" +
+          encodeURIComponent(window.location.href),
         "_blank"
       );
     }
+
+    loadSharedSong();
   </script>
 </body>
 </html>
