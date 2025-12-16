@@ -279,14 +279,33 @@ def get_share(token: str):
 
 @app.get("/s/{token}", response_class=HTMLResponse)
 def share_unfurl(token: str):
+    # Load share data to get name and subject
+    store = _load_share_store()
+    rec = store.get(token)
+    
+    # Default values if share not found
+    if rec:
+        recipient_name = rec.get("recipient_name", "someone special")
+        subject = rec.get("subject", "something special")
+        og_title = f"Shoutout Song - {recipient_name} and their love for {subject} 🎵"
+        og_description = f"Listen to this custom shoutout song about {recipient_name}!"
+    else:
+        og_title = "A Shoutout Song 🎵"
+        og_description = "Listen to this custom shoutout song"
+    
     viewer = f"https://shoutoutsong.com/share.html?t={token}"
     return HTMLResponse(
         f"""
         <html>
         <head>
-          <meta property="og:title" content="A Shoutout Song 🎵"/>
-          <meta property="og:description" content="Listen to this custom shoutout song"/>
+          <meta property="og:title" content="{og_title}"/>
+          <meta property="og:description" content="{og_description}"/>
           <meta property="og:image" content="https://shoutoutsong.com/assets/share-default.png"/>
+          <meta property="og:type" content="music.song"/>
+          <meta property="og:url" content="{viewer}"/>
+          <meta name="twitter:card" content="summary_large_image"/>
+          <meta name="twitter:title" content="{og_title}"/>
+          <meta name="twitter:description" content="{og_description}"/>
           <meta http-equiv="refresh" content="0; url={viewer}" />
         </head>
         <body></body>
