@@ -142,6 +142,7 @@
     let recipientName = "someone special";
     let subject = "something they love";
     let shareUrl = window.location.href;
+    let audioUrl = null;  // Store for download functions
 
     function getToken() {
       return new URLSearchParams(window.location.search).get("t");
@@ -162,6 +163,9 @@
 
         const share = await shareRes.json();
 
+        // Store for download functions
+        audioUrl = share.audio_url;
+
         // Store name and subject for share text
         recipientName = share.recipient_name || "someone special";
         subject = share.subject || "something they love";
@@ -177,7 +181,7 @@
 
         // 2️⃣ Use audio_url directly from share data
         const audio = document.getElementById("audioPlayer");
-        audio.src = share.audio_url;
+        audio.src = audioUrl;
         audio.load();
 
       } catch (err) {
@@ -226,14 +230,35 @@
     }
 
     function shareInstagram() {
-      alert(`💡 To share on Instagram:\n\n1. Download this song\n2. Open Instagram and create a new Reel\n3. Add the song as audio\n4. Tag ${recipientName} in your post!`);
+      // Download the song - user can then upload to Instagram
+      if (audioUrl) window.open(audioUrl, '_blank');
     }
 
     function shareTikTok() {
-      alert(`💡 To share on TikTok:\n\n1. Download this song\n2. Open TikTok and create a new video\n3. Add the song as audio\n4. Tag ${recipientName} in your post!`);
+      // Download the song - user can then upload to TikTok
+      if (audioUrl) window.open(audioUrl, '_blank');
     }
 
     loadSharedSong();
   </script>
+
+<footer style="
+  max-width: 720px;
+  margin: 60px auto 0;
+  padding: 24px;
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  font-size: 0.85rem;
+  color: #9aa3ff;
+">
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-bottom: 12px;">
+    <a href="/terms.html" style="color: #ff8a3c; text-decoration: none;">Terms</a>
+    <a href="/privacy.html" style="color: #ff8a3c; text-decoration: none;">Privacy</a>
+    <a href="/refund.html" style="color: #ff8a3c; text-decoration: none;">Refunds</a>
+    <a href="/content-policy.html" style="color: #ff8a3c; text-decoration: none;">Content Policy</a>
+  </div>
+  <p style="margin: 0; font-size: 0.8rem;">© 2025 ShoutoutSong</p>
+</footer>
+
 </body>
 </html>

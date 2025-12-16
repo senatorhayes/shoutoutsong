@@ -251,7 +251,7 @@ def create_share_link(req: CreateShareLinkRequest):
     }
 
     _save_share_store(store)
-    return {"share_url": f"https://shoutoutsong.com/s/{token}"}
+    return {"share_url": f"https://shoutoutsong.com/share.html?t={token}"}
 
 
 @app.get("/share/{token}")

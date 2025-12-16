@@ -246,13 +246,33 @@
   }
 
   function shareInstagram() {
-    alert("💡 To share on Instagram:\n\n1. Download the MP3 below\n2. Open Instagram and create a new Reel\n3. Add the song as audio\n4. Tag " + recipientName + " in your post!");
+    // Direct to download - user can then upload to Instagram
+    window.location.href = fullAudioUrl;
   }
 
   function shareTikTok() {
-    alert("💡 To share on TikTok:\n\n1. Download the MP3 below\n2. Open TikTok and create a new video\n3. Add the song as audio\n4. Tag " + recipientName + " in your post!");
+    // Direct to download - user can then upload to TikTok
+    window.location.href = fullAudioUrl;
   }
 </script>
+
+<footer style="
+  max-width: 760px;
+  margin: 40px auto 0;
+  padding: 20px;
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  font-size: 0.85rem;
+  color: #9ca3c7;
+">
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-bottom: 12px;">
+    <a href="/terms.html" style="color: #ff8a3c; text-decoration: none;">Terms</a>
+    <a href="/privacy.html" style="color: #ff8a3c; text-decoration: none;">Privacy</a>
+    <a href="/refund.html" style="color: #ff8a3c; text-decoration: none;">Refunds</a>
+    <a href="/content-policy.html" style="color: #ff8a3c; text-decoration: none;">Content Policy</a>
+  </div>
+  <p style="margin: 0; font-size: 0.8rem;">© 2025 ShoutoutSong</p>
+</footer>
 
 </body>
 </html>
