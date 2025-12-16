@@ -13,20 +13,45 @@ from lyrics_ai import generate_kid_lyrics, generate_adult_lyrics
 from mureka_api import start_song_generation, query_song_status
 
 # =====================================================
-# TEMP SHARE STORE
+# PERSISTENT SHARE STORE (JSON file)
 # =====================================================
-SHARE_STORE = {}
-SHARE_TTL_SECONDS = 60 * 60 * 24 * 7  # 7 days
+import json
+from pathlib import Path
+
+SHARE_FILE = Path("/tmp/share_store.json")  # Render's /tmp persists across requests
+SHARE_TTL_SECONDS = 60 * 60 * 24 * 365 * 2  # 2 years
 
 
-def _cleanup_share_store():
+def _load_share_store():
+    """Load share store from file"""
+    if not SHARE_FILE.exists():
+        return {}
+    try:
+        with open(SHARE_FILE, 'r') as f:
+            return json.load(f)
+    except:
+        return {}
+
+
+def _save_share_store(store):
+    """Save share store to file"""
+    try:
+        with open(SHARE_FILE, 'w') as f:
+            json.dump(store, f)
+    except Exception as e:
+        print(f"Error saving share store: {e}")
+
+
+def _cleanup_share_store(store):
+    """Remove expired shares"""
     now = time.time()
     expired = [
-        token for token, rec in SHARE_STORE.items()
+        token for token, rec in store.items()
         if now - rec.get("created_at", now) > SHARE_TTL_SECONDS
     ]
     for token in expired:
-        del SHARE_STORE[token]
+        del store[token]
+    return store
 
 
 # =====================================================
@@ -189,7 +214,8 @@ def full_audio(task_id: str):
 # =====================================================
 @app.post("/create-share-link")
 def create_share_link(req: CreateShareLinkRequest):
-    _cleanup_share_store()
+    store = _load_share_store()
+    store = _cleanup_share_store(store)
 
     status = query_song_status(req.song_id)
     choices = status.get("choices", [])
@@ -202,7 +228,7 @@ def create_share_link(req: CreateShareLinkRequest):
 
     token = secrets.token_urlsafe(16)
 
-    SHARE_STORE[token] = {
+    store[token] = {
         "song_id": req.song_id,
         "audio_url": audio_url,
         "title": req.title or "A Shoutout Song 🎵",
@@ -210,13 +236,15 @@ def create_share_link(req: CreateShareLinkRequest):
         "created_at": time.time(),
     }
 
+    _save_share_store(store)
     return {"share_url": f"https://shoutoutsong.com/s/{token}"}
 
 
 @app.get("/share/{token}")
 def get_share(token: str):
-    _cleanup_share_store()
-    rec = SHARE_STORE.get(token)
+    store = _load_share_store()
+    store = _cleanup_share_store(store)
+    rec = store.get(token)
     if not rec:
         raise HTTPException(status_code=404, detail="Expired")
     return rec
