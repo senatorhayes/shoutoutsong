@@ -12,6 +12,14 @@ from pydantic import BaseModel, Field
 from lyrics_ai import generate_kid_lyrics, generate_adult_lyrics
 from mureka_api import start_song_generation, query_song_status
 
+# Import email sender (will handle gracefully if not configured)
+try:
+    from email_sender import send_song_email
+    EMAIL_ENABLED = True
+except ImportError:
+    print("⚠️ email_sender.py not found - emails disabled")
+    EMAIL_ENABLED = False
+
 # =====================================================
 # PERSISTENT SHARE STORE (JSON file)
 # =====================================================
@@ -188,7 +196,12 @@ async def create_checkout_session(request: Request):
             success_url=success_url,
             cancel_url="https://shoutoutsong.com/cancel",
             client_reference_id=song_id,
-            metadata={"song_id": song_id},
+            metadata={
+                "song_id": song_id,
+                "recipient_name": recipient_name,
+                "subject": subject,
+            },
+            customer_email=None,  # Let Stripe collect it
         )
         return {"checkout_url": session.url}
     except Exception as e:
@@ -280,3 +293,92 @@ def share_unfurl(token: str):
         </html>
         """
     )
+
+
+# =====================================================
+# STRIPE WEBHOOK (EMAIL DELIVERY)
+# =====================================================
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+@app.post("/stripe-webhook")
+async def stripe_webhook(request: Request):
+    """
+    Handle Stripe webhook events.
+    Sends email after successful payment.
+    """
+    
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature")
+    
+    if not STRIPE_WEBHOOK_SECRET:
+        print("⚠️ STRIPE_WEBHOOK_SECRET not configured")
+        return {"status": "webhook secret not configured"}
+    
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, STRIPE_WEBHOOK_SECRET
+        )
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid payload")
+    except stripe.error.SignatureVerificationError:
+        raise HTTPException(status_code=400, detail="Invalid signature")
+    
+    # Handle successful payment
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        
+        # Extract metadata
+        song_id = session.get("metadata", {}).get("song_id")
+        recipient_name = session.get("metadata", {}).get("recipient_name", "someone special")
+        subject = session.get("metadata", {}).get("subject", "something special")
+        customer_email = session.get("customer_details", {}).get("email")
+        
+        if not customer_email:
+            print("⚠️ No customer email in webhook")
+            return {"status": "no email"}
+        
+        if not song_id:
+            print("⚠️ No song_id in webhook")
+            return {"status": "no song_id"}
+        
+        # Create share link first
+        try:
+            store = _load_share_store()
+            status = query_song_status(song_id)
+            choices = status.get("choices", [])
+            
+            if choices:
+                audio_url = choices[0].get("url") or choices[0].get("audio_url")
+                if audio_url:
+                    token = secrets.token_urlsafe(16)
+                    store[token] = {
+                        "song_id": song_id,
+                        "audio_url": audio_url,
+                        "title": f"A song for {recipient_name}",
+                        "subtitle": "Made with Shoutout Song",
+                        "recipient_name": recipient_name,
+                        "subject": subject,
+                        "created_at": time.time(),
+                    }
+                    _save_share_store(store)
+                    
+                    share_url = f"https://shoutoutsong.com/share.html?t={token}"
+                    download_url = f"https://shoutoutsong.onrender.com/full-audio/{song_id}"
+                    
+                    # Send email
+                    if EMAIL_ENABLED:
+                        send_song_email(
+                            to_email=customer_email,
+                            recipient_name=recipient_name,
+                            subject=subject,
+                            download_url=download_url,
+                            share_url=share_url
+                        )
+                        print(f"✅ Email sent to {customer_email}")
+                    else:
+                        print("⚠️ Email not sent - EMAIL_ENABLED is False")
+        
+        except Exception as e:
+            print(f"❌ Error in webhook: {e}")
+    
+    return {"status": "success"}
