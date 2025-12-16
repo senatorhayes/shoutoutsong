@@ -75,19 +75,40 @@
 
     .share-buttons {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
       margin-top: 16px;
     }
 
     .share-btn {
-      padding: 14px;
+      padding: 14px 10px;
       border-radius: 14px;
       background: rgba(255,255,255,0.07);
       color: #fff;
       border: none;
       font-weight: 600;
       cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .share-btn:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-2px);
+    }
+
+    .tip {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #9aa3ff;
+      text-align: center;
+      padding: 12px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -108,17 +129,36 @@
 
   <div class="share">
     <h2>📣 Share the surprise</h2>
-    <p>Send it to the person it’s for — or post it and tag them.</p>
+    <p>Send it to the person it's for — or post it and tag them.</p>
 
     <div class="share-buttons">
-      <button class="share-btn" onclick="copyLink()">🔗 Copy link</button>
-      <button class="share-btn" onclick="shareFacebook()">Facebook</button>
-      <button class="share-btn" onclick="shareX()">X</button>
+      <button class="share-btn" onclick="shareNative()">
+        📲 Share
+      </button>
+      <button class="share-btn" onclick="copyLink()">
+        🔗 Copy Link
+      </button>
+      <button class="share-btn" onclick="shareFacebook()">
+        📘 Facebook
+      </button>
+      <button class="share-btn" onclick="shareX()">
+        𝕏 X/Twitter
+      </button>
+      <button class="share-btn" onclick="shareInstagram()">
+        📷 Instagram
+      </button>
+      <button class="share-btn" onclick="shareTikTok()">
+        🎵 TikTok
+      </button>
+    </div>
+
+    <div class="tip">
+      💡 Tip: For Instagram or TikTok, download the MP3, upload it as a Reel or video, and tag the person it's for 🎉
     </div>
   </div>
 
   <div class="actions">
-    <button class="btn secondary" onclick="window.location.href='/'">
+    <button class="btn secondary" onclick="window.location.href='https://shoutoutsong.com'">
       🎁 Make another shoutout
     </button>
   </div>
@@ -130,6 +170,8 @@
   
   const params = new URLSearchParams(window.location.search);
   const songId = params.get("song_id");
+  const recipientName = params.get("name") || "someone special";
+  const subject = params.get("subject") || "something they love";
 
   if (!songId) {
     alert("Missing song ID.");
@@ -151,11 +193,18 @@
 
   // 🔗 Share link (created in background)
   let shareUrl = null;
+  
+  // Create share text
+  const shareText = `I made a custom shoutout song about ${recipientName} and their love for ${subject}! 🎵`;
 
   fetch(`${API_BASE}/create-share-link`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ song_id: songId })
+    body: JSON.stringify({ 
+      song_id: songId,
+      recipient_name: recipientName,
+      subject: subject 
+    })
   })
     .then(res => res.json())
     .then(data => { shareUrl = data.share_url; })
@@ -167,20 +216,41 @@
     alert("Link copied!");
   }
 
+  function shareNative() {
+    if (!shareUrl) return alert("Share link still generating, try again in a second.");
+    if (navigator.share) {
+      navigator.share({
+        title: 'Shoutout Song 🎵',
+        text: shareText,
+        url: shareUrl
+      });
+    } else {
+      copyLink();
+    }
+  }
+
   function shareFacebook() {
-    if (!shareUrl) return;
+    if (!shareUrl) return alert("Share link still generating, try again in a second.");
     window.open(
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`,
       "_blank"
     );
   }
 
   function shareX() {
-    if (!shareUrl) return;
+    if (!shareUrl) return alert("Share link still generating, try again in a second.");
     window.open(
-      `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=I%20made%20a%20custom%20shoutout%20song%20🎵`,
+      `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`,
       "_blank"
     );
+  }
+
+  function shareInstagram() {
+    alert("💡 To share on Instagram:\n\n1. Download the MP3 below\n2. Open Instagram and create a new Reel\n3. Add the song as audio\n4. Tag " + recipientName + " in your post!");
+  }
+
+  function shareTikTok() {
+    alert("💡 To share on TikTok:\n\n1. Download the MP3 below\n2. Open TikTok and create a new video\n3. Add the song as audio\n4. Tag " + recipientName + " in your post!");
   }
 </script>
 

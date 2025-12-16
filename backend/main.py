@@ -97,6 +97,8 @@ class AdultSongRequest(BaseModel):
 class CreateShareLinkRequest(BaseModel):
     song_id: str
     title: str | None = None
+    recipient_name: str | None = None
+    subject: str | None = None
 
 
 # =====================================================
@@ -165,15 +167,25 @@ async def create_checkout_session(request: Request):
 
     body = await request.json() or {}
     song_id = body.get("song_id")
+    recipient_name = body.get("recipient_name", "")
+    subject = body.get("subject", "")
 
     if not song_id:
         raise HTTPException(status_code=400, detail="Missing song_id")
+
+    # Build success URL with name and subject
+    from urllib.parse import quote
+    success_url = f"https://shoutoutsong.com/success?song_id={song_id}"
+    if recipient_name:
+        success_url += f"&name={quote(recipient_name)}"
+    if subject:
+        success_url += f"&subject={quote(subject)}"
 
     try:
         session = stripe.checkout.Session.create(
             mode="payment",
             line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
-            success_url=f"https://shoutoutsong.com/success?song_id={song_id}",
+            success_url=success_url,
             cancel_url="https://shoutoutsong.com/cancel",
             client_reference_id=song_id,
             metadata={"song_id": song_id},
@@ -233,6 +245,8 @@ def create_share_link(req: CreateShareLinkRequest):
         "audio_url": audio_url,
         "title": req.title or "A Shoutout Song 🎵",
         "subtitle": "Made with Shoutout Song",
+        "recipient_name": req.recipient_name or "",
+        "subject": req.subject or "",
         "created_at": time.time(),
     }
 

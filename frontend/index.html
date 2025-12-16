@@ -1215,6 +1215,10 @@ let previewStartTime = 15;
 let previewTimer = null;
 let hasUnlockedFullSong = false;
 
+// Store name and subject for success page
+let currentRecipientName = null;
+let currentSubject = null;
+
 let kidSavedState = {
   lyrics: null,
   audioUrl: null,
@@ -1547,6 +1551,8 @@ async function generateKidSong() {
 
     const data = await res.json();
     currentTaskId = data.task_id;
+    currentRecipientName = name;  // Store for success page
+    currentSubject = love;  // Store for success page
     setLyrics(data.lyrics);
 
     setStatus("kid", "Lyrics ready – generating music…");
@@ -1617,6 +1623,8 @@ async function generateAdultSong() {
 
     const data = await res.json();
     currentTaskId = data.task_id;
+    currentRecipientName = name;  // Store for success page
+    currentSubject = extra || relationship || occasion;  // Store best description for success page
     setLyrics(data.lyrics);
 
     setStatus("adult", "Lyrics ready – generating music…");
@@ -1688,6 +1696,8 @@ buyBtn.addEventListener("click", async () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           song_id: currentTaskId,
+          recipient_name: currentRecipientName,
+          subject: currentSubject,
         }),
       }
     );

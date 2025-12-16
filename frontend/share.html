@@ -68,16 +68,14 @@
     }
 
     .share-row {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
       margin-top: 28px;
-      flex-wrap: wrap;
     }
 
     .share-btn {
-      flex: 1;
-      min-width: 120px;
-      padding: 14px;
+      padding: 14px 10px;
       border-radius: 12px;
       background: rgba(255,255,255,0.06);
       color: #fff;
@@ -85,10 +83,13 @@
       cursor: pointer;
       font-weight: 600;
       user-select: none;
+      font-size: 0.9rem;
+      transition: all 0.2s;
     }
 
     .share-btn:hover {
       background: rgba(255,255,255,0.12);
+      transform: translateY(-2px);
     }
 
     .note {
@@ -96,6 +97,9 @@
       font-size: 14px;
       color: #9aa3ff;
       text-align: center;
+      padding: 12px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -116,23 +120,28 @@
       preload="metadata"
     ></audio>
 
-    <a href="/" class="cta">🎁 Make your own shoutout song</a>
+    <a href="https://shoutoutsong.com" class="cta">🎁 Make your own shoutout song</a>
 
     <div class="share-row">
       <div class="share-btn" onclick="shareNative()">📲 Share</div>
-      <div class="share-btn" onclick="copyLink()">🔗 Copy link</div>
+      <div class="share-btn" onclick="copyLink()">🔗 Copy Link</div>
       <div class="share-btn" onclick="shareFacebook()">📘 Facebook</div>
-      <div class="share-btn" onclick="shareX()">🐦 X</div>
+      <div class="share-btn" onclick="shareX()">𝕏 X/Twitter</div>
+      <div class="share-btn" onclick="shareInstagram()">📷 Instagram</div>
+      <div class="share-btn" onclick="shareTikTok()">🎵 TikTok</div>
     </div>
 
     <div class="note">
-      Tip: For Instagram or TikTok, download the MP3, upload it as a Reel or video,
-      and tag the person it’s for 🎉
+      💡 Tip: For Instagram or TikTok, download the MP3, upload it as a Reel or video, and tag the person it's for 🎉
     </div>
   </div>
 
   <script>
     const API_BASE = "https://shoutoutsong.onrender.com";
+
+    let recipientName = "someone special";
+    let subject = "something they love";
+    let shareUrl = window.location.href;
 
     function getToken() {
       return new URLSearchParams(window.location.search).get("t");
@@ -153,13 +162,20 @@
 
         const share = await shareRes.json();
 
-        document.getElementById("songTitle").textContent =
-          share.title || "A Shoutout Song 🎵";
+        // Store name and subject for share text
+        recipientName = share.recipient_name || "someone special";
+        subject = share.subject || "something they love";
 
+        // Update title with name and subject
+        const titleText = recipientName && subject 
+          ? `A song for ${recipientName} about ${subject} 🎵`
+          : share.title || "A Shoutout Song 🎵";
+
+        document.getElementById("songTitle").textContent = titleText;
         document.getElementById("songSubtitle").textContent =
           share.subtitle || "Made with Shoutout Song";
 
-        // 2️⃣ Use audio_url directly from share data (not from separate endpoint)
+        // 2️⃣ Use audio_url directly from share data
         const audio = document.getElementById("audioPlayer");
         audio.src = share.audio_url;
         audio.load();
@@ -172,15 +188,17 @@
     }
 
     function copyLink() {
-      navigator.clipboard.writeText(window.location.href);
+      navigator.clipboard.writeText(shareUrl);
       alert("Link copied!");
     }
 
     function shareNative() {
+      const shareText = `Check out this custom shoutout song about ${recipientName} and their love for ${subject}! 🎵`;
       if (navigator.share) {
         navigator.share({
-          title: document.title,
-          url: window.location.href
+          title: 'Shoutout Song 🎵',
+          text: shareText,
+          url: shareUrl
         });
       } else {
         copyLink();
@@ -188,19 +206,31 @@
     }
 
     function shareFacebook() {
+      const shareText = `I made a custom shoutout song about ${recipientName} and their love for ${subject}! 🎵`;
       window.open(
         "https://www.facebook.com/sharer/sharer.php?u=" +
-          encodeURIComponent(window.location.href),
+          encodeURIComponent(shareUrl) +
+          "&quote=" + encodeURIComponent(shareText),
         "_blank"
       );
     }
 
     function shareX() {
+      const shareText = `Check out this custom shoutout song about ${recipientName} and their love for ${subject}! 🎵`;
       window.open(
         "https://twitter.com/intent/tweet?url=" +
-          encodeURIComponent(window.location.href),
+          encodeURIComponent(shareUrl) +
+          "&text=" + encodeURIComponent(shareText),
         "_blank"
       );
+    }
+
+    function shareInstagram() {
+      alert(`💡 To share on Instagram:\n\n1. Download this song\n2. Open Instagram and create a new Reel\n3. Add the song as audio\n4. Tag ${recipientName} in your post!`);
+    }
+
+    function shareTikTok() {
+      alert(`💡 To share on TikTok:\n\n1. Download this song\n2. Open TikTok and create a new video\n3. Add the song as audio\n4. Tag ${recipientName} in your post!`);
     }
 
     loadSharedSong();
