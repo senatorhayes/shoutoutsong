@@ -127,12 +127,6 @@
       <div class="share-btn" onclick="copyLink()">🔗 Copy Link</div>
       <div class="share-btn" onclick="shareFacebook()">📘 Facebook</div>
       <div class="share-btn" onclick="shareX()">𝕏 X/Twitter</div>
-      <div class="share-btn" onclick="shareInstagram()">📷 Instagram</div>
-      <div class="share-btn" onclick="shareTikTok()">🎵 TikTok</div>
-    </div>
-
-    <div class="note">
-      💡 Tip: For Instagram or TikTok, download the MP3, upload it as a Reel or video, and tag the person it's for 🎉
     </div>
   </div>
 
@@ -169,6 +163,9 @@
         // Store name and subject for share text
         recipientName = share.recipient_name || "someone special";
         subject = share.subject || "something they love";
+
+        // Update page title
+        document.title = `Shoutout Song - ${recipientName} and their love for ${subject} 🎵`;
 
         // Update title with name and subject
         const titleText = recipientName && subject 
@@ -211,10 +208,16 @@
 
     function shareFacebook() {
       const shareText = `I made a custom shoutout song about ${recipientName} and their love for ${subject}! 🎵`;
+      const fullText = `${shareText} ${shareUrl}`;
+      // Copy to clipboard so user can paste
+      navigator.clipboard.writeText(fullText).then(() => {
+        alert("✅ Share text copied! Paste it into Facebook.\n\n" + fullText);
+      }).catch(() => {
+        alert("Share this on Facebook:\n\n" + fullText);
+      });
+      // Open Facebook
       window.open(
-        "https://www.facebook.com/sharer/sharer.php?u=" +
-          encodeURIComponent(shareUrl) +
-          "&quote=" + encodeURIComponent(shareText),
+        "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(shareUrl),
         "_blank"
       );
     }
@@ -227,16 +230,6 @@
           "&text=" + encodeURIComponent(shareText),
         "_blank"
       );
-    }
-
-    function shareInstagram() {
-      // Download the song - user can then upload to Instagram
-      if (audioUrl) window.open(audioUrl, '_blank');
-    }
-
-    function shareTikTok() {
-      // Download the song - user can then upload to TikTok
-      if (audioUrl) window.open(audioUrl, '_blank');
     }
 
     loadSharedSong();

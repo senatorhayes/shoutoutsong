@@ -131,7 +131,7 @@
     <h2>📣 Share the surprise</h2>
     <p>Send it to the person it's for — or post it and tag them.</p>
 
-    <div class="share-buttons">
+    <div class="share-buttons" style="grid-template-columns: repeat(2, 1fr);">
       <button class="share-btn" onclick="shareNative()">
         📲 Share
       </button>
@@ -144,16 +144,19 @@
       <button class="share-btn" onclick="shareX()">
         𝕏 X/Twitter
       </button>
-      <button class="share-btn" onclick="shareInstagram()">
-        📷 Instagram
-      </button>
-      <button class="share-btn" onclick="shareTikTok()">
-        🎵 TikTok
-      </button>
     </div>
 
     <div class="tip">
       💡 Tip: For Instagram or TikTok, download the MP3, upload it as a Reel or video, and tag the person it's for 🎉
+    </div>
+
+    <div class="share-buttons" style="grid-template-columns: repeat(2, 1fr); margin-top: 12px;">
+      <button class="share-btn" onclick="openInstagram()">
+        📷 Open Instagram
+      </button>
+      <button class="share-btn" onclick="openTikTok()">
+        🎵 Open TikTok
+      </button>
     </div>
   </div>
 
@@ -172,6 +175,9 @@
   const songId = params.get("song_id");
   const recipientName = params.get("name") || "someone special";
   const subject = params.get("subject") || "something they love";
+
+  // Update page title dynamically
+  document.title = `Shoutout Song - ${recipientName} and their love for ${subject} 🎵`;
 
   if (!songId) {
     alert("Missing song ID.");
@@ -231,8 +237,17 @@
 
   function shareFacebook() {
     if (!shareUrl) return alert("Share link still generating, try again in a second.");
+    // Facebook only shares the link - user adds their own text
+    // Copy the share text to clipboard so they can paste it
+    const fullText = `${shareText} ${shareUrl}`;
+    navigator.clipboard.writeText(fullText).then(() => {
+      alert("✅ Share text copied! Paste it into Facebook.\n\n" + fullText);
+    }).catch(() => {
+      alert("Share this on Facebook:\n\n" + fullText);
+    });
+    // Still open Facebook
     window.open(
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`,
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
       "_blank"
     );
   }
@@ -245,14 +260,26 @@
     );
   }
 
-  function shareInstagram() {
-    // Direct to download - user can then upload to Instagram
-    window.location.href = fullAudioUrl;
+  function openInstagram() {
+    // Try to open Instagram app, falls back to website
+    const instagramUrl = 'instagram://';
+    const instagramWeb = 'https://www.instagram.com/';
+    
+    window.location.href = instagramUrl;
+    setTimeout(() => {
+      window.open(instagramWeb, '_blank');
+    }, 500);
   }
 
-  function shareTikTok() {
-    // Direct to download - user can then upload to TikTok
-    window.location.href = fullAudioUrl;
+  function openTikTok() {
+    // Try to open TikTok app, falls back to website
+    const tiktokUrl = 'tiktok://';
+    const tiktokWeb = 'https://www.tiktok.com/';
+    
+    window.location.href = tiktokUrl;
+    setTimeout(() => {
+      window.open(tiktokWeb, '_blank');
+    }, 500);
   }
 </script>
 
