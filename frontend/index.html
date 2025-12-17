@@ -329,12 +329,14 @@
       background: rgba(15, 23, 42, 0.8);
       border-radius: 999px;
       border: 1px solid rgba(148, 163, 204, 0.28);
-      display: inline-flex;
+      display: flex;
       align-items: center;
       gap: 6px;
       font-size: 11px;
       color: var(--muted);
-      margin-bottom: 14px;
+      margin: 0 auto 14px;
+      max-width: fit-content;
+      text-align: left;
     }
 
     .tag-pill strong {
@@ -1585,12 +1587,10 @@ function setLyrics(text) {
 
 // Loading Animation Functions
 const loadingMessages = [
-  "🎤 Writing the perfect lyrics for you...",
-  "🎹 Composing the melody...",
-  "🎧 Adding the perfect vibe...",
-  "✨ Sprinkling some magic...",
+  "🎤 Writing lyrics...",
+  "🎹 Composing melody...",
+  "✨ Adding magic...",
   "🎵 Almost there...",
-  "🎶 Putting the finishing touches...",
 ];
 
 let messageIndex = 0;
