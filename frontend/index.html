@@ -1454,8 +1454,6 @@ function resetResults() {
   audioMetaNote.textContent = "– not generated yet";
   resultBadge.textContent = "Waiting for a song…";
   resultBadge.classList.remove("ready");
-
-  hideLoader();
 }
 
 // -----------------------------
@@ -1701,7 +1699,7 @@ function startPolling(taskId) {
         previewBtn.disabled = false;
         buyBtn.disabled = false;
 
-        setStatus(currentMode, "🔥 Your shout-out anthem is hot off the mic!", "success");
+        setStatus(currentMode, "✅ READY – Your shout-out anthem is hot off the mic!", "success");
         resultBadge.textContent = "Song ready";
         resultBadge.classList.add("ready");
         audioMetaNote.textContent = "– preview your 15-second snippet";
@@ -1725,6 +1723,7 @@ async function generateKidSong() {
   const voiceRaw = getSelectedRadio("kidVoice");
 
   if (!name || !love) {
+    hideLoader();
     setStatus("kid", "Please enter a name and what they love.", "error");
     return;
   }
@@ -1753,6 +1752,7 @@ async function generateKidSong() {
       const msg =
         (err && (err.detail || err.error || err.message)) ||
         `Backend error (${res.status})`;
+      hideLoader();
       setStatus("kid", msg, "error");
       resultBadge.textContent = "Error generating";
       return;
@@ -1771,6 +1771,7 @@ async function generateKidSong() {
     if (currentTaskId) startPolling(currentTaskId);
   } catch (err) {
     console.error(err);
+    hideLoader();
     setStatus("kid", "Network error talking to the backend.", "error");
     resultBadge.textContent = "Network error";
   }
@@ -1795,6 +1796,7 @@ async function generateAdultSong() {
   const extra = document.getElementById("adultDetails").value.trim();
 
   if (!name) {
+    hideLoader();
     setStatus("adult", "Please tell us who the song is for.", "error");
     return;
   }
@@ -1825,6 +1827,7 @@ async function generateAdultSong() {
       const msg =
         (err && (err.detail || err.error || err.message)) ||
         `Backend error (${res.status})`;
+      hideLoader();
       setStatus("adult", msg, "error");
       resultBadge.textContent = "Error generating";
       return;
@@ -1843,6 +1846,7 @@ async function generateAdultSong() {
     if (currentTaskId) startPolling(currentTaskId);
   } catch (err) {
     console.error(err);
+    hideLoader();
     setStatus("adult", "Network error talking to backend.", "error");
     resultBadge.textContent = "Network error";
   }

@@ -7,7 +7,7 @@ services:
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     workingDirectory: backend
     autoDeploy: true
-    plan: free
+    plan: starter
     disk:
       name: shoutoutsong-data
       mountPath: /opt/render/project/data
