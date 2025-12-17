@@ -26,7 +26,7 @@ except ImportError:
 import json
 from pathlib import Path
 
-SHARE_FILE = Path("/tmp/share_store.json")  # Render's /tmp persists across requests
+SHARE_FILE = Path("/opt/render/project/data/share_store.json")  # Persistent disk on Render
 SHARE_TTL_SECONDS = 60 * 60 * 24 * 365 * 2  # 2 years
 
 
@@ -44,6 +44,8 @@ def _load_share_store():
 def _save_share_store(store):
     """Save share store to file"""
     try:
+        # Ensure directory exists
+        SHARE_FILE.parent.mkdir(parents=True, exist_ok=True)
         with open(SHARE_FILE, 'w') as f:
             json.dump(store, f)
     except Exception as e:
