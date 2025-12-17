@@ -79,7 +79,67 @@
         flex-direction: column;
       }
       
-      /* Show left panel on mobile but move it AFTER the form */
+      /* Move brand to top and center it */
+      .brand-row {
+        order: 1;
+        justify-content: center;
+        margin-bottom: 24px;
+        padding: 20px 20px 0;
+        background: transparent;
+      }
+      
+      .brand-logo {
+        width: 50px;
+        height: 50px;
+      }
+      
+      .brand-logo span {
+        font-size: 28px;
+      }
+      
+      .brand-name {
+        font-size: 1.3rem;
+      }
+      
+      /* Form comes second */
+      .panel-card {
+        order: 2;
+        padding: 0 20px 30px;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+      
+      /* Prevent iOS zoom - must be 16px minimum */
+      .field input,
+      .field select,
+      .field textarea {
+        font-size: 16px !important;
+        padding: 12px 14px;
+      }
+      
+      /* Make labels bigger too */
+      .field label {
+        font-size: 13px;
+      }
+      
+      /* Bigger buttons */
+      .pill-radio label {
+        font-size: 14px;
+        padding: 10px 16px;
+      }
+      
+      .pill-radio label span {
+        font-size: 16px;
+      }
+      
+      /* Bigger generate button */
+      .btn-primary {
+        font-size: 17px;
+        padding: 14px 24px;
+      }
+      
+      /* Marketing content moves to bottom */
       .app-shell > div:first-child {
         display: block;
         order: 3;
@@ -87,77 +147,55 @@
         background: rgba(11, 16, 33, 0.5);
       }
       
-      /* Hide full hero content on mobile, show simplified version */
+      /* Hide verbose hero content */
       .hero-title,
       .hero-copy,
       .tag-pill {
         display: none;
       }
       
-      /* Brand logo stays at top */
-      .brand-row {
-        order: 1;
-        margin-bottom: 20px;
-        padding: 16px 20px 0;
-      }
-      
-      /* Tags stay visible but compact */
+      /* Tags stay visible but bigger */
       .tag-row {
-        gap: 8px;
+        gap: 10px;
         margin-top: 12px;
       }
       
       .tag {
-        font-size: 0.75rem;
-        padding: 5px 8px;
+        font-size: 0.85rem;
+        padding: 8px 12px;
       }
       
-      /* Steps stay for those who scroll */
+      /* Steps visible for curious scrollers */
       .steps {
-        margin-top: 20px;
+        margin-top: 24px;
       }
       
       .step {
-        font-size: 0.9rem;
-      }
-      
-      /* Form comes second */
-      .panel-card {
-        order: 2;
-        padding: 0 16px 30px;
-        border-radius: 0;
-        background: transparent;
-        box-shadow: none;
+        font-size: 0.95rem;
       }
       
       /* Stack voice buttons in 2x2 grid */
       .inline-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 8px;
+        gap: 10px;
       }
       
-      /* Compact headings */
-      h1 {
-        font-size: 1.5rem;
-        line-height: 1.3;
-      }
-      
-      /* Make footer even more compact on mobile but keep it visible */
+      /* Footer at bottom */
       footer {
         order: 4;
         margin-top: 40px;
-        padding: 12px;
-        font-size: 0.7rem;
+        padding: 16px;
+        font-size: 0.75rem;
         opacity: 0.6;
       }
       
       footer div {
-        gap: 8px;
+        gap: 10px;
       }
       
       footer a {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
       }
     }
 
