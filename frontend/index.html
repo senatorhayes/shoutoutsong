@@ -62,7 +62,34 @@
       gap: 22px;
     }
 
+    /* Mobile-only logo (hidden on desktop) */
+    .mobile-logo {
+      display: none;
+    }
+
     @media (max-width: 880px) {
+      /* Show mobile-only logo at top */
+      .mobile-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 20px;
+      }
+      
+      .mobile-logo .brand-logo {
+        width: 50px;
+        height: 50px;
+      }
+      
+      .mobile-logo .brand-logo span {
+        font-size: 28px;
+      }
+      
+      .mobile-logo .brand-name {
+        font-size: 1.4rem;
+      }
+
       body {
         padding: 0;
       }
@@ -79,26 +106,9 @@
         flex-direction: column;
       }
       
-      /* Move brand to top and center it */
+      /* Hide desktop brand-row on mobile */
       .brand-row {
-        order: 1;
-        justify-content: center;
-        margin-bottom: 24px;
-        padding: 20px 20px 0;
-        background: transparent;
-      }
-      
-      .brand-logo {
-        width: 50px;
-        height: 50px;
-      }
-      
-      .brand-logo span {
-        font-size: 28px;
-      }
-      
-      .brand-name {
-        font-size: 1.3rem;
+        display: none !important;
       }
       
       /* Form comes second */
@@ -139,12 +149,34 @@
         padding: 14px 24px;
       }
       
-      /* Marketing content moves to bottom */
+      /* Marketing content moves to bottom with title */
       .app-shell > div:first-child {
         display: block;
         order: 3;
         padding: 30px 20px 20px;
         background: rgba(11, 16, 33, 0.5);
+      }
+      
+      /* Add "What is Shoutout Song?" title before marketing content */
+      .app-shell > div:first-child::before {
+        content: "What is Shoutout Song?";
+        display: block;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      
+      /* Center align tags on mobile */
+      .tag-row {
+        justify-content: center;
+        text-align: center;
+      }
+      
+      /* Center align steps */
+      .steps {
+        text-align: center;
       }
       
       /* Hide verbose hero content */
@@ -919,6 +951,14 @@
   </style>
 </head>
 <body>
+  <!-- Mobile-only logo at top -->
+  <div class="mobile-logo">
+    <div class="brand-logo">
+      <span>📣</span>
+    </div>
+    <div class="brand-name"><strong>Shoutout Song</strong></div>
+  </div>
+
   <div class="app-shell">
     <!-- LEFT PANEL -->
     <div>
@@ -1860,6 +1900,41 @@ generateAdultBtn.addEventListener("click", (e) => {
 // Default tab
 // -----------------------------
 setTab("kid");
+
+// -----------------------------
+// Mobile: Scroll to top when clicking "Start My Shoutout Song"
+// -----------------------------
+if (window.innerWidth <= 880) {
+  document.querySelector('.steps')?.addEventListener('click', function(e) {
+    if (e.target === this && window.getComputedStyle(this, '::after').content) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+  
+  // Make the ::after pseudo-element clickable by adding a real button
+  const steps = document.querySelector('.steps');
+  if (steps) {
+    const scrollBtn = document.createElement('button');
+    scrollBtn.textContent = '🎵 Start My Shoutout Song';
+    scrollBtn.style.cssText = `
+      display: block;
+      margin: 30px auto 0;
+      padding: 16px 32px;
+      background: linear-gradient(135deg, #ff8a3c, #ff4dd2);
+      color: white;
+      font-size: 17px;
+      font-weight: 700;
+      border-radius: 12px;
+      border: none;
+      max-width: 280px;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(255, 138, 60, 0.4);
+    `;
+    scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    steps.parentElement.appendChild(scrollBtn);
+  }
+}
 
 </script>
 
