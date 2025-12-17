@@ -181,6 +181,25 @@
         text-align: center;
       }
       
+      /* Center tag-pill on mobile ONLY */
+      .tag-pill {
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+      }
+      
+      /* Loading box overlays audio area on mobile */
+      .loading-box {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 350px;
+        z-index: 100;
+        margin: 0;
+      }
+      
       /* Center align steps */
       .steps {
         text-align: center;
@@ -329,14 +348,12 @@
       background: rgba(15, 23, 42, 0.8);
       border-radius: 999px;
       border: 1px solid rgba(148, 163, 204, 0.28);
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
       font-size: 11px;
       color: var(--muted);
-      margin: 0 auto 14px;
-      max-width: fit-content;
-      text-align: left;
+      margin-bottom: 14px;
     }
 
     .tag-pill strong {
@@ -735,116 +752,49 @@
 
 
 
-/* ============================================
-   LOADING ANIMATION - Full Screen
-   ============================================ */
-.loading-animation {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(5, 7, 19, 0.98);
+
+
+/* LOADING BOX - Sidebar on desktop, over audio on mobile */
+.loading-box {
+  margin-top: 24px;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 204, 0.25);
+  text-align: center;
   display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  flex-direction: column;
 }
 
-.loading-animation.active {
-  display: flex;
+.loading-box.active {
+  display: block;
 }
 
 .loading-icon {
-  width: 120px;
-  height: 120px;
-  position: relative;
-  margin-bottom: 30px;
-  animation: float 3s ease-in-out infinite;
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 16px;
+  animation: loadFloat 3s ease-in-out infinite;
 }
 
-.megaphone {
-  font-size: 80px;
-  filter: drop-shadow(0 0 20px rgba(255, 138, 60, 0.6));
-  animation: pulse 2s ease-in-out infinite;
+.megaphone-anim {
+  font-size: 50px;
+  filter: drop-shadow(0 0 15px rgba(255, 138, 60, 0.6));
+  animation: loadPulse 2s ease-in-out infinite;
+  display: block;
 }
 
-.notes-container {
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+@keyframes loadFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 
-.note {
-  position: absolute;
-  font-size: 24px;
-  animation: noteFloat 3s ease-in-out infinite;
-  opacity: 0;
-}
-
-.note:nth-child(1) {
-  top: 20%;
-  left: 10%;
-  animation-delay: 0s;
-  color: #ff8a3c;
-}
-
-.note:nth-child(2) {
-  top: 30%;
-  right: 10%;
-  animation-delay: 0.5s;
-  color: #ff4dd2;
-}
-
-.note:nth-child(3) {
-  bottom: 30%;
-  left: 15%;
-  animation-delay: 1s;
-  color: #4ddcff;
-}
-
-.note:nth-child(4) {
-  bottom: 20%;
-  right: 15%;
-  animation-delay: 1.5s;
-  color: #ffb347;
-}
-
-@keyframes noteFloat {
-  0%, 100% {
-    opacity: 0;
-    transform: translateY(0) scale(0.8);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(-30px) scale(1.2);
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
+@keyframes loadPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
 }
 
 .loading-text {
-  font-size: 24px;
+  font-size: 16px;
   font-weight: 700;
   background: linear-gradient(90deg, #ff8a3c, #ff4dd2, #4ddcff, #ff8a3c);
   background-size: 300% 100%;
@@ -852,43 +802,34 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: gradientShift 3s ease infinite;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 @keyframes gradientShift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .loading-message {
-  font-size: 16px;
+  font-size: 13px;
   color: #9ca3c7;
-  max-width: 400px;
-  text-align: center;
-  padding: 0 20px;
-  animation: fadeInOut 4s ease-in-out infinite;
+  margin-bottom: 16px;
+  animation: loadFade 3s ease-in-out infinite;
 }
 
-@keyframes fadeInOut {
-  0%, 100% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 1;
-  }
+@keyframes loadFade {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }
 
 .loading-progress {
-  width: 300px;
+  width: 100%;
+  max-width: 220px;
   height: 4px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
   overflow: hidden;
-  margin-top: 30px;
+  margin: 0 auto;
 }
 
 .loading-progress-bar {
@@ -901,33 +842,11 @@
 }
 
 @keyframes progressSlide {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 200% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
 }
 
-@media (max-width: 880px) {
-  .loading-icon {
-    width: 100px;
-    height: 100px;
-  }
-  
-  .megaphone {
-    font-size: 60px;
-  }
-  
-  .loading-text {
-    font-size: 20px;
-  }
-  
-  .loading-message {
-    font-size: 14px;
-  }
-  
-  .loading-progress {
+
     width: 250px;
   }
 }
@@ -1027,8 +946,7 @@
       transition: opacity 0.15s ease, transform 0.15s ease;
     }
     .form-section.hidden {
-      opacity: 0;
-      transform: translateX(6px);
+      display: none !important;
     }
 
   </style>
@@ -1093,6 +1011,24 @@
           <div class="step-number">3</div>
           <div><b>Preview, download, share.</b> MP3 that works everywhere—texts,
             party speakers, social posts.</div>
+        </div>
+      </div>
+
+
+      <!-- Loading Box -->
+      <div class="loading-box" id="loadingBox">
+        <div class="loading-icon">
+          <div class="megaphone-anim">📣</div>
+        </div>
+        
+        <div class="loading-text">Creating Your Song...</div>
+        
+        <div class="loading-message" id="loadingMessage">
+          🎤 Writing lyrics...
+        </div>
+        
+        <div class="loading-progress">
+          <div class="loading-progress-bar" id="loadingProgressBar"></div>
         </div>
       </div>
 
@@ -1598,21 +1534,19 @@ let messageInterval;
 let progressInterval;
 
 function showLoader() {
-  const loadingAnim = document.getElementById('loadingAnimation');
+  const loadingBox = document.getElementById('loadingBox');
   const loadingMsg = document.getElementById('loadingMessage');
   const progressBar = document.getElementById('loadingProgressBar');
   
-  loadingAnim.classList.add('active');
+  loadingBox.classList.add('active');
   messageIndex = 0;
   
-  // Rotate messages every 4 seconds
   loadingMsg.textContent = loadingMessages[0];
   messageInterval = setInterval(() => {
     messageIndex = (messageIndex + 1) % loadingMessages.length;
     loadingMsg.textContent = loadingMessages[messageIndex];
-  }, 4000);
+  }, 3000);
   
-  // Fake progress bar (smoothly goes from 0 to 90%)
   let progress = 0;
   progressBar.style.width = '0%';
   progressInterval = setInterval(() => {
@@ -1624,18 +1558,18 @@ function showLoader() {
 }
 
 function hideLoader() {
-  const loadingAnim = document.getElementById('loadingAnimation');
+  const loadingBox = document.getElementById('loadingBox');
   const progressBar = document.getElementById('loadingProgressBar');
   
-  // Finish the progress bar
   progressBar.style.width = '100%';
   
   setTimeout(() => {
-    loadingAnim.classList.remove('active');
+    loadingBox.classList.remove('active');
     clearInterval(messageInterval);
     clearInterval(progressInterval);
   }, 500);
 }
+
 
 
 function mapKidVoice(value) {
@@ -1782,6 +1716,7 @@ function startPolling(taskId) {
 // Generate kids song
 // -----------------------------
 async function generateKidSong() {
+  showLoader();
   resetResults();
 
   const name = document.getElementById("kidName").value.trim();
@@ -1832,7 +1767,6 @@ async function generateKidSong() {
     setStatus("kid", "Lyrics ready – generating music…");
     resultBadge.textContent = "Music generating…";
     audioMetaNote.textContent = "– generating… your shoutout is in the studio";
-    showLoader();
 
     if (currentTaskId) startPolling(currentTaskId);
   } catch (err) {
@@ -1846,6 +1780,7 @@ async function generateKidSong() {
 // Generate adult song
 // -----------------------------
 async function generateAdultSong() {
+  showLoader();
   resetResults();
 
   const name = document.getElementById("adultName").value.trim();
@@ -1904,7 +1839,6 @@ async function generateAdultSong() {
     setStatus("adult", "Lyrics ready – generating music…");
     resultBadge.textContent = "Music generating…";
     audioMetaNote.textContent = "– generating… your shoutout is in the studio";
-    showLoader();
 
     if (currentTaskId) startPolling(currentTaskId);
   } catch (err) {
@@ -2064,29 +1998,6 @@ if (window.innerWidth <= 880) {
 </footer>
 
 
-<!-- Loading Animation -->
-<div class="loading-animation" id="loadingAnimation">
-  <div class="notes-container">
-    <div class="note">🎵</div>
-    <div class="note">🎶</div>
-    <div class="note">🎵</div>
-    <div class="note">🎶</div>
-  </div>
-  
-  <div class="loading-icon">
-    <div class="megaphone">📣</div>
-  </div>
-  
-  <div class="loading-text">Creating Your Song...</div>
-  
-  <div class="loading-message" id="loadingMessage">
-    🎤 Writing the perfect lyrics for you...
-  </div>
-  
-  <div class="loading-progress">
-    <div class="loading-progress-bar" id="loadingProgressBar"></div>
-  </div>
-</div>
 
 </body>
 </html>
