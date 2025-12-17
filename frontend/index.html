@@ -731,55 +731,206 @@
 
 
 
-/* Ensure loader is visible and animation plays */
-.audio-row {
-  position: relative;
-  overflow: visible !important;
-}
 
-/* Center the overlay inside audio block */
-.loader-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(3px);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  padding: 16px;
-  border-radius: 12px;
-  z-index: 20;
-}
 
-/* Loading bar container */
-.loader-bar-outer {
-  width: 80%;
-  max-width: 360px;
-  height: 8px;
-  background: rgba(0, 0, 0, 0.35);
-  border-radius: 999px;
-  overflow: hidden;
-  border: 1px solid rgba(148, 163, 204, 0.45);
-}
-
-/* Animated bar — THIS is the movement */
-.loader-bar-inner {
-  width: 40%;
+/* ============================================
+   LOADING ANIMATION - Full Screen
+   ============================================ */
+.loading-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
-  border-radius: 999px;
-  background-image: linear-gradient(90deg, var(--accent), var(--accent3), var(--accent));
-  background-size: 200% 100%;
-  animation: loaderSlide 1.2s infinite linear;
-  box-shadow: 0 0 12px rgba(255,138,60,0.45);
+  background: rgba(5, 7, 19, 0.98);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  flex-direction: column;
 }
 
-/* Slide animation */
-@keyframes loaderSlide {
-  0% { transform: translateX(-120%); }
-  100% { transform: translateX(220%); }
+.loading-animation.active {
+  display: flex;
 }
+
+.loading-icon {
+  width: 120px;
+  height: 120px;
+  position: relative;
+  margin-bottom: 30px;
+  animation: float 3s ease-in-out infinite;
+}
+
+.megaphone {
+  font-size: 80px;
+  filter: drop-shadow(0 0 20px rgba(255, 138, 60, 0.6));
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.notes-container {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.note {
+  position: absolute;
+  font-size: 24px;
+  animation: noteFloat 3s ease-in-out infinite;
+  opacity: 0;
+}
+
+.note:nth-child(1) {
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+  color: #ff8a3c;
+}
+
+.note:nth-child(2) {
+  top: 30%;
+  right: 10%;
+  animation-delay: 0.5s;
+  color: #ff4dd2;
+}
+
+.note:nth-child(3) {
+  bottom: 30%;
+  left: 15%;
+  animation-delay: 1s;
+  color: #4ddcff;
+}
+
+.note:nth-child(4) {
+  bottom: 20%;
+  right: 15%;
+  animation-delay: 1.5s;
+  color: #ffb347;
+}
+
+@keyframes noteFloat {
+  0%, 100% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-30px) scale(1.2);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.loading-text {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(90deg, #ff8a3c, #ff4dd2, #4ddcff, #ff8a3c);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s ease infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.loading-message {
+  font-size: 16px;
+  color: #9ca3c7;
+  max-width: 400px;
+  text-align: center;
+  padding: 0 20px;
+  animation: fadeInOut 4s ease-in-out infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.loading-progress {
+  width: 300px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 30px;
+}
+
+.loading-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ff8a3c, #ff4dd2, #4ddcff);
+  background-size: 200% 100%;
+  animation: progressSlide 2s ease-in-out infinite;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+@keyframes progressSlide {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@media (max-width: 880px) {
+  .loading-icon {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .megaphone {
+    font-size: 60px;
+  }
+  
+  .loading-text {
+    font-size: 20px;
+  }
+  
+  .loading-message {
+    font-size: 14px;
+  }
+  
+  .loading-progress {
+    width: 250px;
+  }
+}
+
+
 
 
 
@@ -847,83 +998,6 @@
 
     /* Loader overlay – now inside audio-controls only */
 
-    .loader-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.99));
-  display: flex;
-  flex-direction: column;
-  align-items: center;      /* Center content properly */
-  justify-content: center;
-  padding: 14px;
-  gap: 8px;
-  z-index: 10;
-  border-radius: 12px;
-  overflow: hidden;         /* Prevents overlapping text outside container */
-}
-
-
-    .loader-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: #e5e7ff;
-      margin-bottom: 4px;
-    }
-
-    .loader-header span {
-      font-size: 18px;
-    }
-
-    .loader-subtext {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .loader-bar-outer {
-      margin-top: 8px;
-      width: 100%;
-      height: 8px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 1);
-      border: 1px solid rgba(148, 163, 204, 0.45);
-      overflow: hidden;
-    }
-
-
-
-    .loader-bar-inner {
-      width: 40%;
-      height: 100%;
-      border-radius: 999px;
-      background-image: linear-gradient(120deg, var(--accent), var(--accent3));
-      background-size: 200% 100%;
-      animation: loaderSlide 1.3s infinite linear;
-      box-shadow: 0 0 20px rgba(255, 138, 60, 0.8);
-    }
-
-    @keyframes loaderSlide {
-      0% {
-        transform: translateX(-100%);
-      }
-      100% {
-        transform: translateX(220%);
-      }
-    }
-
-    .loader-tip {
-      font-size: 11px;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    .hidden {
-      display: none !important;
-    }
     
     /* --- Floating Notes (very subtle) --- */
     .note {
@@ -1304,23 +1378,6 @@
           </div>
 
           <div class="audio-controls">
-            <!-- Loader overlay now ONLY over audio + buttons -->
-            <div id="loaderOverlay" class="loader-overlay hidden">
-              <div class="loader-header">
-                <span>📣</span>
-                <div>Producing your shoutout…</div>
-              </div>
-              <div class="loader-subtext">
-                Writing, singing, and mixing your track. This usually takes 30–60 seconds.
-              </div>
-              <div class="loader-bar-outer">
-                <div class="loader-bar-inner"></div>
-              </div>
-              <div class="loader-tip">
-                <span>💿</span>
-                <span>Your preview will appear here as soon as it’s ready.</span>
-              </div>
-            </div>
 
             <audio
 			  id="audioPlayer"
@@ -1371,7 +1428,6 @@ const previewBtn = document.getElementById("previewBtn");
 const buyBtn = document.getElementById("buyBtn");
 
 // Loader
-const loaderOverlay = document.getElementById("loaderOverlay");
 
 // Generate buttons
 const generateKidBtn = document.getElementById("generateKidBtn");
@@ -1527,13 +1583,60 @@ function setLyrics(text) {
   lyricsBox.appendChild(pre);
 }
 
+// Loading Animation Functions
+const loadingMessages = [
+  "🎤 Writing the perfect lyrics for you...",
+  "🎹 Composing the melody...",
+  "🎧 Adding the perfect vibe...",
+  "✨ Sprinkling some magic...",
+  "🎵 Almost there...",
+  "🎶 Putting the finishing touches...",
+];
+
+let messageIndex = 0;
+let messageInterval;
+let progressInterval;
+
 function showLoader() {
-  loaderOverlay.classList.remove("hidden");
+  const loadingAnim = document.getElementById('loadingAnimation');
+  const loadingMsg = document.getElementById('loadingMessage');
+  const progressBar = document.getElementById('loadingProgressBar');
+  
+  loadingAnim.classList.add('active');
+  messageIndex = 0;
+  
+  // Rotate messages every 4 seconds
+  loadingMsg.textContent = loadingMessages[0];
+  messageInterval = setInterval(() => {
+    messageIndex = (messageIndex + 1) % loadingMessages.length;
+    loadingMsg.textContent = loadingMessages[messageIndex];
+  }, 4000);
+  
+  // Fake progress bar (smoothly goes from 0 to 90%)
+  let progress = 0;
+  progressBar.style.width = '0%';
+  progressInterval = setInterval(() => {
+    if (progress < 90) {
+      progress += Math.random() * 5;
+      progressBar.style.width = Math.min(progress, 90) + '%';
+    }
+  }, 500);
 }
 
 function hideLoader() {
-  loaderOverlay.classList.add("hidden");
+  const loadingAnim = document.getElementById('loadingAnimation');
+  const progressBar = document.getElementById('loadingProgressBar');
+  
+  // Finish the progress bar
+  progressBar.style.width = '100%';
+  
+  setTimeout(() => {
+    loadingAnim.classList.remove('active');
+    clearInterval(messageInterval);
+    clearInterval(progressInterval);
+  }, 500);
 }
+
 
 function mapKidVoice(value) {
   if (value === "boy") return "male";
@@ -1959,6 +2062,31 @@ if (window.innerWidth <= 880) {
     <script>document.write('© ' + new Date().getFullYear())</script> Shoutout Song
   </p>
 </footer>
+
+
+<!-- Loading Animation -->
+<div class="loading-animation" id="loadingAnimation">
+  <div class="notes-container">
+    <div class="note">🎵</div>
+    <div class="note">🎶</div>
+    <div class="note">🎵</div>
+    <div class="note">🎶</div>
+  </div>
+  
+  <div class="loading-icon">
+    <div class="megaphone">📣</div>
+  </div>
+  
+  <div class="loading-text">Creating Your Song...</div>
+  
+  <div class="loading-message" id="loadingMessage">
+    🎤 Writing the perfect lyrics for you...
+  </div>
+  
+  <div class="loading-progress">
+    <div class="loading-progress-bar" id="loadingProgressBar"></div>
+  </div>
+</div>
 
 </body>
 </html>
