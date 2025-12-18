@@ -81,10 +81,10 @@ def _cleanup_share_store(store):
 # KLAVIYO EMAIL COLLECTION
 # =====================================================
 def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
-    """Add email to Klaviyo with properties"""
+    """Add email to Klaviyo with properties. Returns True on success, False on failure."""
     if not klaviyo:
-        print("⚠️ Klaviyo not configured")
-        return
+        print("⚠️ Klaviyo not configured - KLAVIYO_API_KEY missing")
+        return False
     
     try:
         # Create or update profile
@@ -103,8 +103,10 @@ def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
         })
         
         print(f"✅ Added {email} to Klaviyo (purchased={purchased})")
+        return True
     except Exception as e:
-        print(f"❌ Klaviyo error: {e}")
+        print(f"❌ Klaviyo API error: {e}")
+        return False
 
 
 # =====================================================
@@ -249,17 +251,8 @@ async def create_checkout_session(request: Request):
             "customer_email": None,  # Let Stripe collect it
         }
         
-        # Try to add consent collection (might not work on all Stripe accounts)
-        try:
-            checkout_params["consent_collection"] = {
-                "promotions": "auto"
-            }
-            session = stripe.checkout.Session.create(**checkout_params)
-        except stripe.error.InvalidRequestError as consent_error:
-            # If consent collection fails, create session without it
-            print(f"⚠️ Consent collection not available: {consent_error}")
-            del checkout_params["consent_collection"]
-            session = stripe.checkout.Session.create(**checkout_params)
+        # Don't use consent collection - we add all purchasers to Klaviyo
+        session = stripe.checkout.Session.create(**checkout_params)
         
         return {"checkout_url": session.url}
     except Exception as e:
@@ -390,13 +383,16 @@ async def subscribe_email(request: Request):
     if not email:
         raise HTTPException(status_code=400, detail="Email required")
     
-    # Add to Klaviyo
-    add_to_klaviyo(email, {
+    # Add to Klaviyo and return actual result
+    success = add_to_klaviyo(email, {
         "source": source,
         "subscribed_at": time.time()
     }, purchased=False)
     
-    return {"success": True}
+    if success:
+        return {"success": True, "message": "Added to Klaviyo"}
+    else:
+        raise HTTPException(status_code=500, detail="Klaviyo not configured or API error")
 
 
 # =====================================================
@@ -434,10 +430,6 @@ async def stripe_webhook(request: Request):
         recipient_name = session.get("metadata", {}).get("recipient_name", "someone special")
         subject = session.get("metadata", {}).get("subject", "something special")
         customer_email = session.get("customer_details", {}).get("email")
-        
-        # Check if customer consented to marketing
-        consent = session.get("consent", {})
-        promotions_consent = consent.get("promotions") if consent else None
         
         if not customer_email:
             print("⚠️ No customer email in webhook")
@@ -484,22 +476,16 @@ async def stripe_webhook(request: Request):
                     else:
                         print("⚠️ Email not sent - EMAIL_ENABLED is False")
                     
-                    # Add to Klaviyo
-                    # If consent was explicitly accepted, great!
-                    # If consent is None (checkbox not available), still add them since they purchased
-                    if promotions_consent == "accepted" or promotions_consent is None:
-                        add_to_klaviyo(customer_email, {
-                            "song_id": song_id,
-                            "recipient_name": recipient_name,
-                            "subject": subject,
-                            "amount": 4.99,
-                            "purchased_at": time.time(),
-                            "share_url": share_url
-                        }, purchased=True)
-                        consent_status = "consented" if promotions_consent == "accepted" else "no checkbox (default opt-in)"
-                        print(f"✅ Added to Klaviyo ({consent_status})")
-                    else:
-                        print(f"⚠️ Customer explicitly declined marketing - not added to Klaviyo")
+                    # Add all purchasers to Klaviyo (they bought from you - they're interested!)
+                    add_to_klaviyo(customer_email, {
+                        "song_id": song_id,
+                        "recipient_name": recipient_name,
+                        "subject": subject,
+                        "amount": 4.99,
+                        "purchased_at": time.time(),
+                        "share_url": share_url
+                    }, purchased=True)
+                    print(f"✅ Added purchaser to Klaviyo: {customer_email}")
         
         except Exception as e:
             print(f"❌ Error in webhook: {e}")
