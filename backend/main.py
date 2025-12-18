@@ -107,21 +107,16 @@ def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
         print("⚠️ Klaviyo not configured - KLAVIYO_API_KEY missing")
         return False
     
+    list_id = os.getenv("KLAVIYO_LIST_ID")
+    
     try:
-        # Create profile with subscription consent set to SUBSCRIBED
+        # Step 1: Create/update profile
         try:
-            response = klaviyo.Profiles.create_profile({
+            klaviyo.Profiles.create_profile({
                 "data": {
                     "type": "profile",
                     "attributes": {
                         "email": email,
-                        "subscriptions": {
-                            "email": {
-                                "marketing": {
-                                    "consent": "SUBSCRIBED"
-                                }
-                            }
-                        },
                         "properties": {
                             **properties,
                             "source": "shoutoutsong",
@@ -130,13 +125,56 @@ def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
                     }
                 }
             })
-            print(f"✅ Created subscribed profile in Klaviyo: {email} (purchased={purchased})")
+            print(f"✅ Created profile in Klaviyo: {email}")
         except Exception as create_error:
-            # If profile exists (409 conflict), that's OK
             if "409" in str(create_error) or "duplicate" in str(create_error).lower():
-                print(f"✅ Profile already exists in Klaviyo: {email}")
+                print(f"✅ Profile already exists: {email}")
             else:
                 raise create_error
+        
+        # Step 2: Subscribe them using the subscription endpoint
+        if list_id:
+            try:
+                # Use the proper subscription API
+                klaviyo.client.request(
+                    method="POST",
+                    path=f"/api/profile-subscription-bulk-create-jobs/",
+                    body={
+                        "data": {
+                            "type": "profile-subscription-bulk-create-job",
+                            "attributes": {
+                                "profiles": {
+                                    "data": [{
+                                        "type": "profile",
+                                        "attributes": {
+                                            "email": email,
+                                            "subscriptions": {
+                                                "email": {
+                                                    "marketing": {
+                                                        "consent": "SUBSCRIBED"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }]
+                                },
+                                "relationships": {
+                                    "list": {
+                                        "data": {
+                                            "type": "list",
+                                            "id": list_id
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                )
+                print(f"✅ Subscribed {email} to list {list_id}")
+            except Exception as sub_error:
+                print(f"⚠️ Subscription error: {sub_error}")
+        else:
+            print(f"⚠️ KLAVIYO_LIST_ID not set")
         
         return True
     except Exception as e:
