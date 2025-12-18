@@ -161,13 +161,13 @@ def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
                                             }
                                         }
                                     }]
-                                },
-                                "relationships": {
-                                    "list": {
-                                        "data": {
-                                            "type": "list",
-                                            "id": list_id
-                                        }
+                                }
+                            },
+                            "relationships": {
+                                "list": {
+                                    "data": {
+                                        "type": "list",
+                                        "id": list_id
                                     }
                                 }
                             }
