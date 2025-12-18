@@ -200,9 +200,13 @@
         margin: 0;
       }
       
-      /* Center align steps */
+      /* Left-align steps on mobile */
       .steps {
-        text-align: center;
+        text-align: left;
+      }
+      
+      .step {
+        text-align: left;
       }
       
       /* Hide verbose hero content */
@@ -1521,10 +1525,18 @@ function setLyrics(text) {
 
 // Loading Animation Functions
 const loadingMessages = [
-  "🎤 Writing lyrics...",
+  "🎤 Recording vocals...",
   "🎹 Composing melody...",
-  "✨ Adding magic...",
-  "🎵 Almost there...",
+  "🎸 Adding instruments...",
+  "🥁 Laying down the beat...",
+  "🎺 Adding harmonies...",
+  "🎧 Mixing the track...",
+  "✨ Adding production magic...",
+  "🎛️ Fine-tuning the sound...",
+  "🎵 Polishing the final mix...",
+  "🔊 Mastering your song...",
+  "💿 Preparing your track...",
+  "🎶 Almost ready...",
 ];
 
 let messageIndex = 0;
@@ -2032,7 +2044,7 @@ if (window.innerWidth <= 880) {
 <footer style="
   max-width: 1120px;
   margin: 60px auto 20px;
-  padding: 16px 20px;
+  padding: 16px 0;
   text-align: center;
   font-size: 0.75rem;
   color: #6b7280;
@@ -2040,8 +2052,8 @@ if (window.innerWidth <= 880) {
 ">
   <!-- Email Signup -->
   <div style="
-    max-width: 600px !important;
-    width: 100%;
+    max-width: 700px !important;
+    width: calc(100% - 40px);
     margin: 0 auto 24px;
     padding: 20px;
     background: rgba(77, 220, 255, 0.05);

@@ -484,8 +484,10 @@ async def stripe_webhook(request: Request):
                     else:
                         print("⚠️ Email not sent - EMAIL_ENABLED is False")
                     
-                    # Add to Klaviyo only if customer consented to promotions
-                    if promotions_consent == "accepted":
+                    # Add to Klaviyo
+                    # If consent was explicitly accepted, great!
+                    # If consent is None (checkbox not available), still add them since they purchased
+                    if promotions_consent == "accepted" or promotions_consent is None:
                         add_to_klaviyo(customer_email, {
                             "song_id": song_id,
                             "recipient_name": recipient_name,
@@ -494,9 +496,10 @@ async def stripe_webhook(request: Request):
                             "purchased_at": time.time(),
                             "share_url": share_url
                         }, purchased=True)
-                        print(f"✅ Added to Klaviyo (consented)")
+                        consent_status = "consented" if promotions_consent == "accepted" else "no checkbox (default opt-in)"
+                        print(f"✅ Added to Klaviyo ({consent_status})")
                     else:
-                        print(f"⚠️ Customer declined marketing consent - not added to Klaviyo")
+                        print(f"⚠️ Customer explicitly declined marketing - not added to Klaviyo")
         
         except Exception as e:
             print(f"❌ Error in webhook: {e}")
