@@ -12,6 +12,27 @@ from pydantic import BaseModel, Field
 from lyrics_ai import generate_kid_lyrics, generate_adult_lyrics
 from mureka_api import start_song_generation, query_song_status
 
+# Genre-specific prompts for better audio generation
+def get_genre_prompt(genre: str) -> str:
+    """Return detailed prompt for each genre"""
+    prompts = {
+        "pop": "Upbeat pop song with catchy melody, modern production, radio-friendly hooks",
+        "rock": "Energetic rock song with electric guitars, driving drums, powerful vocals",
+        "country": "Heartfelt country song with acoustic guitar, storytelling lyrics, warm vocals",
+        "reggae": "Laid-back reggae track with offbeat rhythm, island vibes, relaxed groove",
+        "metal": "Heavy metal song with distorted guitars, aggressive drums, powerful energy",
+        "punk": "Fast-paced punk rock with raw energy, simple power chords, rebellious attitude",
+        "edm": "Electronic dance music with pulsing beats, synth drops, festival energy",
+        "house": "Feel-good house music track with four-on-the-floor beat, groovy bassline, catchy vocal topline, uplifting club energy",
+        "techno": "Driving techno track with pulsing synths, steady hypnotic beat, minimal vocals, underground club atmosphere",
+        "ballad": "Emotional ballad with piano or strings, heartfelt vocals, slow build, touching melody",
+        "folk": "Warm acoustic folk song with gentle guitar or piano, organic production, intimate vocals, campfire-style storytelling",
+        "rnb": "Smooth R&B soul track with expressive vocals, warm chords, laid-back groove, emotional delivery",
+        "gospel": "Uplifting gospel-inspired song with powerful soulful vocals, choir harmonies, piano and organ, joyful message",
+        "jazz": "Smooth jazz-inspired song with expressive vocals, swing or lounge feel, warm instrumentation, classy and relaxed tone",
+    }
+    return prompts.get(genre.lower(), f"{genre} song")
+
 # Import email sender (will handle gracefully if not configured)
 try:
     from email_sender import send_song_email
@@ -197,7 +218,7 @@ def generate_adult_song(req: AdultSongRequest):
     )
     task_id = start_song_generation(
         lyrics=lyrics,
-        prompt=f"{req.genre} song",
+        prompt=get_genre_prompt(req.genre),
         duration=req.duration_seconds,
         genre=req.genre,
     )
@@ -383,16 +404,14 @@ async def subscribe_email(request: Request):
     if not email:
         raise HTTPException(status_code=400, detail="Email required")
     
-    # Add to Klaviyo and return actual result
+    # Try to add to Klaviyo, but don't fail if it's down
     success = add_to_klaviyo(email, {
         "source": source,
         "subscribed_at": time.time()
     }, purchased=False)
     
-    if success:
-        return {"success": True, "message": "Added to Klaviyo"}
-    else:
-        raise HTTPException(status_code=500, detail="Klaviyo not configured or API error")
+    # Always return success to user (we'll retry Klaviyo later if it was down)
+    return {"success": True, "klaviyo_added": success}
 
 
 # =====================================================
