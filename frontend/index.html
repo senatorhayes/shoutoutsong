@@ -1566,29 +1566,36 @@ function showLoader() {
   messageInterval = setInterval(() => {
     messageIndex = (messageIndex + 1) % loadingMessages.length;
     loadingMsg.textContent = loadingMessages[messageIndex];
-  }, 3000);
+  }, 4000);  // Slowed from 3000 to 4000ms
   
   let progress = 0;
   progressBar.style.width = '0%';
   progressInterval = setInterval(() => {
-    if (progress < 90) {
-      progress += Math.random() * 5;
-      progressBar.style.width = Math.min(progress, 90) + '%';
+    if (progress < 85) {  // Stop at 85% instead of 90%
+      progress += Math.random() * 3;  // Slower increment (was 5)
+      progressBar.style.width = Math.min(progress, 85) + '%';
     }
-  }, 500);
+  }, 600);  // Slower updates (was 500ms)
 }
 
 function hideLoader() {
   const loadingBox = document.getElementById('loadingBox');
   const progressBar = document.getElementById('loadingProgressBar');
   
-  progressBar.style.width = '100%';
-  
-  setTimeout(() => {
-    loadingBox.classList.remove('active');
-    clearInterval(messageInterval);
-    clearInterval(progressInterval);
-  }, 500);
+  // Smoothly complete the progress bar
+  let currentProgress = parseFloat(progressBar.style.width) || 0;
+  const finishInterval = setInterval(() => {
+    currentProgress += 3;
+    progressBar.style.width = Math.min(currentProgress, 100) + '%';
+    if (currentProgress >= 100) {
+      clearInterval(finishInterval);
+      setTimeout(() => {
+        loadingBox.classList.remove('active');
+        clearInterval(messageInterval);
+        clearInterval(progressInterval);
+      }, 300);
+    }
+  }, 30);
 }
 
 
@@ -1966,6 +1973,8 @@ document.getElementById('footerEmailForm')?.addEventListener('submit', async (e)
   const status = document.getElementById('footerEmailStatus');
   const submitBtn = e.target.querySelector('button[type="submit"]');
   
+  console.log('📧 Footer signup:', email);
+  
   submitBtn.disabled = true;
   submitBtn.textContent = 'Subscribing...';
   
@@ -1976,15 +1985,21 @@ document.getElementById('footerEmailForm')?.addEventListener('submit', async (e)
       body: JSON.stringify({ email, source: 'footer' })
     });
     
+    console.log('Response status:', res.status);
+    
     if (res.ok) {
       status.textContent = '✅ Subscribed! Check your email.';
       status.style.color = '#4ade80';
       document.getElementById('footerEmail').value = '';
+      console.log('✅ Subscription successful');
     } else {
+      const errorData = await res.json().catch(() => ({}));
+      console.error('❌ Subscribe failed:', errorData);
       status.textContent = '❌ Something went wrong. Try again.';
       status.style.color = '#ff4b6a';
     }
   } catch (err) {
+    console.error('❌ Network error:', err);
     status.textContent = '❌ Network error. Try again.';
     status.style.color = '#ff4b6a';
   } finally {
@@ -2051,7 +2066,7 @@ if (window.innerWidth <= 880) {
 ">
   <!-- Email Signup -->
   <div style="
-    max-width: 400px;
+    max-width: 600px;
     margin: 0 auto 24px;
     padding: 20px;
     background: rgba(77, 220, 255, 0.05);
