@@ -1325,29 +1325,6 @@
 			  disableRemotePlayback
 			></audio>
 
-            <!-- Email Opt-in (shown after song generates) -->
-            <div class="email-optin" id="emailOptin" style="display: none; margin-top: 12px;">
-              <label style="
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 12px;
-                background: rgba(77, 220, 255, 0.1);
-                border-radius: 10px;
-                cursor: pointer;
-                border: 1px solid rgba(77, 220, 255, 0.2);
-              ">
-                <input 
-                  type="checkbox" 
-                  id="emailOptinCheckbox" 
-                  checked
-                  style="width: 18px; height: 18px; cursor: pointer;"
-                />
-                <span style="font-size: 13px; color: #e5e7eb;">
-                  📧 Email me my song + exclusive discounts (recommended)
-                </span>
-              </label>
-            </div>
 
             <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:4px;">
               <button id="previewBtn" class="btn-secondary" disabled>
@@ -1728,9 +1705,6 @@ function startPolling(taskId) {
         audioPlayer.classList.remove("hidden");
         previewBtn.disabled = false;
         buyBtn.disabled = false;
-        
-        // Show email opt-in
-        document.getElementById('emailOptin').style.display = 'block';
 
         setStatus(currentMode, "✅ READY – Your shout-out anthem is hot off the mic!", "success");
         resultBadge.textContent = "Song ready";

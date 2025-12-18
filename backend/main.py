@@ -247,6 +247,9 @@ async def create_checkout_session(request: Request):
                 "subject": subject,
             },
             customer_email=None,  # Let Stripe collect it
+            consent_collection={
+                "promotions": "auto"  # Shows "Send me exclusive offers and promotions" checkbox
+            },
         )
         return {"checkout_url": session.url}
     except Exception as e:
@@ -422,6 +425,10 @@ async def stripe_webhook(request: Request):
         subject = session.get("metadata", {}).get("subject", "something special")
         customer_email = session.get("customer_details", {}).get("email")
         
+        # Check if customer consented to marketing
+        consent = session.get("consent", {})
+        promotions_consent = consent.get("promotions") if consent else None
+        
         if not customer_email:
             print("⚠️ No customer email in webhook")
             return {"status": "no email"}
@@ -467,15 +474,19 @@ async def stripe_webhook(request: Request):
                     else:
                         print("⚠️ Email not sent - EMAIL_ENABLED is False")
                     
-                    # Add to Klaviyo
-                    add_to_klaviyo(customer_email, {
-                        "song_id": song_id,
-                        "recipient_name": recipient_name,
-                        "subject": subject,
-                        "amount": 4.99,
-                        "purchased_at": time.time(),
-                        "share_url": share_url
-                    }, purchased=True)
+                    # Add to Klaviyo only if customer consented to promotions
+                    if promotions_consent == "accepted":
+                        add_to_klaviyo(customer_email, {
+                            "song_id": song_id,
+                            "recipient_name": recipient_name,
+                            "subject": subject,
+                            "amount": 4.99,
+                            "purchased_at": time.time(),
+                            "share_url": share_url
+                        }, purchased=True)
+                        print(f"✅ Added to Klaviyo (consented)")
+                    else:
+                        print(f"⚠️ Customer declined marketing consent - not added to Klaviyo")
         
         except Exception as e:
             print(f"❌ Error in webhook: {e}")
