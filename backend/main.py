@@ -108,22 +108,30 @@ def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
         return False
     
     try:
-        # Create or update profile
-        klaviyo.Profiles.create_profile({
-            "data": {
-                "type": "profile",
-                "attributes": {
-                    "email": email,
-                    "properties": {
-                        **properties,
-                        "source": "shoutoutsong",
-                        "purchased": purchased
+        # Try to create or update profile - handle 409 conflict gracefully
+        try:
+            klaviyo.Profiles.create_profile({
+                "data": {
+                    "type": "profile",
+                    "attributes": {
+                        "email": email,
+                        "properties": {
+                            **properties,
+                            "source": "shoutoutsong",
+                            "purchased": purchased
+                        }
                     }
                 }
-            }
-        })
+            })
+            print(f"✅ Created new profile in Klaviyo: {email} (purchased={purchased})")
+        except Exception as create_error:
+            # If profile exists (409 conflict), that's actually OK - they're subscribed
+            if "409" in str(create_error) or "duplicate" in str(create_error).lower():
+                print(f"✅ Profile already exists in Klaviyo: {email} (purchased={purchased})")
+            else:
+                # Other error, re-raise
+                raise create_error
         
-        print(f"✅ Added {email} to Klaviyo (purchased={purchased})")
         return True
     except Exception as e:
         print(f"❌ Klaviyo API error: {e}")
