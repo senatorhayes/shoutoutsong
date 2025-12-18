@@ -109,8 +109,9 @@ def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
     
     try:
         # Try to create or update profile - handle 409 conflict gracefully
+        profile_id = None
         try:
-            klaviyo.Profiles.create_profile({
+            response = klaviyo.Profiles.create_profile({
                 "data": {
                     "type": "profile",
                     "attributes": {
@@ -123,14 +124,43 @@ def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
                     }
                 }
             })
+            profile_id = response.get("data", {}).get("id")
             print(f"✅ Created new profile in Klaviyo: {email} (purchased={purchased})")
         except Exception as create_error:
             # If profile exists (409 conflict), that's actually OK - they're subscribed
             if "409" in str(create_error) or "duplicate" in str(create_error).lower():
                 print(f"✅ Profile already exists in Klaviyo: {email} (purchased={purchased})")
+                # Try to get the profile ID for existing profile
+                try:
+                    profiles = klaviyo.Profiles.get_profiles(filter=f'equals(email,"{email}")')
+                    if profiles.get("data"):
+                        profile_id = profiles["data"][0]["id"]
+                except:
+                    pass
             else:
                 # Other error, re-raise
                 raise create_error
+        
+        # Add to subscriber list (if LIST_ID is configured)
+        list_id = os.getenv("KLAVIYO_LIST_ID")
+        if list_id and profile_id:
+            try:
+                klaviyo.Lists.create_list_relationships(
+                    list_id,
+                    {
+                        "data": [{
+                            "type": "profile",
+                            "id": profile_id
+                        }]
+                    }
+                )
+                print(f"✅ Added {email} to Klaviyo list")
+            except Exception as list_error:
+                # Already in list or other non-critical error
+                if "409" not in str(list_error):
+                    print(f"⚠️ Could not add to list: {list_error}")
+        elif not list_id:
+            print(f"⚠️ KLAVIYO_LIST_ID not set - profile created but not added to list")
         
         return True
     except Exception as e:
