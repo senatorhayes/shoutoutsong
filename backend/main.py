@@ -2,6 +2,7 @@ import os
 import time
 import secrets
 import re
+import requests
 
 import stripe
 from fastapi import FastAPI, HTTPException, Request
@@ -132,14 +133,17 @@ def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
             else:
                 raise create_error
         
-        # Step 2: Subscribe them using the subscription endpoint
-        if list_id:
+        # Step 2: Subscribe them using direct API call
+        if list_id and KLAVIYO_API_KEY:
             try:
-                # Use the proper subscription API
-                klaviyo.client.request(
-                    method="POST",
-                    path=f"/api/profile-subscription-bulk-create-jobs/",
-                    body={
+                response = requests.post(
+                    "https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/",
+                    headers={
+                        "Authorization": f"Klaviyo-API-Key {KLAVIYO_API_KEY}",
+                        "Content-Type": "application/json",
+                        "revision": "2025-10-15"
+                    },
+                    json={
                         "data": {
                             "type": "profile-subscription-bulk-create-job",
                             "attributes": {
@@ -170,7 +174,10 @@ def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
                         }
                     }
                 )
-                print(f"✅ Subscribed {email} to list {list_id}")
+                if response.status_code in [200, 201, 202]:
+                    print(f"✅ Subscribed {email} to list {list_id}")
+                else:
+                    print(f"⚠️ Subscription failed ({response.status_code}): {response.text}")
             except Exception as sub_error:
                 print(f"⚠️ Subscription error: {sub_error}")
         else:
