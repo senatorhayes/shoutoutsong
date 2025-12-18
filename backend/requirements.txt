@@ -7,4 +7,4 @@ python-dotenv==1.0.1
 starlette==0.36.3
 openai>=1.0.0
 stripe>=9.0.0
-klaviyo-api==1.0.0
+klaviyo-api>=3.0.0

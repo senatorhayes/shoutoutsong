@@ -20,6 +20,19 @@ except ImportError:
     print("⚠️ email_sender.py not found - emails disabled")
     EMAIL_ENABLED = False
 
+# Import Klaviyo for email collection
+try:
+    from klaviyo_api import KlaviyoAPI
+    KLAVIYO_API_KEY = os.getenv("KLAVIYO_API_KEY")
+    klaviyo = KlaviyoAPI(KLAVIYO_API_KEY) if KLAVIYO_API_KEY else None
+    if klaviyo:
+        print("✅ Klaviyo initialized")
+    else:
+        print("⚠️ KLAVIYO_API_KEY not set - email collection disabled")
+except ImportError:
+    print("⚠️ klaviyo-api not installed - email collection disabled")
+    klaviyo = None
+
 # =====================================================
 # PERSISTENT SHARE STORE (JSON file)
 # =====================================================
@@ -62,6 +75,36 @@ def _cleanup_share_store(store):
     for token in expired:
         del store[token]
     return store
+
+
+# =====================================================
+# KLAVIYO EMAIL COLLECTION
+# =====================================================
+def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
+    """Add email to Klaviyo with properties"""
+    if not klaviyo:
+        print("⚠️ Klaviyo not configured")
+        return
+    
+    try:
+        # Create or update profile
+        klaviyo.Profiles.create_profile({
+            "data": {
+                "type": "profile",
+                "attributes": {
+                    "email": email,
+                    "properties": {
+                        **properties,
+                        "source": "shoutoutsong",
+                        "purchased": purchased
+                    }
+                }
+            }
+        })
+        
+        print(f"✅ Added {email} to Klaviyo (purchased={purchased})")
+    except Exception as e:
+        print(f"❌ Klaviyo error: {e}")
 
 
 # =====================================================
@@ -321,6 +364,31 @@ def share_unfurl(token: str):
 # =====================================================
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
+# =====================================================
+# EMAIL SUBSCRIPTION
+# =====================================================
+@app.post("/subscribe")
+async def subscribe_email(request: Request):
+    """Subscribe email to mailing list"""
+    body = await request.json()
+    email = body.get("email")
+    source = body.get("source", "unknown")
+    
+    if not email:
+        raise HTTPException(status_code=400, detail="Email required")
+    
+    # Add to Klaviyo
+    add_to_klaviyo(email, {
+        "source": source,
+        "subscribed_at": time.time()
+    }, purchased=False)
+    
+    return {"success": True}
+
+
+# =====================================================
+# STRIPE WEBHOOK
+# =====================================================
 @app.post("/stripe-webhook")
 async def stripe_webhook(request: Request):
     """
@@ -398,6 +466,16 @@ async def stripe_webhook(request: Request):
                         print(f"✅ Email sent to {customer_email}")
                     else:
                         print("⚠️ Email not sent - EMAIL_ENABLED is False")
+                    
+                    # Add to Klaviyo
+                    add_to_klaviyo(customer_email, {
+                        "song_id": song_id,
+                        "recipient_name": recipient_name,
+                        "subject": subject,
+                        "amount": 4.99,
+                        "purchased_at": time.time(),
+                        "share_url": share_url
+                    }, purchased=True)
         
         except Exception as e:
             print(f"❌ Error in webhook: {e}")
