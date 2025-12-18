@@ -235,26 +235,36 @@ async def create_checkout_session(request: Request):
         success_url += f"&subject={quote(subject)}"
 
     try:
-        session = stripe.checkout.Session.create(
-            mode="payment",
-            line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
-            success_url=success_url,
-            cancel_url="https://shoutoutsong.com/cancel",
-            client_reference_id=song_id,
-            metadata={
+        checkout_params = {
+            "mode": "payment",
+            "line_items": [{"price": STRIPE_PRICE_ID, "quantity": 1}],
+            "success_url": success_url,
+            "cancel_url": "https://shoutoutsong.com/cancel",
+            "client_reference_id": song_id,
+            "metadata": {
                 "song_id": song_id,
                 "recipient_name": recipient_name,
                 "subject": subject,
             },
-            customer_email=None,  # Let Stripe collect it
-            consent_collection={
-                "promotions": "auto"  # Shows "Send me exclusive offers and promotions" checkbox
-            },
-        )
+            "customer_email": None,  # Let Stripe collect it
+        }
+        
+        # Try to add consent collection (might not work on all Stripe accounts)
+        try:
+            checkout_params["consent_collection"] = {
+                "promotions": "auto"
+            }
+            session = stripe.checkout.Session.create(**checkout_params)
+        except stripe.error.InvalidRequestError as consent_error:
+            # If consent collection fails, create session without it
+            print(f"⚠️ Consent collection not available: {consent_error}")
+            del checkout_params["consent_collection"]
+            session = stripe.checkout.Session.create(**checkout_params)
+        
         return {"checkout_url": session.url}
     except Exception as e:
-        print("Stripe error:", e)
-        raise HTTPException(status_code=500, detail="Stripe checkout failed")
+        print(f"❌ Stripe error: {e}")
+        raise HTTPException(status_code=500, detail=f"Stripe checkout failed: {str(e)}")
 
 
 # =====================================================
