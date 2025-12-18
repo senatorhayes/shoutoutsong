@@ -1530,8 +1530,8 @@ const loadingMessages = [
   "🎹 Composing the melody...",
   "🎸 Adding instruments...",
   "🥁 Laying down the beat...",
-  "🎺 Adding harmonies...",
   "🎙️ Recording vocals...",
+  "🎺 Adding harmonies...",
   "🎧 Mixing the track...",
   "✨ Adding production magic...",
   "🎛️ Fine-tuning the sound...",
@@ -1554,9 +1554,14 @@ function showLoader() {
   
   loadingMsg.textContent = loadingMessages[0];
   messageInterval = setInterval(() => {
-    messageIndex = (messageIndex + 1) % loadingMessages.length;
+    messageIndex++;
+    // Stop at last message instead of looping
+    if (messageIndex >= loadingMessages.length) {
+      messageIndex = loadingMessages.length - 1;
+      clearInterval(messageInterval);
+    }
     loadingMsg.textContent = loadingMessages[messageIndex];
-  }, 4000);  // Slowed from 3000 to 4000ms
+  }, 4000);
   
   let progress = 0;
   progressBar.style.width = '0%';
@@ -2053,18 +2058,15 @@ if (window.innerWidth <= 880) {
 ">
   <!-- Email Signup -->
   <div style="
-    max-width: 800px !important;
-    width: calc(100% - 40px);
+    max-width: 400px;
     margin: 0 auto 24px;
-    padding: 32px 30px;
-    min-height: 180px;
-    background: rgba(77, 220, 255, 0.08);
-    border-radius: 16px;
-    border: 2px solid rgba(77, 220, 255, 0.3);
+    padding: 20px;
+    background: rgba(77, 220, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(77, 220, 255, 0.2);
   ">
     <p style="
-      margin: 0 0 16px;
-      font-size: 1.1rem;
+      margin: 0 0 12px;
       font-size: 0.9rem;
       font-weight: 600;
       color: #fff;
@@ -2085,15 +2087,15 @@ if (window.innerWidth <= 880) {
           padding: 14px 18px;
           background: rgba(0,0,0,0.4);
           border: 1px solid rgba(255,255,255,0.2);
-          border-radius: 10px;
+          border-radius: 8px;
           color: white;
-          font-size: 16px;
+          font-size: 14px;
         "
       />
       <button 
         type="submit"
         style="
-          padding: 14px 28px;
+          padding: 10px 20px;
           background: linear-gradient(135deg, #ff8a3c, #ff4dd2);
           border: none;
           border-radius: 8px;
