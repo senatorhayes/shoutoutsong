@@ -141,6 +141,36 @@ def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
                 # Other error, re-raise
                 raise create_error
         
+        # Subscribe profile to email marketing
+        if profile_id:
+            try:
+                klaviyo.Profiles.subscribe_profiles({
+                    "data": {
+                        "type": "profile-subscription-bulk-create-job",
+                        "attributes": {
+                            "profiles": {
+                                "data": [{
+                                    "type": "profile",
+                                    "id": profile_id,
+                                    "attributes": {
+                                        "email": email,
+                                        "subscriptions": {
+                                            "email": {
+                                                "marketing": {
+                                                    "consent": "SUBSCRIBED"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }]
+                            }
+                        }
+                    }
+                })
+                print(f"✅ Subscribed {email} to email marketing")
+            except Exception as sub_error:
+                print(f"⚠️ Could not subscribe to email marketing: {sub_error}")
+        
         # Add to subscriber list (if LIST_ID is configured)
         list_id = os.getenv("KLAVIYO_LIST_ID")
         if list_id and profile_id:
