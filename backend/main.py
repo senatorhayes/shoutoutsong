@@ -107,15 +107,23 @@ def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
         print("⚠️ Klaviyo not configured - KLAVIYO_API_KEY missing")
         return False
     
+    list_id = os.getenv("KLAVIYO_LIST_ID")
+    
     try:
-        # Try to create or update profile - handle 409 conflict gracefully
-        profile_id = None
+        # Create profile with subscription enabled
         try:
             response = klaviyo.Profiles.create_profile({
                 "data": {
                     "type": "profile",
                     "attributes": {
                         "email": email,
+                        "subscriptions": {
+                            "email": {
+                                "marketing": {
+                                    "consent": "SUBSCRIBED"
+                                }
+                            }
+                        },
                         "properties": {
                             **properties,
                             "source": "shoutoutsong",
@@ -124,73 +132,40 @@ def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
                     }
                 }
             })
-            profile_id = response.get("data", {}).get("id")
-            print(f"✅ Created new profile in Klaviyo: {email} (purchased={purchased})")
+            print(f"✅ Created subscribed profile in Klaviyo: {email} (purchased={purchased})")
         except Exception as create_error:
-            # If profile exists (409 conflict), that's actually OK - they're subscribed
+            # If profile exists (409 conflict), just add to list
             if "409" in str(create_error) or "duplicate" in str(create_error).lower():
-                print(f"✅ Profile already exists in Klaviyo: {email} (purchased={purchased})")
-                # Try to get the profile ID for existing profile
-                try:
-                    profiles = klaviyo.Profiles.get_profiles(filter=f'equals(email,"{email}")')
-                    if profiles.get("data"):
-                        profile_id = profiles["data"][0]["id"]
-                except:
-                    pass
+                print(f"✅ Profile already exists in Klaviyo: {email}")
             else:
-                # Other error, re-raise
                 raise create_error
         
-        # Subscribe profile to email marketing
-        if profile_id:
+        # Add to list if LIST_ID is set
+        if list_id:
             try:
-                klaviyo.Profiles.subscribe_profiles({
-                    "data": {
-                        "type": "profile-subscription-bulk-create-job",
-                        "attributes": {
-                            "profiles": {
-                                "data": [{
-                                    "type": "profile",
-                                    "id": profile_id,
-                                    "attributes": {
-                                        "email": email,
-                                        "subscriptions": {
-                                            "email": {
-                                                "marketing": {
-                                                    "consent": "SUBSCRIBED"
-                                                }
-                                            }
+                # Subscribe to list (creates profile if doesn't exist and subscribes)
+                klaviyo.Lists.subscribe_profiles(
+                    list_id,
+                    {
+                        "data": {
+                            "type": "profile-subscription-bulk-create-job",
+                            "attributes": {
+                                "profiles": {
+                                    "data": [{
+                                        "type": "profile",
+                                        "attributes": {
+                                            "email": email
                                         }
-                                    }
-                                }]
+                                    }]
+                                }
                             }
                         }
                     }
-                })
-                print(f"✅ Subscribed {email} to email marketing")
-            except Exception as sub_error:
-                print(f"⚠️ Could not subscribe to email marketing: {sub_error}")
-        
-        # Add to subscriber list (if LIST_ID is configured)
-        list_id = os.getenv("KLAVIYO_LIST_ID")
-        if list_id and profile_id:
-            try:
-                klaviyo.Lists.create_list_relationships(
-                    list_id,
-                    {
-                        "data": [{
-                            "type": "profile",
-                            "id": profile_id
-                        }]
-                    }
                 )
-                print(f"✅ Added {email} to Klaviyo list")
+                print(f"✅ Subscribed {email} to list")
             except Exception as list_error:
-                # Already in list or other non-critical error
                 if "409" not in str(list_error):
-                    print(f"⚠️ Could not add to list: {list_error}")
-        elif not list_id:
-            print(f"⚠️ KLAVIYO_LIST_ID not set - profile created but not added to list")
+                    print(f"⚠️ Could not subscribe to list: {list_error}")
         
         return True
     except Exception as e:
