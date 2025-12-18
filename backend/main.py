@@ -107,10 +107,8 @@ def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
         print("⚠️ Klaviyo not configured - KLAVIYO_API_KEY missing")
         return False
     
-    list_id = os.getenv("KLAVIYO_LIST_ID")
-    
     try:
-        # Create profile with subscription enabled
+        # Create profile with subscription consent set to SUBSCRIBED
         try:
             response = klaviyo.Profiles.create_profile({
                 "data": {
@@ -134,38 +132,11 @@ def add_to_klaviyo(email: str, properties: dict, purchased: bool = False):
             })
             print(f"✅ Created subscribed profile in Klaviyo: {email} (purchased={purchased})")
         except Exception as create_error:
-            # If profile exists (409 conflict), just add to list
+            # If profile exists (409 conflict), that's OK
             if "409" in str(create_error) or "duplicate" in str(create_error).lower():
                 print(f"✅ Profile already exists in Klaviyo: {email}")
             else:
                 raise create_error
-        
-        # Add to list if LIST_ID is set
-        if list_id:
-            try:
-                # Subscribe to list (creates profile if doesn't exist and subscribes)
-                klaviyo.Lists.subscribe_profiles(
-                    list_id,
-                    {
-                        "data": {
-                            "type": "profile-subscription-bulk-create-job",
-                            "attributes": {
-                                "profiles": {
-                                    "data": [{
-                                        "type": "profile",
-                                        "attributes": {
-                                            "email": email
-                                        }
-                                    }]
-                                }
-                            }
-                        }
-                    }
-                )
-                print(f"✅ Subscribed {email} to list")
-            except Exception as list_error:
-                if "409" not in str(list_error):
-                    print(f"⚠️ Could not subscribe to list: {list_error}")
         
         return True
     except Exception as e:
