@@ -1963,60 +1963,6 @@ buyBtn.addEventListener("click", async () => {
 
 
 // -----------------------------
-// Footer email signup
-// -----------------------------
-document.getElementById('footerEmailForm')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  
-  const email = document.getElementById('footerEmail').value;
-  const status = document.getElementById('footerEmailStatus');
-  const submitBtn = e.target.querySelector('button[type="submit"]');
-  
-  console.log('📧 Footer signup starting:', email);
-  console.log('API_BASE:', API_BASE);
-  
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Subscribing...';
-  status.textContent = '⏳ Sending...';
-  status.style.color = '#9ca3c7';
-  
-  try {
-    console.log('Fetching:', `${API_BASE}/subscribe`);
-    const res = await fetch(`${API_BASE}/subscribe`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, source: 'footer' })
-    });
-    
-    console.log('Response status:', res.status);
-    
-    if (res.ok) {
-      const data = await res.json();
-      console.log('Response data:', data);
-      status.textContent = '✅ Subscribed!';
-      status.style.color = '#4ade80';
-      document.getElementById('footerEmail').value = '';
-      console.log('✅ Subscription successful');
-    } else {
-      const errorData = await res.json().catch(() => ({}));
-      console.error('❌ Subscribe failed:', errorData);
-      status.textContent = `❌ Error: ${errorData.detail || 'Try again'}`;
-      status.style.color = '#ff4b6a';
-    }
-  } catch (err) {
-    console.error('❌ Network error:', err);
-    status.textContent = `❌ Network error: ${err.message}`;
-    status.style.color = '#ff4b6a';
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Subscribe';
-  }
-  
-  return false;
-});
-
-// -----------------------------
 // Wire up generate buttons
 // -----------------------------
 generateKidBtn.addEventListener("click", (e) => {
@@ -2145,6 +2091,59 @@ if (window.innerWidth <= 880) {
   </p>
 </footer>
 
+<script>
+// Footer email signup - runs after footer HTML is loaded
+const API_BASE = "https://shoutoutsong.onrender.com";
+
+document.getElementById('footerEmailForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const email = document.getElementById('footerEmail').value;
+  const status = document.getElementById('footerEmailStatus');
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  
+  console.log('📧 Footer signup starting:', email);
+  
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Subscribing...';
+  status.textContent = '⏳ Sending...';
+  status.style.color = '#9ca3c7';
+  
+  try {
+    const res = await fetch(`${API_BASE}/subscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, source: 'footer' })
+    });
+    
+    console.log('Response status:', res.status);
+    
+    if (res.ok) {
+      const data = await res.json();
+      console.log('Response data:', data);
+      status.textContent = '✅ Subscribed!';
+      status.style.color = '#4ade80';
+      document.getElementById('footerEmail').value = '';
+      console.log('✅ Subscription successful');
+    } else {
+      const errorData = await res.json().catch(() => ({}));
+      console.error('❌ Subscribe failed:', errorData);
+      status.textContent = `❌ Error: ${errorData.detail || 'Try again'}`;
+      status.style.color = '#ff4b6a';
+    }
+  } catch (err) {
+    console.error('❌ Network error:', err);
+    status.textContent = `❌ Network error: ${err.message}`;
+    status.style.color = '#ff4b6a';
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Subscribe';
+  }
+  
+  return false;
+});
+</script>
 
 
 </body>
