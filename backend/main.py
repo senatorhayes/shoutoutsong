@@ -345,6 +345,7 @@ async def create_checkout_session(request: Request):
             "line_items": [{"price": STRIPE_PRICE_ID, "quantity": 1}],
             "success_url": success_url,
             "cancel_url": "https://shoutoutsong.com/cancel",
+            "allow_promotion_codes": True,  # Enable discount/promo codes
             "client_reference_id": song_id,
             "metadata": {
                 "song_id": song_id,
