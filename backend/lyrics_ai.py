@@ -151,7 +151,7 @@ def generate_adult_lyrics(
         "fun": "fun, upbeat, playful, light-hearted",
         "heartfelt": "emotional, sincere, warm, grateful",
         "epic": "big, cinematic, anthemic, inspiring",
-        "silly": "very playful, comedic, goofy, roast-style but not cruel",
+        "silly": "funny roast style - make fun of them playfully! Tease them about quirks, habits, or funny things about them. Keep it affectionate but definitely roast them",
         "romantic": "tender, intimate, loving, romantic",
     }.get(vibe, "engaging and modern")
 
@@ -179,8 +179,8 @@ Details to weave into the song:
 Guidelines:
 - Make this feel personal to {recipient_name}.
 - Include their name several times, especially in the chorus.
-- Lean into the tone: {vibe_desc}.
-- Avoid explicit content, slurs, or cruel insults. Gentle roasting is OK if 'roast' or 'funny' is implied, but keep it light and affectionate.
+- Lean into the tone: {vibe_desc}. If this is a roast/funny song, MAKE SURE to actually tease and make fun of them in a playful way!
+- Avoid explicit content, slurs, or mean-spirited insults. But roasting, teasing, and playful mockery are ENCOURAGED for funny songs.
 - Do NOT mention AI, technology, or that this is generated.
 - Keep it in a modern, singable style appropriate for a {genre} track.
 

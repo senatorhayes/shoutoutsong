@@ -53,6 +53,7 @@ def get_genre_prompt(genre: str) -> str:
         "90s": "1990s hit with era-appropriate production, nostalgic sound, pop or rock sensibility",
         "1920s": "1920s jazz age with swing rhythm, big band horns, vintage vocals, speakeasy atmosphere",
         "musical": "Broadway musical style with theatrical vocals, orchestral backing, dramatic storytelling, show tune energy",
+        "clownbop": "Absurd circus jingle with calliope organs, wobbling horns, ridiculous squeaky vocals, sad clown energy, total joke, deliberately silly and over-the-top",
     }
     return prompts.get(genre.lower(), f"{genre} song")
 
