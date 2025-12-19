@@ -106,6 +106,7 @@
 
     <h1 id="songTitle">Loading song…</h1>
     <p class="sub" id="songSubtitle">Please wait</p>
+    <p class="sub" id="songGenre" style="margin-top: -16px; font-size: 16px; color: #9ca3c7;"></p>
 
     <!-- FULL SONG PLAYER (no download) -->
     <audio
@@ -155,6 +156,7 @@
         
         const recipientName = share.recipient_name || "someone special";
         const subject = share.subject || "something they love";
+        const genre = share.genre || "";
 
         // Simple, clean title
         document.getElementById("songTitle").textContent = 
@@ -162,6 +164,12 @@
         
         // Subtitle shows what it's about (no "about" to avoid grammar issues)
         document.getElementById("songSubtitle").textContent = subject;
+        
+        // Show genre if available
+        if (genre) {
+          const genreDisplay = genre.charAt(0).toUpperCase() + genre.slice(1);
+          document.getElementById("songGenre").textContent = `🎵 ${genreDisplay}`;
+        }
         
         // Update page title for browser tab
         document.title = `Song for ${recipientName} - Shoutout Song`;

@@ -257,6 +257,7 @@ class CreateShareLinkRequest(BaseModel):
     recipient_name: str | None = None
     subject: str | None = None
     lyrics: str | None = None
+    genre: str | None = None
 
 
 # =====================================================
@@ -427,6 +428,7 @@ def create_share_link(req: CreateShareLinkRequest):
         "recipient_name": req.recipient_name or "",
         "subject": req.subject or "",
         "lyrics": req.lyrics or "",
+        "genre": req.genre or "",
         "created_at": time.time(),
     }
 
