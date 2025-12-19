@@ -234,6 +234,7 @@ class CreateShareLinkRequest(BaseModel):
     title: str | None = None
     recipient_name: str | None = None
     subject: str | None = None
+    lyrics: str | None = None
 
 
 # =====================================================
@@ -355,8 +356,19 @@ def full_audio(task_id: str):
     if not audio_url:
         raise HTTPException(status_code=404, detail="Audio not ready")
 
-    title = result.get("title") or "my-shoutout-song"
-    safe_title = re.sub(r"[^a-z0-9\-]+", "", title.lower().replace(" ", "-"))
+    # Try to get name and subject from result metadata for better filename
+    metadata = result.get("metadata", {})
+    recipient_name = metadata.get("recipient_name", "")
+    subject = metadata.get("subject", "")
+    
+    # Create filename: shoutoutsong-{name}-{subject}.mp3
+    if recipient_name and subject:
+        # Clean name and subject for filename
+        clean_name = re.sub(r"[^a-z0-9]+", "", recipient_name.lower().replace(" ", ""))
+        clean_subject = re.sub(r"[^a-z0-9]+", "", subject.lower().replace(" ", ""))
+        safe_title = f"shoutoutsong-{clean_name}-{clean_subject}"
+    else:
+        safe_title = "shoutoutsong"
 
     response = RedirectResponse(audio_url)
     response.headers["Content-Disposition"] = (
@@ -391,6 +403,7 @@ def create_share_link(req: CreateShareLinkRequest):
         "subtitle": "Made with Shoutout Song",
         "recipient_name": req.recipient_name or "",
         "subject": req.subject or "",
+        "lyrics": req.lyrics or "",
         "created_at": time.time(),
     }
 
@@ -555,7 +568,8 @@ async def stripe_webhook(request: Request):
                         print("⚠️ Email not sent - EMAIL_ENABLED is False")
                     
                     # Add all purchasers to Klaviyo (they bought from you - they're interested!)
-                    add_to_klaviyo(customer_email, {
+                    print(f"🔔 Attempting to add purchaser to Klaviyo: {customer_email}")
+                    klaviyo_success = add_to_klaviyo(customer_email, {
                         "song_id": song_id,
                         "recipient_name": recipient_name,
                         "subject": subject,
@@ -563,7 +577,11 @@ async def stripe_webhook(request: Request):
                         "purchased_at": time.time(),
                         "share_url": share_url
                     }, purchased=True)
-                    print(f"✅ Added purchaser to Klaviyo: {customer_email}")
+                    
+                    if klaviyo_success:
+                        print(f"✅ Successfully added purchaser to Klaviyo: {customer_email}")
+                    else:
+                        print(f"❌ Failed to add purchaser to Klaviyo: {customer_email}")
         
         except Exception as e:
             print(f"❌ Error in webhook: {e}")
