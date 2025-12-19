@@ -52,6 +52,7 @@ def get_genre_prompt(genre: str) -> str:
         "80s": "1980s synth pop with electronic drums, synthesizers, reverb-heavy production, new wave energy",
         "90s": "1990s hit with era-appropriate production, nostalgic sound, pop or rock sensibility",
         "1920s": "1920s jazz age with swing rhythm, big band horns, vintage vocals, speakeasy atmosphere",
+        "musical": "Broadway musical style with theatrical vocals, orchestral backing, dramatic storytelling, show tune energy",
     }
     return prompts.get(genre.lower(), f"{genre} song")
 
@@ -279,9 +280,9 @@ def generate_kid_song(req: KidSongRequest):
     lyrics = generate_kid_lyrics(req.child_name, req.theme)
     task_id = start_song_generation(
         lyrics=lyrics,
-        prompt=f"Kids song for {req.child_name}",
+        prompt="Quality children's song with warm acoustic guitar, gentle melody, sincere vocals, heartfelt storytelling, authentic and musical (not overly silly or synthetic)",
         duration=req.duration_seconds,
-        genre="pop",
+        genre="folk",  # Folk genre for authentic acoustic feel
     )
     return {"task_id": task_id, "lyrics": lyrics}
 
