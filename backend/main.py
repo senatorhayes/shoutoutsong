@@ -454,8 +454,8 @@ def share_unfurl(token: str):
     if rec:
         recipient_name = rec.get("recipient_name", "someone special")
         subject = rec.get("subject", "something special")
-        og_title = f"Shoutout Song - {recipient_name} and their love for {subject} 🎵"
-        og_description = f"Listen to this custom shoutout song about {recipient_name}!"
+        og_title = f"A song for {recipient_name} 🎵"
+        og_description = f"Listen to this custom song about {subject}"
     else:
         og_title = "A Shoutout Song 🎵"
         og_description = "Listen to this custom shoutout song"

@@ -68,14 +68,16 @@
     }
 
     .share-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: flex;
       gap: 12px;
       margin-top: 28px;
+      flex-wrap: wrap;
     }
 
     .share-btn {
-      padding: 14px 10px;
+      flex: 1;
+      min-width: 120px;
+      padding: 14px;
       border-radius: 12px;
       background: rgba(255,255,255,0.06);
       color: #fff;
@@ -83,13 +85,10 @@
       cursor: pointer;
       font-weight: 600;
       user-select: none;
-      font-size: 0.9rem;
-      transition: all 0.2s;
     }
 
     .share-btn:hover {
       background: rgba(255,255,255,0.12);
-      transform: translateY(-2px);
     }
 
     .note {
@@ -97,9 +96,6 @@
       font-size: 14px;
       color: #9aa3ff;
       text-align: center;
-      padding: 12px;
-      background: rgba(255,255,255,0.03);
-      border-radius: 10px;
     }
   </style>
 </head>
@@ -120,23 +116,23 @@
       preload="metadata"
     ></audio>
 
-    <a href="https://shoutoutsong.com" class="cta">🎁 Make your own shoutout song</a>
+    <a href="/" class="cta">🎁 Make your own shoutout song</a>
 
     <div class="share-row">
       <div class="share-btn" onclick="shareNative()">📲 Share</div>
-      <div class="share-btn" onclick="copyLink()">🔗 Copy Link</div>
+      <div class="share-btn" onclick="copyLink()">🔗 Copy link</div>
       <div class="share-btn" onclick="shareFacebook()">📘 Facebook</div>
-      <div class="share-btn" onclick="shareX()">𝕏 X/Twitter</div>
+      <div class="share-btn" onclick="shareX()">🐦 X</div>
+    </div>
+
+    <div class="note">
+      Tip: For Instagram or TikTok, download the MP3, upload it as a Reel or video,
+      and tag the person it’s for 🎉
     </div>
   </div>
 
   <script>
     const API_BASE = "https://shoutoutsong.onrender.com";
-
-    let recipientName = "someone special";
-    let subject = "something they love";
-    let shareUrl = window.location.href;
-    let audioUrl = null;  // Store for download functions
 
     function getToken() {
       return new URLSearchParams(window.location.search).get("t");
@@ -156,29 +152,23 @@
         if (!shareRes.ok) throw new Error("Expired");
 
         const share = await shareRes.json();
+        
+        const recipientName = share.recipient_name || "someone special";
+        const subject = share.subject || "something they love";
 
-        // Store for download functions
-        audioUrl = share.audio_url;
+        // Simple, clean title
+        document.getElementById("songTitle").textContent = 
+          `A song for ${recipientName}`;
+        
+        // Subtitle shows what it's about (no "about" to avoid grammar issues)
+        document.getElementById("songSubtitle").textContent = subject;
+        
+        // Update page title for browser tab
+        document.title = `Song for ${recipientName} - Shoutout Song`;
 
-        // Store name and subject for share text
-        recipientName = share.recipient_name || "someone special";
-        subject = share.subject || "something they love";
-
-        // Update page title
-        document.title = `Shoutout Song - ${recipientName} and their love for ${subject} 🎵`;
-
-        // Update title with name and subject
-        const titleText = recipientName && subject 
-          ? `A song for ${recipientName} about ${subject} 🎵`
-          : share.title || "A Shoutout Song 🎵";
-
-        document.getElementById("songTitle").textContent = titleText;
-        document.getElementById("songSubtitle").textContent =
-          share.subtitle || "Made with Shoutout Song";
-
-        // 2️⃣ Use audio_url directly from share data
+        // 2️⃣ Use audio_url directly from share data (not from separate endpoint)
         const audio = document.getElementById("audioPlayer");
-        audio.src = audioUrl;
+        audio.src = share.audio_url;
         audio.load();
 
       } catch (err) {
@@ -189,17 +179,15 @@
     }
 
     function copyLink() {
-      navigator.clipboard.writeText(shareUrl);
+      navigator.clipboard.writeText(window.location.href);
       alert("Link copied!");
     }
 
     function shareNative() {
-      const shareText = `Check out this custom shoutout song about ${recipientName} and their love for ${subject}! 🎵`;
       if (navigator.share) {
         navigator.share({
-          title: 'Shoutout Song 🎵',
-          text: shareText,
-          url: shareUrl
+          title: document.title,
+          url: window.location.href
         });
       } else {
         copyLink();
@@ -207,54 +195,22 @@
     }
 
     function shareFacebook() {
-      const shareText = `I made a custom shoutout song about ${recipientName} and their love for ${subject}! 🎵`;
-      const fullText = `${shareText} ${shareUrl}`;
-      // Copy to clipboard so user can paste
-      navigator.clipboard.writeText(fullText).then(() => {
-        alert("✅ Share text copied! Paste it into Facebook.\n\n" + fullText);
-      }).catch(() => {
-        alert("Share this on Facebook:\n\n" + fullText);
-      });
-      // Open Facebook
       window.open(
-        "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(shareUrl),
+        "https://www.facebook.com/sharer/sharer.php?u=" +
+          encodeURIComponent(window.location.href),
         "_blank"
       );
     }
 
     function shareX() {
-      const shareText = `Check out this custom shoutout song about ${recipientName} and their love for ${subject}! 🎵`;
       window.open(
         "https://twitter.com/intent/tweet?url=" +
-          encodeURIComponent(shareUrl) +
-          "&text=" + encodeURIComponent(shareText),
+          encodeURIComponent(window.location.href),
         "_blank"
       );
     }
 
     loadSharedSong();
   </script>
-
-<footer style="
-  max-width: 720px;
-  margin: 60px auto 20px;
-  padding: 16px;
-  text-align: center;
-  font-size: 0.75rem;
-  color: #6b7280;
-  opacity: 0.7;
-">
-  <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 8px;">
-    <a href="/terms.html" style="color: #9ca3c7; text-decoration: none;">Terms</a>
-    <span>•</span>
-    <a href="/privacy.html" style="color: #9ca3c7; text-decoration: none;">Privacy</a>
-    <span>•</span>
-    <a href="/refund.html" style="color: #9ca3c7; text-decoration: none;">Refunds</a>
-    <span>•</span>
-    <a href="/content-policy.html" style="color: #9ca3c7; text-decoration: none;">Content</a>
-  </div>
-  <p style="margin: 0; font-size: 0.7rem;">© 2025 ShoutoutSong</p>
-</footer>
-
 </body>
 </html>
