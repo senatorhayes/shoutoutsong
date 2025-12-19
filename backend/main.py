@@ -280,9 +280,9 @@ def generate_kid_song(req: KidSongRequest):
     lyrics = generate_kid_lyrics(req.child_name, req.theme)
     task_id = start_song_generation(
         lyrics=lyrics,
-        prompt="Quality children's song with warm acoustic guitar, gentle melody, sincere vocals, heartfelt storytelling, authentic and musical (not overly silly or synthetic)",
+        prompt="Upbeat fun children's song with catchy melody, bright instrumentation, cheerful vocals, playful energy, high-quality production (not overly synthetic or cheesy)",
         duration=req.duration_seconds,
-        genre="folk",  # Folk genre for authentic acoustic feel
+        genre="pop",  # Pop for upbeat energy
     )
     return {"task_id": task_id, "lyrics": lyrics}
 
