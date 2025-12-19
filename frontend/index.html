@@ -189,6 +189,11 @@
         display: flex;
       }
       
+      /* Hide music decoration on mobile */
+      .music-decoration {
+        display: none;
+      }
+      
       /* Loading box overlays audio area on mobile */
       .loading-box {
         position: fixed;
@@ -1010,6 +1015,22 @@
         </div>
       </div>
 
+      <!-- Decorative music notes -->
+      <img 
+        src="/music-decoration.png" 
+        alt="" 
+        style="
+          position: absolute;
+          bottom: 20px;
+          left: 0;
+          width: 400px;
+          max-width: 80%;
+          opacity: 0.7;
+          pointer-events: none;
+          z-index: 0;
+        "
+        class="music-decoration"
+      />
 
       <!-- Loading Box -->
       <div class="loading-box" id="loadingBox">
@@ -1227,10 +1248,17 @@
               <select id="adultGenre">
                 <option value="pop">Pop</option>
                 <option value="rock">Rock</option>
+                <option value="hiphop">Hip Hop</option>
+                <option value="rap">Rap</option>
                 <option value="country">Country</option>
                 <option value="reggae">Reggae</option>
+                <option value="reggaeton">Latin / Reggaeton</option>
                 <option value="metal">Metal</option>
                 <option value="punk">Punk</option>
+                <option value="grunge">Grunge</option>
+                <option value="alternative">Alternative Rock</option>
+                <option value="indie">Indie Rock</option>
+                <option value="emo">Emo</option>
                 <option value="edm">EDM</option>
                 <option value="house">House (Dance)</option>
                 <option value="techno">Techno / Club</option>
@@ -1239,6 +1267,20 @@
                 <option value="rnb">R&B / Soul</option>
                 <option value="gospel">Gospel</option>
                 <option value="jazz">Jazz</option>
+                <option value="blues">Blues</option>
+                <option value="classical">Classical</option>
+                <option value="disco">Disco</option>
+                <option value="funk">Funk</option>
+                <option value="kpop">K-pop</option>
+                <option value="mariachi">Mariachi</option>
+                <option value="ska">Ska</option>
+                <option value="lofi">Lo-fi</option>
+                <option value="seashanty">Sea Shanty</option>
+                <option value="50s">50's Rock & Roll</option>
+                <option value="70s">70's Classics</option>
+                <option value="80s">80's Synth Pop</option>
+                <option value="90s">90's Hits</option>
+                <option value="1920s">1920's Jazz Age</option>
               </select>
             </div>
           </div>
