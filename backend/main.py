@@ -234,7 +234,6 @@ class CreateShareLinkRequest(BaseModel):
     title: str | None = None
     recipient_name: str | None = None
     subject: str | None = None
-    lyrics: str | None = None
 
 
 # =====================================================
@@ -356,19 +355,8 @@ def full_audio(task_id: str):
     if not audio_url:
         raise HTTPException(status_code=404, detail="Audio not ready")
 
-    # Try to get name and subject from result metadata for better filename
-    metadata = result.get("metadata", {})
-    recipient_name = metadata.get("recipient_name", "")
-    subject = metadata.get("subject", "")
-    
-    # Create filename: shoutoutsong-{name}-{subject}.mp3
-    if recipient_name and subject:
-        # Clean name and subject for filename
-        clean_name = re.sub(r"[^a-z0-9]+", "", recipient_name.lower().replace(" ", ""))
-        clean_subject = re.sub(r"[^a-z0-9]+", "", subject.lower().replace(" ", ""))
-        safe_title = f"shoutoutsong-{clean_name}-{clean_subject}"
-    else:
-        safe_title = "shoutoutsong"
+    title = result.get("title") or "my-shoutout-song"
+    safe_title = re.sub(r"[^a-z0-9\-]+", "", title.lower().replace(" ", "-"))
 
     response = RedirectResponse(audio_url)
     response.headers["Content-Disposition"] = (
@@ -403,7 +391,6 @@ def create_share_link(req: CreateShareLinkRequest):
         "subtitle": "Made with Shoutout Song",
         "recipient_name": req.recipient_name or "",
         "subject": req.subject or "",
-        "lyrics": req.lyrics or "",
         "created_at": time.time(),
     }
 

@@ -74,26 +74,41 @@
     }
 
     .share-buttons {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
       margin-top: 16px;
     }
 
     .share-btn {
-      flex: 1;
-      padding: 14px;
+      padding: 14px 10px;
       border-radius: 14px;
       background: rgba(255,255,255,0.07);
       color: #fff;
       border: none;
       font-weight: 600;
       cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
     }
-    
-    @media (max-width: 768px) {
-      .share-buttons {
-        flex-direction: column;
-      }
+
+    .share-btn:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-2px);
+    }
+
+    .tip {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #9aa3ff;
+      text-align: center;
+      padding: 12px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -102,7 +117,7 @@
 <div class="card">
   <div class="badge">✓ Payment confirmed</div>
 
-  <h1>🎉 Your Shoutout Song is ready!</h1>
+  <h1>🎉 Your shoutout song is ready!</h1>
   <p>Your full-quality song has been unlocked.</p>
 
   <div class="actions">
@@ -111,26 +126,43 @@
   </div>
 
   <audio id="audioPlayer" controls></audio>
-  
-  <!-- Lyrics Section -->
-  <div id="lyricsSection" style="display: none; margin: 24px 0; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px; border-left: 3px solid #4cd964;">
-    <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #4cd964;">📝 Lyrics - share the inspiration!</h3>
-    <div id="lyricsContent" style="white-space: pre-wrap; line-height: 1.6; color: #b9c0ff; font-size: 14px;"></div>
-  </div>
 
   <div class="share">
     <h2>📣 Share the surprise</h2>
     <p>Send it to the person it's for — or post it and tag them.</p>
 
-    <div class="share-buttons">
-      <button class="share-btn" onclick="copyLink()">🔗 Copy link</button>
-      <button class="share-btn" onclick="shareX()">🐦 X</button>
+    <div class="share-buttons" style="grid-template-columns: repeat(2, 1fr);">
+      <button class="share-btn" onclick="shareNative()">
+        📲 Share
+      </button>
+      <button class="share-btn" onclick="copyLink()">
+        🔗 Copy Link
+      </button>
+      <button class="share-btn" onclick="shareFacebook()">
+        📘 Facebook
+      </button>
+      <button class="share-btn" onclick="shareX()">
+        𝕏 X/Twitter
+      </button>
+    </div>
+
+    <div class="tip">
+      💡 Tip: For Instagram or TikTok, download the MP3, upload it as a Reel or video, and tag the person it's for 🎉
+    </div>
+
+    <div class="share-buttons" style="grid-template-columns: repeat(2, 1fr); margin-top: 12px;">
+      <button class="share-btn" onclick="openInstagram()">
+        📷 Open Instagram
+      </button>
+      <button class="share-btn" onclick="openTikTok()">
+        🎵 Open TikTok
+      </button>
     </div>
   </div>
 
   <div class="actions">
-    <button class="btn secondary" onclick="window.location.href='/'">
-      🎁 Make Another Shoutout Song
+    <button class="btn secondary" onclick="window.location.href='https://shoutoutsong.com'">
+      🎁 Make another shoutout
     </button>
   </div>
 </div>
@@ -141,21 +173,15 @@
   
   const params = new URLSearchParams(window.location.search);
   const songId = params.get("song_id");
+  const recipientName = params.get("name") || "someone special";
+  const subject = params.get("subject") || "something they love";
+
+  // Update page title dynamically
+  document.title = `Shoutout Song - ${recipientName} and their love for ${subject} 🎵`;
 
   if (!songId) {
     alert("Missing song ID.");
   }
-
-  // Load song data to get lyrics
-  fetch(`${API_BASE}/song-status/${songId}`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.lyrics) {
-        document.getElementById("lyricsContent").textContent = data.lyrics;
-        document.getElementById("lyricsSection").style.display = "block";
-      }
-    })
-    .catch(err => console.error("Lyrics error:", err));
 
   // 🚀 FULL AUDIO URL IS INSTANT
   const fullAudioUrl = `${API_BASE}/full-audio/${songId}`;
@@ -173,11 +199,18 @@
 
   // 🔗 Share link (created in background)
   let shareUrl = null;
+  
+  // Create share text
+  const shareText = `I made a custom shoutout song about ${recipientName} and their love for ${subject}! 🎵`;
 
   fetch(`${API_BASE}/create-share-link`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ song_id: songId })
+    body: JSON.stringify({ 
+      song_id: songId,
+      recipient_name: recipientName,
+      subject: subject 
+    })
   })
     .then(res => res.json())
     .then(data => { shareUrl = data.share_url; })
@@ -189,14 +222,87 @@
     alert("Link copied!");
   }
 
-  function shareX() {
-    if (!shareUrl) return;
+  function shareNative() {
+    if (!shareUrl) return alert("Share link still generating, try again in a second.");
+    if (navigator.share) {
+      navigator.share({
+        title: 'Shoutout Song 🎵',
+        text: shareText,
+        url: shareUrl
+      });
+    } else {
+      copyLink();
+    }
+  }
+
+  function shareFacebook() {
+    if (!shareUrl) return alert("Share link still generating, try again in a second.");
+    // Facebook only shares the link - user adds their own text
+    // Copy the share text to clipboard so they can paste it
+    const fullText = `${shareText} ${shareUrl}`;
+    navigator.clipboard.writeText(fullText).then(() => {
+      alert("✅ Share text copied! Paste it into Facebook.\n\n" + fullText);
+    }).catch(() => {
+      alert("Share this on Facebook:\n\n" + fullText);
+    });
+    // Still open Facebook
     window.open(
-      `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=I%20made%20a%20custom%20Shoutout%20Song%20🎵`,
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
       "_blank"
     );
   }
+
+  function shareX() {
+    if (!shareUrl) return alert("Share link still generating, try again in a second.");
+    window.open(
+      `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`,
+      "_blank"
+    );
+  }
+
+  function openInstagram() {
+    // Try to open Instagram app, falls back to website
+    const instagramUrl = 'instagram://';
+    const instagramWeb = 'https://www.instagram.com/';
+    
+    window.location.href = instagramUrl;
+    setTimeout(() => {
+      window.open(instagramWeb, '_blank');
+    }, 500);
+  }
+
+  function openTikTok() {
+    // Try to open TikTok app, falls back to website
+    const tiktokUrl = 'tiktok://';
+    const tiktokWeb = 'https://www.tiktok.com/';
+    
+    window.location.href = tiktokUrl;
+    setTimeout(() => {
+      window.open(tiktokWeb, '_blank');
+    }, 500);
+  }
 </script>
+
+<footer style="
+  max-width: 760px;
+  margin: 60px auto 20px;
+  padding: 16px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #6b7280;
+  opacity: 0.7;
+">
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 8px;">
+    <a href="/terms.html" style="color: #9ca3c7; text-decoration: none;">Terms</a>
+    <span>•</span>
+    <a href="/privacy.html" style="color: #9ca3c7; text-decoration: none;">Privacy</a>
+    <span>•</span>
+    <a href="/refund.html" style="color: #9ca3c7; text-decoration: none;">Refunds</a>
+    <span>•</span>
+    <a href="/content-policy.html" style="color: #9ca3c7; text-decoration: none;">Content</a>
+  </div>
+  <p style="margin: 0; font-size: 0.7rem;">© 2025 ShoutoutSong</p>
+</footer>
 
 </body>
 </html>
