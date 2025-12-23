@@ -1388,6 +1388,28 @@
                 💿 Buy full-quality version ($4.99)
               </button>
             </div>
+            
+            <!-- Try Another Button (hidden until song loads) -->
+            <button 
+              id="tryAnotherBtn" 
+              style="
+                display: none;
+                margin-top: 12px;
+                padding: 10px 16px;
+                background: transparent;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 8px;
+                color: #b7c0ff;
+                font-size: 14px;
+                cursor: pointer;
+                transition: all 0.2s;
+              "
+              onmouseover="this.style.background='rgba(255,255,255,0.05)'"
+              onmouseout="this.style.background='transparent'"
+              onclick="location.reload()"
+            >
+              🔄 Not quite right? Try another
+            </button>
 
           
           </div>
@@ -1540,6 +1562,10 @@ function restoreState(state) {
     audioPlayer.classList.remove("hidden");
     previewBtn.disabled = false;
     buyBtn.disabled = false;
+    
+    // Show "Try Another" button
+    const tryAnotherBtn = document.getElementById("tryAnotherBtn");
+    if (tryAnotherBtn) tryAnotherBtn.style.display = "block";
   }
 
   previewStartTime = state.previewStart || 15;
@@ -1772,6 +1798,10 @@ function startPolling(taskId) {
         audioPlayer.classList.remove("hidden");
         previewBtn.disabled = false;
         buyBtn.disabled = false;
+        
+        // Show "Try Another" button
+        const tryAnotherBtn = document.getElementById("tryAnotherBtn");
+        if (tryAnotherBtn) tryAnotherBtn.style.display = "block";
 
         setStatus(currentMode, "✅ READY – Your shout-out anthem is hot off the mic!", "success");
         resultBadge.textContent = "Song ready";
