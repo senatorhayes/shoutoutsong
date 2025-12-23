@@ -30,10 +30,17 @@ def start_song_generation(lyrics, prompt, duration, genre="pop"):
 
     url = f"{BASE_URL}/song/generate"
 
-    resp = requests.post(url, json=payload, headers=headers)
+    resp = requests.post(url, json=payload, headers=headers, timeout=30)
 
-    if resp.status_code != 200:
-        raise ValueError(f"Mureka song generation failed: {resp.status_code} {resp.text}")
+    if resp.status_code == 429:
+        # Rate limit hit
+        raise ValueError("Too many song requests right now. Please try again in a moment.")
+    elif resp.status_code == 503:
+        # Service unavailable
+        raise ValueError("Song generation service is temporarily busy. Please try again in 30 seconds.")
+    elif resp.status_code != 200:
+        # Other error
+        raise ValueError(f"Song generation failed. Please try again. (Error {resp.status_code})")
 
     data = resp.json()
     return data["id"]
@@ -55,10 +62,10 @@ def query_song_status(task_id):
         "Content-Type": "application/json",
     }
 
-    resp = requests.get(url, headers=headers)
+    resp = requests.get(url, headers=headers, timeout=10)
 
     # Mureka returns 200 + JSON always if valid
     if resp.status_code != 200:
-        raise ValueError(f"Mureka status check failed: {resp.status_code} {resp.text}")
+        raise ValueError(f"Unable to check song status. (Error {resp.status_code})")
 
     return resp.json()

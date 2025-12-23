@@ -540,6 +540,30 @@ async def stripe_webhook(request: Request):
     # Handle successful payment
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
+        session_id = session.get("id")
+        
+        # Prevent duplicate processing - track processed sessions
+        processed_file = Path("/opt/render/project/data/processed_webhooks.json")
+        try:
+            if processed_file.exists():
+                with open(processed_file, 'r') as f:
+                    processed = json.load(f)
+            else:
+                processed = []
+            
+            # Check if already processed
+            if session_id in processed:
+                print(f"⚠️ Webhook already processed: {session_id}")
+                return {"status": "already_processed"}
+            
+            # Mark as processed
+            processed.append(session_id)
+            # Keep only last 1000 to prevent file growing forever
+            processed = processed[-1000:]
+            with open(processed_file, 'w') as f:
+                json.dump(processed, f)
+        except Exception as e:
+            print(f"⚠️ Error checking duplicates: {e}")
         
         # Extract metadata
         song_id = session.get("metadata", {}).get("song_id")
@@ -592,21 +616,22 @@ async def stripe_webhook(request: Request):
                     else:
                         print("⚠️ Email not sent - EMAIL_ENABLED is False")
                     
-                    # Add all purchasers to Klaviyo (they bought from you - they're interested!)
-                    print(f"🔔 Attempting to add purchaser to Klaviyo: {customer_email}")
-                    klaviyo_success = add_to_klaviyo(customer_email, {
-                        "song_id": song_id,
-                        "recipient_name": recipient_name,
-                        "subject": subject,
-                        "amount": 4.99,
-                        "purchased_at": time.time(),
-                        "share_url": share_url
-                    }, purchased=True)
-                    
-                    if klaviyo_success:
-                        print(f"✅ Successfully added purchaser to Klaviyo: {customer_email}")
-                    else:
-                        print(f"❌ Failed to add purchaser to Klaviyo: {customer_email}")
+                    # Skip Klaviyo in webhook to avoid timeout (takes 1-2 seconds)
+                    # TODO: Move to background job or collect from Stripe directly
+                    # print(f"🔔 Attempting to add purchaser to Klaviyo: {customer_email}")
+                    # klaviyo_success = add_to_klaviyo(customer_email, {
+                    #     "song_id": song_id,
+                    #     "recipient_name": recipient_name,
+                    #     "subject": subject,
+                    #     "amount": 4.99,
+                    #     "purchased_at": time.time(),
+                    #     "share_url": share_url
+                    # }, purchased=True)
+                    # 
+                    # if klaviyo_success:
+                    #     print(f"✅ Successfully added purchaser to Klaviyo: {customer_email}")
+                    # else:
+                    #     print(f"❌ Failed to add purchaser to Klaviyo: {customer_email}")
         
         except Exception as e:
             print(f"❌ Error in webhook: {e}")
