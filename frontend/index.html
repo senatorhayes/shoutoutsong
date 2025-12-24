@@ -1818,6 +1818,11 @@ function startPolling(taskId) {
 // Generate kids song
 // -----------------------------
 async function generateKidSong() {
+  // Track generate button click
+  if (window.plausible) {
+    plausible('Generate Click', { props: { type: 'kids' } });
+  }
+  
   showLoader();
   resetResults();
 
@@ -1885,6 +1890,11 @@ async function generateKidSong() {
 // Generate adult song
 // -----------------------------
 async function generateAdultSong() {
+  // Track generate button click
+  if (window.plausible) {
+    plausible('Generate Click', { props: { type: 'adult' } });
+  }
+  
   showLoader();
   resetResults();
 
@@ -1996,6 +2006,11 @@ audioPlayer.addEventListener("timeupdate", () => {
 // Buy button – REAL Stripe redirect
 // -----------------------------
 buyBtn.addEventListener("click", async () => {
+  // Track purchase attempt
+  if (window.plausible) {
+    plausible('Buy Click');
+  }
+  
   if (!currentTaskId) {
     alert("Generate a song first!");
     return;
