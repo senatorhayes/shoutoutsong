@@ -32,14 +32,20 @@ def start_song_generation(lyrics, prompt, duration, genre="pop"):
 
     resp = requests.post(url, json=payload, headers=headers, timeout=30)
 
+    if resp.status_code != 200:
+        # Log the real reason from Mureka (server logs only, never shown to users)
+        print(
+            f"❌ Mureka generate failed: status={resp.status_code} "
+            f"body={resp.text[:1000]} "
+            f"payload_keys={list(payload.keys())} model={payload.get('model')} "
+            f"key_set={bool(MUREKA_API_KEY)}"
+        )
+
     if resp.status_code == 429:
-        # Rate limit hit
         raise ValueError("Too many song requests right now. Please try again in a moment.")
     elif resp.status_code == 503:
-        # Service unavailable
         raise ValueError("Song generation service is temporarily busy. Please try again in 30 seconds.")
     elif resp.status_code != 200:
-        # Other error
         raise ValueError(f"Song generation failed. Please try again. (Error {resp.status_code})")
 
     data = resp.json()
@@ -52,7 +58,6 @@ def start_song_generation(lyrics, prompt, duration, genre="pop"):
 def query_song_status(task_id):
     """
     Query Mureka for status + final audio URLs.
-    Uses the new working endpoint discovered through testing.
     """
 
     url = f"{BASE_URL}/song/query/{task_id}"
@@ -64,8 +69,8 @@ def query_song_status(task_id):
 
     resp = requests.get(url, headers=headers, timeout=10)
 
-    # Mureka returns 200 + JSON always if valid
     if resp.status_code != 200:
+        print(f"❌ Mureka status query failed: status={resp.status_code} body={resp.text[:500]}")
         raise ValueError(f"Unable to check song status. (Error {resp.status_code})")
 
     return resp.json()
