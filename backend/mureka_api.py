@@ -15,6 +15,9 @@ def start_song_generation(lyrics, prompt, duration, genre="pop"):
     Returns: task_id string
     """
 
+    # Mureka requires duration between 120 and 300 seconds
+    duration = max(120, min(300, int(duration)))
+
     payload = {
         "model": "auto",
         "lyrics": lyrics,
