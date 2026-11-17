@@ -1,0 +1,33 @@
+# Shoutout Song
+User-agent: *
+Allow: /
+Disallow: /success
+Disallow: /cancel
+Disallow: /share.html
+
+# AI search and assistant crawlers are welcome
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://shoutoutsong.com/sitemap.xml

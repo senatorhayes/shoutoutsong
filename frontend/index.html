@@ -5,6 +5,18 @@
   <title>Shoutout Song – Instant Custom Songs</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Make a custom song with anyone's name in about a minute. Kids songs about what they love, birthday songs, roasts and more in 36 genres. Free preview, $4.99." />
+  <link rel="canonical" href="https://shoutoutsong.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Shoutout Song" />
+  <meta property="og:title" content="Shoutout Song – Instant Custom Songs" />
+  <meta property="og:description" content="Make a custom song with anyone's name in about a minute. Kids songs about what they love, birthday songs, roasts and more in 36 genres. Free preview, $4.99." />
+  <meta property="og:url" content="https://shoutoutsong.com/" />
+  <meta property="og:image" content="https://shoutoutsong.com/logo.png" />
+  <meta name="twitter:card" content="summary" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Shoutout Song", "url": "https://shoutoutsong.com/", "logo": "https://shoutoutsong.com/logo.png", "sameAs": ["https://www.tiktok.com/@shoutoutsong", "https://www.instagram.com/shoutout.song", "https://www.facebook.com/shoutoutsong"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "Shoutout Song", "url": "https://shoutoutsong.com/"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Shoutout Song", "url": "https://shoutoutsong.com/", "applicationCategory": "MultimediaApplication", "operatingSystem": "Any", "description": "Custom song generator: enter a name and what they love, and Shoutout Song writes and sings a personalized song in about a minute.", "offers": {"@type": "Offer", "price": "4.99", "priceCurrency": "USD"}}</script>
   <style>
     :root {
       --bg: #050713;
@@ -1022,6 +1034,35 @@
         </div>
       </div>
 
+      <!-- Example songs (filled from /audio/examples.json by tools/marketing/daily.py) -->
+      <div id="exampleSongs" hidden style="position:relative;z-index:1;margin-top:22px;padding:16px 18px;border-radius:16px;background:rgba(77,220,255,0.05);border:1px solid rgba(77,220,255,0.2);">
+        <div style="font-weight:700;margin-bottom:10px;">🎧 Hear an example</div>
+        <div id="exampleSongsList"></div>
+        <a href="/example-songs" style="font-size:0.85rem;color:#4ddcff;">More examples →</a>
+      </div>
+      <script>
+      (function () {
+        fetch("/audio/examples.json", { cache: "no-cache" })
+          .then(function (r) { return r.ok ? r.json() : []; })
+          .then(function (items) {
+            if (!Array.isArray(items) || !items.length) return;
+            var list = document.getElementById("exampleSongsList");
+            items.slice(0, 3).forEach(function (s) {
+              var row = document.createElement("div");
+              row.style.cssText = "margin-bottom:10px;";
+              var a = document.createElement("a");
+              a.href = s.url; a.textContent = s.name + "'s " + s.label.toLowerCase() + " song";
+              a.style.cssText = "display:block;font-size:0.9rem;color:#f7f7ff;margin-bottom:4px;";
+              var au = document.createElement("audio");
+              au.controls = true; au.preload = "none"; au.src = s.audio; au.style.cssText = "width:100%;height:36px;";
+              row.appendChild(a); row.appendChild(au); list.appendChild(row);
+            });
+            document.getElementById("exampleSongs").hidden = false;
+          })
+          .catch(function () {});
+      })();
+      </script>
+
       <!-- Decorative music notes -->
       <img 
         src="/music-decoration.png" 
@@ -1061,7 +1102,7 @@
     </div>
 
     <!-- RIGHT PANEL -->
-    <div class="panel-card">
+    <div class="panel-card" id="create">
       <!-- Tabs -->
       <div class="tab-row">
         <button class="tab-btn active" id="tab-kid" data-target="kid-form">
@@ -2069,6 +2110,36 @@ generateAdultBtn.addEventListener("click", (e) => {
 setTab("kid");
 
 // -----------------------------
+// Prefill from landing-page links, e.g. /?tab=kid&love=dinosaurs&occasion=birthday#create
+// -----------------------------
+(function prefillFromUrl() {
+  const q = new URLSearchParams(window.location.search);
+  if (![...q.keys()].length) return;
+  const setVal = (id, v) => {
+    const el = document.getElementById(id);
+    if (!el || !v) return;
+    if (el.tagName === "SELECT" && ![...el.options].some((o) => o.value === v)) return;
+    el.value = v;
+  };
+  const checkRadio = (name, v) => {
+    const el = v && document.querySelector(`input[name="${name}"][value="${CSS.escape(v)}"]`);
+    if (el) el.checked = true;
+  };
+  if (q.get("tab") === "adult") {
+    setTab("adult");
+    setVal("adultName", q.get("name"));
+    setVal("adultRelationship", q.get("relationship"));
+    setVal("adultOccasion", q.get("occasion"));
+    setVal("adultGenre", q.get("genre"));
+    checkRadio("adultVibe", q.get("vibe"));
+  } else {
+    setVal("kidName", q.get("name"));
+    setVal("kidLove", q.get("love"));
+    setVal("kidOccasion", q.get("occasion"));
+  }
+})();
+
+// -----------------------------
 // Mobile: Scroll to top when clicking "Start My Shoutout Song"
 // -----------------------------
 if (window.innerWidth <= 880) {
@@ -2164,6 +2235,21 @@ if (window.innerWidth <= 880) {
       color: #9ca3c7;
     "></p>
   </div>
+
+  <!-- Popular song pages (internal links for visitors and search engines) -->
+  <nav aria-label="Popular songs" style="max-width: 640px; margin: 0 auto 24px; line-height: 2; font-size: 0.85rem;">
+    <div style="color: #9ca3c7; font-weight: 600; margin-bottom: 4px;">Popular songs</div>
+    <a href="/kids-songs" style="color: #b7c0ff; margin: 0 8px;">Kids songs</a>
+    <a href="/birthday-song-for-kids" style="color: #b7c0ff; margin: 0 8px;">Kids birthday songs</a>
+    <a href="/dinosaur-song-for-kids" style="color: #b7c0ff; margin: 0 8px;">Dinosaur song</a>
+    <a href="/unicorn-song-for-kids" style="color: #b7c0ff; margin: 0 8px;">Unicorn song</a>
+    <a href="/christmas-song-for-kids" style="color: #b7c0ff; margin: 0 8px;">Christmas song for kids</a>
+    <a href="/song-gifts" style="color: #b7c0ff; margin: 0 8px;">Song gifts</a>
+    <a href="/personalized-birthday-song" style="color: #b7c0ff; margin: 0 8px;">Birthday song</a>
+    <a href="/anniversary-song" style="color: #b7c0ff; margin: 0 8px;">Anniversary song</a>
+    <a href="/roast-song" style="color: #b7c0ff; margin: 0 8px;">Roast song</a>
+    <a href="/faq" style="color: #b7c0ff; margin: 0 8px;">FAQ</a>
+  </nav>
 
   <!-- Social Media Links -->
   <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 20px;">

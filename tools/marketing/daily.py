@@ -1,0 +1,243 @@
+#!/usr/bin/env python3
+"""Make one example song, turn it into a vertical video, publish its page, and post it.
+
+Runs daily from .github/workflows/daily-song-video.yml. Can also run locally:
+
+    python3 tools/marketing/daily.py                 # next name/theme in the queue
+    python3 tools/marketing/daily.py --name Olivia --theme dinosaurs
+    python3 tools/marketing/daily.py --no-post       # never post, just build
+
+Environment:
+    SHOUTOUT_API          backend URL (default https://shoutoutsong.onrender.com)
+    UPLOAD_POST_API_KEY   Upload-Post API key (posting is skipped without it)
+    UPLOAD_POST_USER      Upload-Post profile name holding the connected accounts
+    AUTO_POST             must be "true" to actually post
+    PLATFORMS             comma list, default tiktok,instagram,youtube,facebook
+    YT_MADE_FOR_KIDS      "true" (default) or "false"
+"""
+import argparse
+import datetime
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+import requests
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import config  # noqa: E402
+from pages import FRONT, ROOT, SITE, build_all  # noqa: E402
+from render_video import render, require_ffmpeg  # noqa: E402
+
+API = os.getenv("SHOUTOUT_API", "https://shoutoutsong.onrender.com").rstrip("/")
+STATE = HERE / "state.json"
+MANIFEST = HERE / "songs.json"
+OUT = HERE / "out"
+
+
+def load(path, default):
+    return json.loads(path.read_text()) if path.exists() else default
+
+
+def slugify(s):
+    return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
+
+
+# ---------------------------------------------------------------- song
+def generate_song(name, love):
+    r = requests.post(f"{API}/generate-kid-song",
+                      json={"child_name": name, "theme": love, "duration_seconds": config.SONG_SECONDS},
+                      timeout=120)
+    r.raise_for_status()
+    data = r.json()
+    task_id, lyrics = data["task_id"], data.get("lyrics", "")
+    print(f"Song task {task_id} started")
+    deadline = time.time() + 15 * 60
+    while time.time() < deadline:
+        time.sleep(10)
+        s = requests.get(f"{API}/song-status/{task_id}", timeout=60)
+        s.raise_for_status()
+        st = s.json()
+        status = st.get("status")
+        if status == "succeeded" and st.get("choices"):
+            return task_id, lyrics, st["choices"][0]
+        if status in ("failed", "error", "timeouted", "cancelled"):
+            raise SystemExit(f"Song generation {status}: {json.dumps(st)[:500]}")
+        print(f"  status: {status}")
+    raise SystemExit("Song generation timed out")
+
+
+def duration(path):
+    out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                          "-of", "default=nw=1:nk=1", str(path)], capture_output=True, text=True, check=True)
+    return float(out.stdout.strip())
+
+
+def ms(v):
+    return v / 1000 if isinstance(v, (int, float)) else None
+
+
+def chorus_start(choice):
+    for sec in choice.get("lyrics_sections") or []:
+        if str(sec.get("section_type", "")).lower() == "chorus" and ms(sec.get("start")) is not None:
+            return ms(sec["start"])
+    return 0.0
+
+
+def timed_lines(choice):
+    """Lyric lines with start/end seconds, if the generator returned them."""
+    lines = []
+    for sec in choice.get("lyrics_sections") or []:
+        for ln in sec.get("lines") or []:
+            text = (ln.get("text") or ln.get("line") or "").strip()
+            start = ms(ln.get("start"))
+            if text and start is not None:
+                lines.append([start, ms(ln.get("end")), text])
+    lines.sort()
+    for i, ln in enumerate(lines):
+        if ln[1] is None:
+            ln[1] = lines[i + 1][0] if i + 1 < len(lines) else ln[0] + 3
+    return lines
+
+
+def chorus_text(lyrics):
+    block, inside = [], False
+    for raw in lyrics.splitlines():
+        line = raw.strip()
+        if re.match(r"^chorus\b", line, re.I):
+            inside = True
+            continue
+        if inside:
+            if not line or re.match(r"^(verse|bridge|outro|intro)\b", line, re.I):
+                if block:
+                    break
+                continue
+            block.append(line)
+    return block
+
+
+def build_captions(choice, lyrics, start, length):
+    lines = timed_lines(choice)
+    caps = []
+    for s, e_, text in lines:
+        if e_ <= start or s >= start + length:
+            continue
+        caps.append((max(0.0, s - start), min(length, e_ - start), text))
+    if caps:
+        return caps
+    # No timing from the generator: show the chorus two lines at a time, evenly spaced.
+    chorus = chorus_text(lyrics)
+    pairs = [" ".join(chorus[i:i + 2]) for i in range(0, len(chorus), 2)] or [""]
+    step = length / len(pairs)
+    return [(i * step, (i + 1) * step, p) for i, p in enumerate(pairs) if p]
+
+
+# ---------------------------------------------------------------- posting
+def post_video(song, video_path, caption, title, description):
+    key, user = os.getenv("UPLOAD_POST_API_KEY"), os.getenv("UPLOAD_POST_USER")
+    if not key or not user:
+        print("Posting skipped: UPLOAD_POST_API_KEY / UPLOAD_POST_USER not set")
+        return None
+    platforms = [p.strip() for p in os.getenv("PLATFORMS", "tiktok,instagram,youtube,facebook").split(",") if p.strip()]
+    data = [("user", user), ("title", caption), ("description", description),
+            ("youtube_title", title), ("youtube_description", description),
+            ("facebook_title", title), ("facebook_description", description),
+            ("is_ai_generated", "true"), ("containsSyntheticMedia", "true"),
+            ("selfDeclaredMadeForKids", os.getenv("YT_MADE_FOR_KIDS", "true")),
+            ("post_mode", "DIRECT_POST"), ("media_type", "REELS"),
+            ("async_upload", "true")]
+    data += [("platform[]", p) for p in platforms]
+    with open(video_path, "rb") as f:
+        r = requests.post("https://api.upload-post.com/api/upload",
+                          headers={"Authorization": f"Apikey {key}"},
+                          data=data, files={"video": (video_path.name, f, "video/mp4")}, timeout=300)
+    print(f"Upload-Post response {r.status_code}: {r.text[:800]}")
+    r.raise_for_status()
+    return {"platforms": platforms, "response": r.json()}
+
+
+# ---------------------------------------------------------------- main
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--name")
+    ap.add_argument("--theme", help="matches a THEMES 'love' or 'label' (e.g. dinosaurs)")
+    ap.add_argument("--no-post", action="store_true")
+    args = ap.parse_args()
+    require_ffmpeg()
+
+    state = load(STATE, {"next": 0})
+    songs = load(MANIFEST, [])
+    i = state["next"]
+    name = args.name or config.NAMES[i % len(config.NAMES)]
+    theme = config.THEMES[i % len(config.THEMES)]
+    if args.theme:
+        q = args.theme.lower()
+        theme = next((t for t in config.THEMES if q in (t["love"].lower(), t["label"].lower())), None) \
+            or dict(love=args.theme, label=args.theme.title(), page="kids-songs", tags=[slugify(args.theme).replace("-", "")])
+    slug = f"{slugify(name)}-{slugify(theme['label'])}-song"
+    if any(s["slug"] == slug for s in songs):
+        slug += "-" + datetime.date.today().strftime("%y%m%d")
+    print(f"Making {slug}: {name} loves {theme['love']}")
+
+    work = OUT / slug
+    work.mkdir(parents=True, exist_ok=True)
+    task_id, lyrics, choice = generate_song(name, theme["love"])
+    audio_url = choice.get("url") or choice.get("audio_url")
+    full = work / "full.mp3"
+    full.write_bytes(requests.get(audio_url, timeout=120).content)
+    (work / "song.json").write_text(json.dumps({"task_id": task_id, "lyrics": lyrics, "choice": choice}, indent=1))
+
+    total = duration(full)
+    length = min(config.CLIP_SECONDS, total)
+    start = chorus_start(choice)
+    if start + length > total:
+        start = max(0.0, total - length)
+    clip = FRONT / "audio" / f"{slug}.mp3"
+    clip.parent.mkdir(exist_ok=True)
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{start:.2f}", "-t", f"{length:.2f}", "-i", str(full),
+                    "-af", f"afade=t=in:d=0.4,afade=t=out:st={max(0, length - 1.5):.2f}:d=1.5",
+                    "-b:a", "128k", str(clip)], check=True)
+
+    caps = build_captions(choice, lyrics, start, length)
+    video = work / f"{slug}.mp4"
+    render(name, theme["label"], theme["love"], clip, caps, video, work)
+    print(f"Video: {video}")
+
+    page_url = f"{SITE}/{slug}"
+    n = len(songs)
+    caption = config.CAPTIONS[n % len(config.CAPTIONS)].format(
+        name=name, love=theme["love"], label=theme["label"], label_lower=theme["label"].lower(), url=page_url)
+    tags = config.BASE_HASHTAGS + theme["tags"] + [f"{slugify(name).replace('-', '')}song"]
+    caption = f"{caption}\n\n" + " ".join("#" + t for t in tags)
+    title = f"{name}'s {theme['label']} Song 🎶 Custom Kids Song With Their Name"[:100]
+    description = (f"An example {theme['label'].lower()} song for every kid named {name}. "
+                   f"Make one with your child's name in about a minute: {page_url}")
+
+    song = dict(slug=slug, name=name, love=theme["love"], label=theme["label"], page=theme["page"],
+                audio=f"/audio/{slug}.mp3", lyrics=lyrics, task_id=task_id,
+                date=datetime.date.today().isoformat(), caption=caption)
+    songs.append(song)
+    MANIFEST.write_text(json.dumps(songs, indent=1))
+    build_all(songs)
+    subprocess.run([sys.executable, str(ROOT / "tools" / "seo" / "build.py")], check=True)
+    if not args.name and not args.theme:
+        STATE.write_text(json.dumps({"next": i + 1}))
+
+    if args.no_post or os.getenv("AUTO_POST", "").lower() != "true":
+        print("AUTO_POST is not 'true': video built but not posted")
+    else:
+        song["posted"] = post_video(song, video, caption, title, description)
+        MANIFEST.write_text(json.dumps(songs, indent=1))
+
+    gh_out = os.getenv("GITHUB_OUTPUT")
+    if gh_out:
+        with open(gh_out, "a") as f:
+            f.write(f"slug={slug}\nvideo={video}\n")
+
+
+if __name__ == "__main__":
+    main()
