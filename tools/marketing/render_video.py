@@ -108,7 +108,7 @@ def draw_static(name, label, love, out_png):
         x0 += logo_size + gap
     d.text((x0, 220 + logo_size / 2), brand, font=brand_f, fill=WHITE, anchor="lm")
 
-    centered(d, 390, "a song for", font(FONT_MED, 56), MUTED)
+    centered(d, 390, "a custom song for", font(FONT_MED, 56), MUTED)
     name_f = fit_font(d, name, FONT_BOLD, 220, SAFE_R - SAFE_L)
     gradient_text(img, 450, name, name_f)
     d = ImageDraw.Draw(img)
@@ -123,8 +123,8 @@ def draw_static(name, label, love, out_png):
     cx = W / 2
     d.rounded_rectangle([cx - cw / 2 - 40, 1320, cx + cw / 2 + 40, 1420], radius=50, fill=ORANGE)
     d.text((cx, 1370), cta, font=cta_f, fill=(26, 13, 5), anchor="mm")
-    centered(d, 1450, "ShoutOutSong.com", font(FONT_BOLD, 60), CYAN)
-    centered(d, 1540, "Generate and hear the preview 100% free", font(FONT_MED, 38), WHITE)
+    centered(d, 1450, "Create and preview for free on:", font(FONT_MED, 40), WHITE)
+    centered(d, 1510, "ShoutOutSong.com", font(FONT_BOLD, 60), CYAN)
     img.save(out_png)
 
 
