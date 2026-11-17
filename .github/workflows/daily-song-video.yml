@@ -1,0 +1,81 @@
+# Makes one example song a day, renders a vertical video, publishes its page on
+# shoutoutsong.com and (when AUTO_POST is "true") posts it via Upload-Post.
+#
+# Setup (GitHub repo → Settings → Secrets and variables → Actions):
+#   Secret    UPLOAD_POST_API_KEY   from upload-post.com
+#   Variable  UPLOAD_POST_USER      the Upload-Post profile name you connected your accounts to
+#   Variable  AUTO_POST             set to "true" when you're happy with the videos
+#   Variable  PLATFORMS (optional)  default tiktok,instagram,youtube,facebook
+#
+# Each run's video is attached to the run (Actions tab → run → Artifacts) so you can watch it.
+name: Daily example song video
+
+on:
+  schedule:
+    - cron: "37 23 * * *"   # 23:37 UTC daily = afternoon/evening in the US
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Kid's name (blank = next in the queue)"
+        required: false
+      theme:
+        description: "Theme, e.g. dinosaurs (blank = next in the queue)"
+        required: false
+      post:
+        description: "Post to social media?"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-song-video
+  cancel-in-progress: false
+
+jobs:
+  make:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          pip install -q pillow requests
+
+      - name: Make song, video and page
+        id: make
+        env:
+          UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
+          UPLOAD_POST_USER: ${{ vars.UPLOAD_POST_USER }}
+          PLATFORMS: ${{ vars.PLATFORMS }}
+          AUTO_POST: ${{ github.event_name == 'workflow_dispatch' && (inputs.post && 'true' || 'false') || vars.AUTO_POST }}
+          IN_NAME: ${{ inputs.name }}
+          IN_THEME: ${{ inputs.theme }}
+        run: |
+          args=()
+          if [ -n "$IN_NAME" ]; then args+=(--name "$IN_NAME"); fi
+          if [ -n "$IN_THEME" ]; then args+=(--theme "$IN_THEME"); fi
+          python3 tools/marketing/daily.py "${args[@]}"
+
+      - name: Attach video to this run
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.make.outputs.slug }}
+          path: ${{ steps.make.outputs.video }}
+
+      - name: Publish page to the site
+        run: |
+          git config user.name "shoutoutsong-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend tools/marketing/songs.json tools/marketing/state.json
+          git commit -m "Example song: ${{ steps.make.outputs.slug }}" || exit 0
+          git pull --rebase
+          git push
