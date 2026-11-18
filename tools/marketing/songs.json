@@ -23,5 +23,31 @@
   "task_id": "172593764302849",
   "date": "2026-11-18",
   "caption": "POV: your kid hears their own name in a song about dinosaurs \ud83e\udd29 This is our example for Olivia. Make one for your kid at shoutoutsong.com (link in bio)\n\n#kidssongs #personalizedsong #customsong #kidsmusic #momlife #parenting #dinosaurs #dinosaursong #oliviasong"
+ },
+ {
+  "slug": "ivan-panda-bear-song",
+  "name": "Ivan",
+  "love": "Panda Bear",
+  "label": "Panda Bear",
+  "page": "kids-songs",
+  "audio": "/audio/ivan-panda-bear-song.mp3",
+  "lyrics": "Verse 1:  \nIn a bamboo forest, where the pandas play,  \nIvan laughs and dances, brightening the day.  \nWith a wiggly tail and a big fluffy grin,  \nPanda bear hugs, let the fun begin!  \n\nChorus:  \nOh, Ivan, Ivan, panda bear friend,  \nJumping and twirling, the fun never ends!  \nWith a bop and a hop, we'll sing it out loud,  \nIvan and pandas, we're so very proud!  \n\nVerse 2:  \nRolling down hills, what a sight to see,  \nIvan and his buddies, so wild and free!  \nWith a cuddle and giggle, love fills the air,  \nEvery day's a party with Ivan the bear!  \n\nChorus:  \nOh, Ivan, Ivan, panda bear friend,  \nJumping and twirling, the fun never ends!  \nWith a bop and a hop, we'll sing it out loud,  \nIvan and pandas, we're so very proud!",
+  "task_id": "172644209197057",
+  "date": "2026-11-18",
+  "caption": "Tag a parent of a Ivan \ud83d\udc47 A panda bear song with their kid's name in it, made in about a minute at shoutoutsong.com\n\n#kidssongs #personalizedsong #customsong #kidsmusic #momlife #parenting #pandabear #ivansong",
+  "posted": {
+   "platforms": [
+    "instagram",
+    "youtube",
+    "facebook"
+   ],
+   "response": {
+    "success": true,
+    "message": "Upload queued successfully in the durable worker.",
+    "request_id": "ba4ffc2f003244ce9144a88961a1b80d",
+    "total_platforms": 3,
+    "job_id": "e9c266eee3b14e5f999b133dbbe21792"
+   }
+  }
  }
 ]

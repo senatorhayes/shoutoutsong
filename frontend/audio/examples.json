@@ -1,5 +1,11 @@
 [
  {
+  "name": "Ivan",
+  "label": "Panda Bear",
+  "audio": "/audio/ivan-panda-bear-song.mp3",
+  "url": "/ivan-panda-bear-song"
+ },
+ {
   "name": "Olivia",
   "label": "Dinosaur",
   "audio": "/audio/olivia-dinosaur-song.mp3",
