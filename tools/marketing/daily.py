@@ -143,7 +143,9 @@ def post_video(song, video_path, caption, title, description):
         print("Posting skipped: UPLOAD_POST_API_KEY / UPLOAD_POST_USER not set")
         return None
     platforms = [p.strip() for p in os.getenv("PLATFORMS", "tiktok,instagram,youtube,facebook").split(",") if p.strip()]
-    data = [("user", user), ("title", caption), ("description", description),
+    # Instagram uses the generic description as its caption (links there are not clickable),
+    # so the generic fields get the social caption; YouTube/Facebook get the version with the link.
+    data = [("user", user), ("title", caption), ("description", caption),
             ("youtube_title", title), ("youtube_description", description),
             ("facebook_title", title), ("facebook_description", description),
             ("is_ai_generated", "true"), ("containsSyntheticMedia", "true"),
@@ -177,7 +179,7 @@ def main():
     if args.theme:
         q = args.theme.lower()
         theme = next((t for t in config.THEMES if q in (t["love"].lower(), t["label"].lower())), None) \
-            or dict(love=args.theme, label=args.theme.title(), page="kids-songs", tags=[slugify(args.theme).replace("-", "")])
+            or dict(love=args.theme.lower(), label=args.theme.title(), page="kids-songs", tags=[slugify(args.theme).replace("-", "")])
     slug = f"{slugify(name)}-{slugify(theme['label'])}-song"
     if any(s["slug"] == slug for s in songs):
         slug += "-" + datetime.date.today().strftime("%y%m%d")
@@ -214,8 +216,11 @@ def main():
     tags = config.BASE_HASHTAGS + theme["tags"] + [f"{slugify(name).replace('-', '')}song"]
     caption = f"{caption}\n\n" + " ".join("#" + t for t in tags)
     title = f"{name}'s {theme['label']} Song 🎶 Custom Kids Song With Their Name"[:100]
-    description = (f"An example {theme['label'].lower()} song for every kid named {name}. "
-                   f"Make one with your child's name in about a minute: {page_url}")
+    description = (f"{name}'s {theme['label'].lower()} song 🎶\n\n"
+                   f"Every kid deserves a song all about them. This one's for every {name} who loves {theme['love']}.\n\n"
+                   f"👉 Make one with your kid's name: {page_url}\n"
+                   f"Free preview, ready in about a minute.\n\n"
+                   + " ".join("#" + t for t in tags))
 
     song = dict(slug=slug, name=name, love=theme["love"], label=theme["label"], page=theme["page"],
                 audio=f"/audio/{slug}.mp3", lyrics=lyrics, task_id=task_id,

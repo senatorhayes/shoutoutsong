@@ -49,11 +49,11 @@ THEMES = [
 # {name} {love} {label} {url}. Captions are written to parents. AI disclosure is
 # handled by the platforms' own AI-content labels set at upload (see daily.py).
 CAPTIONS = [
-    "This one goes out to every {name} who loves {love} 🎶 Want one with YOUR kid's name? Make it in about a minute at shoutoutsong.com (link in bio)",
-    "POV: your kid hears their own name in a song about {love} 🤩 This is our example for {name}. Make one for your kid at shoutoutsong.com (link in bio)",
-    "Tag a parent of a {name} 👇 A {label_lower} song with their kid's name in it, made in about a minute at shoutoutsong.com",
-    "Every kid deserves a song about them. Here's one for {name} ({love} edition) 🎵 Type your kid's name at shoutoutsong.com (link in bio)",
-    "Name + what they love = their own song. Today: {name} and {love} 🎶 Try it free at shoutoutsong.com (link in bio)",
+    "This one's for every {name} who loves {love} 🎶\n\nImagine your kid hearing THEIR name in a song. Make one in about a minute, link in bio.\n\nFree preview, ready in about a minute.",
+    "POV: your kid hears their own name in a song about {love} 🎵\n\nToday's star: {name}. Want one starring your little one? Link in bio.",
+    "Know a little {name}? Tag their mom or dad 👇\n\nWe made a {label_lower} song just for them. Make one with your kid's name at ShoutOutSong.com (link in bio).",
+    "{label} song for {name} 🎶\n\nEvery kid deserves a song all about them. Type your kid's name and what they love, and hear it free. Link in bio.",
+    "Name + what they love = their very own song 🎤\n\nToday: {name} and {love}. Your turn: free preview at ShoutOutSong.com (link in bio).",
 ]
 
 BASE_HASHTAGS = ["kidssongs", "personalizedsong", "customsong", "kidsmusic", "momlife", "parenting"]
