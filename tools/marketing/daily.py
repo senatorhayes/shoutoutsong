@@ -230,7 +230,11 @@ def main():
     if args.no_post or os.getenv("AUTO_POST", "").lower() != "true":
         print("AUTO_POST is not 'true': video built but not posted")
     else:
-        song["posted"] = post_video(song, video, caption, title, description)
+        try:
+            song["posted"] = post_video(song, video, caption, title, description)
+        except Exception as exc:  # e.g. monthly upload limit reached: still publish the page
+            print(f"::warning::Posting failed: {exc}")
+            song["posted"] = {"error": str(exc)[:300]}
         MANIFEST.write_text(json.dumps(songs, indent=1))
 
     gh_out = os.getenv("GITHUB_OUTPUT")
