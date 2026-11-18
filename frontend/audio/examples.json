@@ -1,5 +1,11 @@
 [
  {
+  "name": "Olivia",
+  "label": "Dinosaur",
+  "audio": "/audio/olivia-dinosaur-song.mp3",
+  "url": "/olivia-dinosaur-song"
+ },
+ {
   "name": "Ella",
   "label": "Unicorn",
   "audio": "/audio/ella-unicorn-song.mp3",
