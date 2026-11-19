@@ -49,5 +49,31 @@
     "job_id": "e9c266eee3b14e5f999b133dbbe21792"
    }
   }
+ },
+ {
+  "slug": "liam-unicorn-song",
+  "name": "Liam",
+  "love": "unicorns",
+  "label": "Unicorn",
+  "page": "unicorn-song-for-kids",
+  "audio": "/audio/liam-unicorn-song.mp3",
+  "lyrics": "Verse 1:  \nLiam wakes up with a smile so bright,  \nDreaming of unicorns, flying high in the light.  \nSparkling rainbows in the sky so blue,  \nEvery day's an adventure, just waiting for you!  \n\nChorus:  \nLiam, Liam, dancing with glee,  \nUnicorns prancing, come play with me!  \nLiam, Liam, let\u2019s twirl and spin,  \nWith magical friends, let the fun begin!  \n\nVerse 2:  \nLiam rides a unicorn, gentle and sweet,  \nGalloping through meadows, oh, what a treat!  \nGiggles and laughter, the best kind of fun,  \nLiving in a world where adventures are spun!  \n\nChorus:  \nLiam, Liam, dancing with glee,  \nUnicorns prancing, come play with me!  \nLiam, Liam, let\u2019s twirl and spin,  \nWith magical friends, let the fun begin!",
+  "task_id": "172772198449153",
+  "date": "2026-11-19",
+  "caption": "Unicorn song for Liam \ud83c\udfb6\n\nEvery kid deserves a song all about them. Type your kid's name and what they love, and hear it free. Link in bio.\n\n#kidssongs #personalizedsong #customsong #kidsmusic #momlife #parenting #unicorn #unicornsong #liamsong",
+  "posted": {
+   "platforms": [
+    "instagram",
+    "youtube",
+    "facebook"
+   ],
+   "response": {
+    "success": true,
+    "message": "Upload queued successfully in the durable worker.",
+    "request_id": "8b56e4d1fbf344f489a58c37024be661",
+    "total_platforms": 3,
+    "job_id": "43d9ac6c293e4ede97ced450a9781021"
+   }
+  }
  }
 ]
