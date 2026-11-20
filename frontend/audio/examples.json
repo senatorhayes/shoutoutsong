@@ -1,5 +1,11 @@
 [
  {
+  "name": "Emma",
+  "label": "Monster Truck",
+  "audio": "/audio/emma-monster-truck-song.mp3",
+  "url": "/emma-monster-truck-song"
+ },
+ {
   "name": "Liam",
   "label": "Unicorn",
   "audio": "/audio/liam-unicorn-song.mp3",
@@ -10,11 +16,5 @@
   "label": "Panda Bear",
   "audio": "/audio/ivan-panda-bear-song.mp3",
   "url": "/ivan-panda-bear-song"
- },
- {
-  "name": "Olivia",
-  "label": "Dinosaur",
-  "audio": "/audio/olivia-dinosaur-song.mp3",
-  "url": "/olivia-dinosaur-song"
  }
 ]

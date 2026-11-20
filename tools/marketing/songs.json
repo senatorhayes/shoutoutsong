@@ -75,5 +75,31 @@
     "job_id": "43d9ac6c293e4ede97ced450a9781021"
    }
   }
+ },
+ {
+  "slug": "emma-monster-truck-song",
+  "name": "Emma",
+  "love": "monster trucks",
+  "label": "Monster Truck",
+  "page": "monster-truck-song-for-kids",
+  "audio": "/audio/emma-monster-truck-song.mp3",
+  "lyrics": "Verse 1:  \nEmma's got a monster truck,  \nRacing fast, oh what good luck!  \nZooming high and bouncing low,  \nWatch her go, go, go, go, go!  \n\nChorus:  \nEmma, Emma, rev that engine loud,  \nMonster truckin', she's so proud!  \nEmma, Emma, driving with a smile,  \nRiding in her truck, oh what a style!  \n\nVerse 2:  \nJumping hills and splashing mud,  \nEmma's truck is full of fun!  \nWith her friends, they cheer and play,  \nMonster trucks are here to stay!  \n\nChorus:  \nEmma, Emma, rev that engine loud,  \nMonster truckin', she's so proud!  \nEmma, Emma, driving with a smile,  \nRiding in her truck, oh what a style!",
+  "task_id": "172951999873025",
+  "date": "2026-11-20",
+  "caption": "Name + what they love = their very own song \ud83c\udfa4\n\nToday: Emma and monster trucks. Your turn: free preview at ShoutOutSong.com (link in bio).\n\n#kidssongs #personalizedsong #customsong #kidsmusic #momlife #parenting #monstertrucks #trucksforkids #emmasong",
+  "posted": {
+   "platforms": [
+    "instagram",
+    "youtube",
+    "facebook"
+   ],
+   "response": {
+    "success": true,
+    "message": "Upload queued successfully in the durable worker.",
+    "request_id": "e033c210e8304edfb1f2f5f221c615a1",
+    "total_platforms": 3,
+    "job_id": "7a8dfe62c0d6491ab029f4b9c38fede8"
+   }
+  }
  }
 ]
