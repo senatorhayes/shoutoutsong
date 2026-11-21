@@ -101,5 +101,20 @@
     "job_id": "7a8dfe62c0d6491ab029f4b9c38fede8"
    }
   }
+ },
+ {
+  "slug": "noah-mermaid-song",
+  "name": "Noah",
+  "love": "mermaids",
+  "label": "Mermaid",
+  "page": "mermaid-song-for-kids",
+  "audio": "/audio/noah-mermaid-song.mp3",
+  "lyrics": "Verse 1:  \nDown by the ocean, where the waves are blue,  \nSwims a little mermaid, just for me and you.  \nHer name is Noah, she dances with glee,  \nSinging in the sunlight, happy as can be!  \n\nChorus:  \nOh, Noah the mermaid, swimming so free,  \nTwinkling like the stars, come and play with me!  \nOh, Noah the mermaid, splash and laugh away,  \nEvery day\u2019s an adventure, come and join the sway!  \n\nVerse 2:  \nWith a swish of her tail, she dives and she twirls,  \nPlaying with the seahorses, just give them a whirl.  \nNoah loves to giggle, in the ocean so bright,  \nTogether we can splash, from morning till night!  \n\nChorus:  \nOh, Noah the mermaid, swimming so free,  \nTwinkling like the stars, come and play with me!  \nOh, Noah the mermaid, splash and laugh away,  \nEvery day\u2019s an adventure, come and join the sway!",
+  "task_id": "173132858261505",
+  "date": "2026-11-21",
+  "caption": "This one's for every Noah who loves mermaids \ud83c\udfb6\n\nImagine your kid hearing THEIR name in a song. Make one in about a minute, link in bio.\n\nFree preview, ready in about a minute.\n\n#kidssongs #personalizedsong #customsong #kidsmusic #momlife #parenting #mermaid #mermaidsong #noahsong",
+  "posted": {
+   "error": "429 Client Error: Too Many Requests for url: https://api.upload-post.com/api/upload"
+  }
  }
 ]
