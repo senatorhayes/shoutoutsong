@@ -116,5 +116,20 @@
   "posted": {
    "error": "429 Client Error: Too Many Requests for url: https://api.upload-post.com/api/upload"
   }
+ },
+ {
+  "slug": "charlotte-space-song",
+  "name": "Charlotte",
+  "love": "outer space and rockets",
+  "label": "Space",
+  "page": "space-song-for-kids",
+  "audio": "/audio/charlotte-space-song.mp3",
+  "lyrics": "Verse 1:  \nCharlotte's got a rocket, ready to fly,  \nZooming through the stars, up high in the sky!  \nWith a smile and a giggle, she\u2019s flying so free,  \nExploring all the planets, just her and me!\n\nChorus:  \nCharlotte, Charlotte, flying through space,  \nZooming past the moon, what a happy place!  \nCharlotte, Charlotte, let\u2019s dance and twirl,  \nIn our shiny rocket, it\u2019s a space adventure whirl!  \n\nVerse 2:  \nThrough the Milky Way, with comets that glow,  \nCharlotte waves to aliens, \u201cCome on, let\u2019s go!\u201d  \nWith each star we visit, we laugh and we play,  \nCharlotte\u2019s our captain, leading the way!\n\nChorus:  \nCharlotte, Charlotte, flying through space,  \nZooming past the moon, what a happy place!  \nCharlotte, Charlotte, let\u2019s dance and twirl,  \nIn our shiny rocket, it\u2019s a space adventure whirl!",
+  "task_id": "173308047785986",
+  "date": "2026-11-22",
+  "caption": "POV: your kid hears their own name in a song about outer space and rockets \ud83c\udfb5\n\nToday's star: Charlotte. Want one starring your little one? Link in bio.\n\n#kidssongs #personalizedsong #customsong #kidsmusic #momlife #parenting #space #rockets #charlottesong",
+  "posted": {
+   "error": "429 Client Error: Too Many Requests for url: https://api.upload-post.com/api/upload"
+  }
  }
 ]

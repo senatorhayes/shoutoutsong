@@ -1,5 +1,11 @@
 [
  {
+  "name": "Charlotte",
+  "label": "Space",
+  "audio": "/audio/charlotte-space-song.mp3",
+  "url": "/charlotte-space-song"
+ },
+ {
   "name": "Noah",
   "label": "Mermaid",
   "audio": "/audio/noah-mermaid-song.mp3",
@@ -10,11 +16,5 @@
   "label": "Monster Truck",
   "audio": "/audio/emma-monster-truck-song.mp3",
   "url": "/emma-monster-truck-song"
- },
- {
-  "name": "Liam",
-  "label": "Unicorn",
-  "audio": "/audio/liam-unicorn-song.mp3",
-  "url": "/liam-unicorn-song"
  }
 ]
