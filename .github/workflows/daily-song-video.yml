@@ -12,7 +12,7 @@ name: Daily example song video
 
 on:
   schedule:
-    - cron: "37 23 * * *"   # 23:37 UTC daily = afternoon/evening in the US
+    - cron: "37 22 * * *"   # 22:37 UTC daily = 5:37pm ET / 2:37pm PT
   workflow_dispatch:
     inputs:
       name:
