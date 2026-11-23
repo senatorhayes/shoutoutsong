@@ -111,6 +111,9 @@ CAPTIONS = [
 
 BASE_HASHTAGS = ["kidssongs", "personalizedsong", "customsong", "kidsmusic", "momlife", "parenting"]
 
+# Added to the end of every social caption, before the hashtags.
+CAPTION_ENDING = "Comment your kid's name + what they love and we might make the next one 👇"
+
 # Video clip length in seconds (vertical short).
 CLIP_SECONDS = 30
 

@@ -325,7 +325,7 @@ def main():
     caption = config.CAPTIONS[n % len(config.CAPTIONS)].format(
         name=name, love=theme["love"], label=theme["label"], label_lower=lower_label(theme["label"]), url=page_url)
     tags = config.BASE_HASHTAGS + theme["tags"] + [f"{slugify(name).replace('-', '')}song"]
-    caption = f"{caption}\n\n" + " ".join("#" + t for t in tags)
+    caption = f"{caption}\n\n{config.CAPTION_ENDING}\n\n" + " ".join("#" + t for t in tags)
     title = f"{name}'s {theme['label']} Song 🎶 Custom Kids Song With Their Name"[:100]
     description = (f"{name}'s {lower_label(theme['label'])} song 🎶\n\n"
                    f"Every kid deserves a song all about them. This one's for every {name} who loves {theme['love']}.\n\n"

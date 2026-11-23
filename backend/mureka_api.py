@@ -1,5 +1,7 @@
 # mureka_api.py
 import os
+import time
+
 import requests
 
 MUREKA_API_KEY = os.getenv("MUREKA_API_KEY")
@@ -33,7 +35,16 @@ def start_song_generation(lyrics, prompt, duration, genre="pop"):
 
     url = f"{BASE_URL}/song/generate"
 
-    resp = requests.post(url, json=payload, headers=headers, timeout=30)
+    # Mureka only runs as many songs at once as the account's concurrency limit allows.
+    # When it's busy (429/503), wait and retry for up to ~2.5 minutes instead of failing,
+    # so two people (or the daily marketing job) generating at the same time just queue up.
+    waits = [5, 10, 15, 20, 25, 30, 45]
+    for attempt in range(len(waits) + 1):
+        resp = requests.post(url, json=payload, headers=headers, timeout=30)
+        if resp.status_code not in (429, 503) or attempt == len(waits):
+            break
+        print(f"⏳ Mureka busy ({resp.status_code}), retrying in {waits[attempt]}s")
+        time.sleep(waits[attempt])
 
     if resp.status_code != 200:
         # Log the real reason from Mureka (server logs only, never shown to users)
