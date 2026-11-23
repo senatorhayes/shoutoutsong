@@ -1,5 +1,11 @@
 [
  {
+  "name": "Olivia",
+  "label": "Christmas",
+  "audio": "/audio/olivia-christmas-song.mp3",
+  "url": "/olivia-christmas-song"
+ },
+ {
   "name": "Oliver",
   "label": "Princess",
   "audio": "/audio/oliver-princess-song.mp3",
@@ -10,11 +16,5 @@
   "label": "Space",
   "audio": "/audio/charlotte-space-song.mp3",
   "url": "/charlotte-space-song"
- },
- {
-  "name": "Noah",
-  "label": "Mermaid",
-  "audio": "/audio/noah-mermaid-song.mp3",
-  "url": "/noah-mermaid-song"
  }
 ]
