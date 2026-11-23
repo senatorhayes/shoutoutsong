@@ -1,5 +1,11 @@
 [
  {
+  "name": "Oliver",
+  "label": "Princess",
+  "audio": "/audio/oliver-princess-song.mp3",
+  "url": "/oliver-princess-song"
+ },
+ {
   "name": "Charlotte",
   "label": "Space",
   "audio": "/audio/charlotte-space-song.mp3",
@@ -10,11 +16,5 @@
   "label": "Mermaid",
   "audio": "/audio/noah-mermaid-song.mp3",
   "url": "/noah-mermaid-song"
- },
- {
-  "name": "Emma",
-  "label": "Monster Truck",
-  "audio": "/audio/emma-monster-truck-song.mp3",
-  "url": "/emma-monster-truck-song"
  }
 ]

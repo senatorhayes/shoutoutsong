@@ -131,5 +131,20 @@
   "posted": {
    "error": "429 Client Error: Too Many Requests for url: https://api.upload-post.com/api/upload"
   }
+ },
+ {
+  "slug": "oliver-princess-song",
+  "name": "Oliver",
+  "love": "princesses",
+  "label": "Princess",
+  "page": "princess-song-for-kids",
+  "audio": "/audio/oliver-princess-song.mp3",
+  "lyrics": "Verse 1:  \nIn a kingdom bright, where the sun shines gold,  \nOliver's a prince, brave and bold!  \nHe waves to the princess, dancing with glee,  \nEvery day\u2019s an adventure, just wait and see!\n\nChorus:  \nOh Oliver, Oliver, shine like a star,  \nWith princesses laughing, you'll go so far!  \nSpin around, give a cheer, hear the magic call,  \nOliver, Oliver, you\u2019re the best of all!\n\nVerse 2:  \nThrough the garden fair, with flowers in bloom,  \nOliver explores, spreading joy in the room.  \nWith crowns made of daisies, and laughter so sweet,  \nEvery day\u2019s a fairy tale, can\u2019t be beat!\n\nChorus:  \nOh Oliver, Oliver, shine like a star,  \nWith princesses laughing, you'll go so far!  \nSpin around, give a cheer, hear the magic call,  \nOliver, Oliver, you\u2019re the best of all!",
+  "task_id": "173493067120641",
+  "date": "2026-11-23",
+  "caption": "Know a little Oliver? Tag their mom or dad \ud83d\udc47\n\nWe made a princess song just for them. Make one with your kid's name at ShoutOutSong.com (link in bio).\n\n#kidssongs #personalizedsong #customsong #kidsmusic #momlife #parenting #princess #princesssong #oliversong",
+  "posted": {
+   "error": "429 Client Error: Too Many Requests for url: https://api.upload-post.com/api/upload"
+  }
  }
 ]
