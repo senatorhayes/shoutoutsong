@@ -30,7 +30,7 @@ import requests
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import config  # noqa: E402
-from pages import FRONT, ROOT, SITE, build_all  # noqa: E402
+from pages import FRONT, ROOT, SITE, build_all, lower_label  # noqa: E402
 from render_video import render, require_ffmpeg  # noqa: E402
 
 API = os.getenv("SHOUTOUT_API", "https://shoutoutsong.onrender.com").rstrip("/")
@@ -136,6 +136,115 @@ def build_captions(choice, lyrics, start, length):
     return [(i * step, (i + 1) * step, p) for i, p in enumerate(pairs) if p]
 
 
+# ---------------------------------------------------------------- themes
+def easter(year):
+    """Western Easter date (anonymous Gregorian algorithm)."""
+    a, b, c = year % 19, year // 100, year % 100
+    d, e = b // 4, b % 4
+    g = (8 * b + 13) // 25
+    h = (19 * a + b - d - g + 15) % 30
+    i, k = c // 4, c % 4
+    l = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * l) // 451
+    month = (h + l - 7 * m + 114) // 31
+    day = (h + l - 7 * m + 114) % 31 + 1
+    return datetime.date(year, month, day)
+
+
+def in_window(today, season):
+    if season.get("easter"):
+        e = easter(today.year)
+        return e - datetime.timedelta(days=season.get("days_before", 21)) <= today <= e
+    sm, sd = map(int, season["start"].split("-"))
+    em, ed = map(int, season["end"].split("-"))
+    start = (sm, sd)
+    end = (em, ed)
+    now = (today.month, today.day)
+    return start <= now <= end if start <= end else (now >= start or now <= end)
+
+
+def rotation():
+    """Themes in posting order; weight-2 themes (vehicles, dinosaurs...) get a second turn
+    in the back half of each cycle."""
+    heavy = [t for t in config.THEMES if t.get("weight", 1) >= 2]
+    return list(config.THEMES) + heavy
+
+
+def pick_theme(i, today):
+    rot = rotation()
+    for season in config.SEASONS:
+        if in_window(today, season):
+            if i % 3 < round(config.SEASON_SHARE * 3):
+                return season["theme"]
+            return rot[(i // 3) % len(rot)]
+    return rot[i % len(rot)]
+
+
+# ---------------------------------------------------------------- clips
+CLIPS = HERE / "clips"
+VIDEO_EXT = (".mp4", ".mov", ".webm")
+
+
+def clip_files(folder):
+    return sorted(p for p in (CLIPS / folder).glob("*") if p.suffix.lower() in VIDEO_EXT)
+
+
+def make_clip(theme, folder):
+    """Generate a new cartoon clip on fal.ai and save it (compressed) into clips/<folder>/."""
+    key = os.getenv("FAL_KEY")
+    if not key:
+        return None
+    n = len(clip_files(folder))
+    subject = theme.get("scene") or f"happy {theme['love']}"
+    prompt = config.CLIP_PROMPT.format(subject=subject, action=config.CLIP_ACTIONS[n % len(config.CLIP_ACTIONS)])
+    headers = {"Authorization": f"Key {key}", "Content-Type": "application/json"}
+    body = {"prompt": prompt, "duration": "5", "aspect_ratio": "16:9",
+            "negative_prompt": config.CLIP_NEGATIVE, "generate_audio": False}
+    print(f"Making a new cartoon clip for '{folder}': {prompt[:90]}...")
+    r = requests.post(f"https://queue.fal.run/{config.CLIP_MODEL}", headers=headers, json=body, timeout=60)
+    r.raise_for_status()
+    sub = r.json()
+    deadline = time.time() + 10 * 60
+    while time.time() < deadline:
+        time.sleep(8)
+        st = requests.get(sub["status_url"], headers=headers, timeout=60).json()
+        if st.get("status") == "COMPLETED":
+            if st.get("error"):
+                raise RuntimeError(f"fal error: {st.get('error')}")
+            break
+    else:
+        raise RuntimeError("clip generation timed out")
+    res = requests.get(sub["response_url"], headers=headers, timeout=60).json()
+    raw = OUT / f"clip-raw-{folder}.mp4"
+    raw.parent.mkdir(parents=True, exist_ok=True)
+    raw.write_bytes(requests.get(res["video"]["url"], timeout=120).content)
+    dest = CLIPS / folder / f"{folder}-{n + 1}.mp4"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(raw), "-an",
+                    "-vf", "scale=1080:-2,fps=30", "-c:v", "libx264", "-preset", "slow", "-crf", "24",
+                    "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(dest)], check=True)
+    return dest
+
+
+def pick_clip(theme, n):
+    """Cartoon clip for this theme. Grows the library up to CLIPS_PER_THEME with new AI clips,
+    then rotates through what's there. Falls back to clips/any/, then to no clip."""
+    folder = slugify(theme["label"])
+    have = clip_files(folder)
+    if len(have) < config.CLIPS_PER_THEME:
+        try:
+            made = make_clip(theme, folder)
+            if made:
+                return made
+        except Exception as exc:
+            print(f"::warning::Clip generation failed: {exc}")
+    for f in (folder, slugify(theme["love"]), "any"):
+        files = clip_files(f)
+        if files:
+            return files[n % len(files)]
+    return None
+
+
 # ---------------------------------------------------------------- posting
 def post_video(song, video_path, caption, title, description):
     key, user = os.getenv("UPLOAD_POST_API_KEY"), os.getenv("UPLOAD_POST_USER")
@@ -175,10 +284,10 @@ def main():
     songs = load(MANIFEST, [])
     i = state["next"]
     name = args.name or config.NAMES[i % len(config.NAMES)]
-    theme = config.THEMES[i % len(config.THEMES)]
+    theme = pick_theme(i, datetime.date.today())
     if args.theme:
         q = args.theme.lower()
-        theme = next((t for t in config.THEMES if q in (t["love"].lower(), t["label"].lower())), None) \
+        theme = next((t for t in config.THEMES + [x["theme"] for x in config.SEASONS] if q in (t["love"].lower(), t["label"].lower())), None) \
             or dict(love=args.theme.lower(), label=args.theme.title(), page="kids-songs", tags=[slugify(args.theme).replace("-", "")])
     slug = f"{slugify(name)}-{slugify(theme['label'])}-song"
     if any(s["slug"] == slug for s in songs):
@@ -206,17 +315,19 @@ def main():
 
     caps = build_captions(choice, lyrics, start, length)
     video = work / f"{slug}.mp4"
-    render(name, theme["label"], theme["love"], clip, caps, video, work)
+    cartoon = pick_clip(theme, len(songs))
+    print(f"Cartoon clip: {cartoon.relative_to(ROOT) if cartoon else 'none (waveform layout)'}")
+    render(name, theme["label"], theme["love"], clip, caps, video, work, clip_path=cartoon)
     print(f"Video: {video}")
 
     page_url = f"{SITE}/{slug}"
     n = len(songs)
     caption = config.CAPTIONS[n % len(config.CAPTIONS)].format(
-        name=name, love=theme["love"], label=theme["label"], label_lower=theme["label"].lower(), url=page_url)
+        name=name, love=theme["love"], label=theme["label"], label_lower=lower_label(theme["label"]), url=page_url)
     tags = config.BASE_HASHTAGS + theme["tags"] + [f"{slugify(name).replace('-', '')}song"]
     caption = f"{caption}\n\n" + " ".join("#" + t for t in tags)
     title = f"{name}'s {theme['label']} Song 🎶 Custom Kids Song With Their Name"[:100]
-    description = (f"{name}'s {theme['label'].lower()} song 🎶\n\n"
+    description = (f"{name}'s {lower_label(theme['label'])} song 🎶\n\n"
                    f"Every kid deserves a song all about them. This one's for every {name} who loves {theme['love']}.\n\n"
                    f"👉 Make one with your kid's name: {page_url}\n"
                    f"Free preview, ready in about a minute.\n\n"

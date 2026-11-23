@@ -31,6 +31,14 @@ FOOT = """  <footer class="foot">
 """
 
 
+HOLIDAYS = ("Christmas", "New Year", "Valentine", "Easter", "Halloween")
+
+
+def lower_label(label):
+    """'dinosaur' but keep holiday names capitalized ('Christmas')."""
+    return label if label in HOLIDAYS else label.lower()
+
+
 def e(s):
     return html.escape(str(s), quote=True)
 
@@ -92,7 +100,7 @@ def song_page(song, others):
     name, label, love = song["name"], song["label"], song["love"]
     path = "/" + song["slug"]
     title = f"{name}'s {label} Song – A Custom Kids Song With the Name {name}"
-    desc = (f"Listen to an example {label.lower()} song for a kid named {name}. "
+    desc = (f"Listen to an example {lower_label(label)} song for a kid named {name}. "
             f"Make your own with your child's name and what they love in about a minute. Free preview.")
     ld = {
         "@context": "https://schema.org", "@type": "MusicRecording",
@@ -112,7 +120,7 @@ def song_page(song, others):
     return head(title, desc, path, extra) + f"""  <main class="wrap">
     <nav class="crumbs"><a href="/">Home</a> › <a href="/example-songs">Example songs</a></nav>
     <section class="hero">
-      <h1>{e(name)}'s {e(label.lower())} song</h1>
+      <h1>{e(name)}'s {e(lower_label(label))} song</h1>
       <p class="lead">Here's a short clip of an example song we made for the name {e(name)}, about a kid who loves {e(love)}. Your song gets written fresh with your child's name and whatever they're into.</p>
       <audio controls preload="none" src="{e(song['audio'])}" style="width:100%;margin:8px 0 14px"></audio>
       <p class="facts"><span>Free 15-second preview</span><span>Full song $4.99</span><span>Ready in about a minute</span></p>
@@ -132,7 +140,7 @@ def song_page(song, others):
         <li><b>Preview free, then download.</b> Get the full MP3 and a share link for $4.99.</li>
       </ol>
       <a class="cta" href="{e(create_href(song))}">Make their song →</a>
-      <p style="margin-top:14px">More {e(label.lower())} ideas: <a href="/{e(song['page'])}">{e(label)} songs for kids</a></p>
+      <p style="margin-top:14px">More {e(lower_label(label))} ideas: <a href="/{e(song['page'])}">{e(label)} songs for kids</a></p>
     </section>
 
     <section class="card">
