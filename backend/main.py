@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
-from lyrics_ai import generate_kid_lyrics, generate_adult_lyrics
+from lyrics_ai import generate_kid_lyrics, generate_adult_lyrics, pick_kid_style
 from mureka_api import start_song_generation, query_song_status
 
 # Genre-specific prompts for better audio generation
@@ -278,10 +278,11 @@ def head_root():
 # =====================================================
 @app.post("/generate-kid-song")
 def generate_kid_song(req: KidSongRequest):
-    lyrics = generate_kid_lyrics(req.child_name, req.theme)
+    style = pick_kid_style(req.theme)
+    lyrics = generate_kid_lyrics(req.child_name, req.theme, style=style)
     task_id = start_song_generation(
         lyrics=lyrics,
-        prompt="Upbeat children's song with catchy singalong melody, bright acoustic instrumentation (guitar, ukulele, hand drums, bells), cheerful vocals, playful and fun energy, repeated chorus, high-quality production",
+        prompt=style["music"] + ", repeated chorus, high-quality production",
         duration=req.duration_seconds,
         genre="pop",
     )

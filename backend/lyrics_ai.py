@@ -1,5 +1,6 @@
 # lyrics_ai.py
 import os
+import random
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -12,12 +13,61 @@ client = OpenAI()  # will read OPENAI_API_KEY from env
 # ------------------------------------------------------------
 # Kids lyrics generator
 # ------------------------------------------------------------
+
+# ------------------------------------------------------------
+# Kids song sound. Every kids song keeps the same happy sing-along style;
+# each one randomly gets one of a few instrument mixes so a page of songs
+# doesn't sound identical.
+#
+# ORIGINAL (before Nov 23 2026) — every kids song used exactly this prompt.
+# To go back, have main.py use ORIGINAL_KID_MUSIC_PROMPT instead of style["music"],
+# or restore git commit 8b763da.
+# ------------------------------------------------------------
+ORIGINAL_KID_MUSIC_PROMPT = ("Upbeat children's song with catchy singalong melody, bright acoustic instrumentation "
+                             "(guitar, ukulele, hand drums, bells), cheerful vocals, playful and fun energy, "
+                             "repeated chorus, high-quality production")
+
+_BASE = "Upbeat children's song with catchy singalong melody, cheerful vocals, playful and fun energy"
+
+KID_STYLES = [
+    dict(name="acoustic guitar", feel="classic acoustic sing-along",
+         music=f"{_BASE}, strummed acoustic guitar, hand claps, shaker, warm and bouncy"),
+    dict(name="ukulele", feel="sunny, bouncy ukulele sing-along",
+         music=f"{_BASE}, bright ukulele, hand claps, light bongos, sunny and bouncy"),
+    dict(name="piano and glockenspiel", feel="bouncy piano sing-along",
+         music=f"{_BASE}, bouncy piano, glockenspiel, light drums, playful and sparkly"),
+    dict(name="banjo and fiddle", feel="foot-tapping sing-along",
+         music=f"{_BASE}, light banjo and fiddle, foot-tapping rhythm, hand claps, friendly and fun"),
+]
+HOLIDAY_STYLE = dict(name="jingle bells", feel="cozy, festive holiday sing-along",
+                     music=f"{_BASE}, jingle bells, sleigh bells, bouncy piano, warm and festive")
+
+
+def pick_kid_style(theme: str) -> dict:
+    """Random instrument mix; jingle bells only for Christmas-type themes."""
+    t = (theme or "").lower()
+    if any(k in t for k in ("christmas", "santa", "reindeer", "holiday")):
+        return HOLIDAY_STYLE
+    return random.choice(KID_STYLES)
+
+LYRIC_DEVICES = [
+    "call-and-response: the singer asks a question and the kids shout the answer back",
+    "action song: tell the listener to stomp, clap, jump, spin or wiggle in each verse",
+    "counting: count up (1, 2, 3...) with something from the theme",
+    "sound effects: fun noises from the theme (roar, vroom, splash, beep-boop) as part of the chorus",
+    "echo lines: the singer sings a line and it is echoed back",
+    "a tiny story: the child goes on a short adventure with a beginning, middle and happy ending",
+    "silly made-up words in the chorus that are fun to say out loud",
+]
+
+
 def generate_kid_lyrics(
     child_name: str,
     theme: str,
     occasion: str = "everyday",
     vibe: str = "sunny_kids",
     voice_type: str = "any",
+    style: dict = None,
 ) -> str:
     """
     Generate fun, kid-safe lyrics for ages ~3–8.
@@ -63,28 +113,37 @@ def generate_kid_lyrics(
         "custom": "This is for a special custom moment chosen by the parent.",
     }.get(occasion, "This is a fun song they can enjoy any day.")
 
+    style = style or pick_kid_style(theme)
+    device = random.choice(LYRIC_DEVICES)
+
     user_prompt = f"""
 Write original, kid-safe song lyrics for a child named {child_name}.
 
 Theme: {theme}
 Occasion: {occasion}
 Occasion description: {occasion_text}
-Vibe: {vibe_desc}
+Song feel: upbeat, happy kids sing-along ({style["feel"]})
+Songwriting trick to build the song around: {device}
 Voice hint: {voice_hint}
 
+Make it feel like a real, classic kids song that families sing in the car, not a generic jingle:
+- Paint specific, vivid, funny little pictures from the theme (what {child_name} sees, hears and does), not general praise like "you're so great" or "you're the best".
+- Make the chorus short, very catchy and easy to shout along to, with {child_name}'s name in it.
+- Use playful rhythm and rhymes that fit the musical style.
+- A touch of gentle humor or surprise is great.
+
 Guidelines:
-- Age target: roughly 3–8 years old.
-- Keep language very simple and positive.
-- Make it easy to sing along.
+- Age target: roughly 2–6 years old. Very simple, positive words.
 - Include the child's name {child_name} several times, especially in the chorus.
 - Do NOT mention AI, technology, or that this is generated.
+- Do NOT use any brand names or characters from movies, TV or books; describe things generically.
 - Avoid anything scary, violent, mean, or romantic.
 
 Structure:
-- 1 short verse
-- 1 very catchy chorus
-- 1 more short verse
-- Repeat the chorus at the end.
+- Verse 1 (4 short lines)
+- Chorus (4 short lines)
+- Verse 2 (4 short lines)
+- Chorus
 
 Output format:
 Write plain lyrics with labeled sections like:
@@ -105,8 +164,8 @@ Do NOT use markdown formatting like **bold** or bullet points.
             {
                 "role": "system",
                 "content": (
-                    "You are a professional children's songwriter. "
-                    "You write short, catchy, age-appropriate lyrics for kids."
+                    "You are an award-winning children's songwriter in the tradition of classic family sing-along music. "
+                    "You write short, joyful, playful lyrics that kids love to sing and parents don't mind hearing again."
                 ),
             },
             {"role": "user", "content": user_prompt},
