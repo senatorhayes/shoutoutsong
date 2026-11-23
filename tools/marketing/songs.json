@@ -158,5 +158,32 @@
   "task_id": "173564571549697",
   "date": "2026-11-23",
   "caption": "Christmas song for Olivia \ud83c\udfb6\n\nEvery kid deserves a song all about them. Type your kid's name and what they love, and hear it free. Link in bio.\n\n#kidssongs #personalizedsong #customsong #kidsmusic #momlife #parenting #christmas #christmassong #santa #oliviasong"
+ },
+ {
+  "slug": "ella-christmas-song",
+  "name": "Ella",
+  "love": "Christmas",
+  "label": "Christmas",
+  "page": "christmas-song-for-kids",
+  "audio": "/audio/ella-christmas-song.mp3",
+  "lyrics": "Verse 1:  \nIn a cozy little house, where the snowflakes fall,  \nElla's got a smile, it brightens up it all!  \nWith twinkling lights and joy, we sing out loud,  \nElla's got the spirit, she's making us so proud!  \n\nChorus:  \nElla, oh Ella, you're our Christmas cheer,  \nWith laughter and with joy, you spread love far and near!  \nElla, oh Ella, come and dance with me,  \nWe'll celebrate together, joyful as can be!  \n\nVerse 2:  \nCookies in the oven, the smell fills the air,  \nElla's baking goodies, with a twinkle in her stare!  \nWith friends all around, we'll share and play,  \nElla makes the season feel like a warm holiday!  \n\nChorus:  \nElla, oh Ella, you're our Christmas cheer,  \nWith laughter and with joy, you spread love far and near!  \nElla, oh Ella, come and dance with me,  \nWe'll celebrate together, joyful as can be!",
+  "task_id": "173587168296961",
+  "date": "2026-11-23",
+  "caption": "Name + what they love = their very own song \ud83c\udfa4\n\nToday: Ella and Christmas. Your turn: free preview at ShoutOutSong.com (link in bio).\n\nComment your kid's name + what they love and we might make the next one \ud83d\udc47\n\n#kidssongs #personalizedsong #customsong #kidsmusic #momlife #parenting #christmas #christmassong #santa #ellasong",
+  "posted": {
+   "platforms": [
+    "tiktok",
+    "instagram",
+    "youtube",
+    "facebook"
+   ],
+   "response": {
+    "success": true,
+    "message": "Upload queued successfully in the durable worker.",
+    "request_id": "3cabe75d11d245aeb0ff789ead7bf370",
+    "total_platforms": 4,
+    "job_id": "f48f2b4ce26444c6990e0fa73fc6c01d"
+   }
+  }
  }
 ]
