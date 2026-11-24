@@ -185,5 +185,32 @@
     "job_id": "f48f2b4ce26444c6990e0fa73fc6c01d"
    }
   }
+ },
+ {
+  "slug": "amelia-christmas-song",
+  "name": "Amelia",
+  "love": "Christmas",
+  "label": "Christmas",
+  "page": "christmas-song-for-kids",
+  "audio": "/audio/amelia-christmas-song.mp3",
+  "lyrics": "Verse 1:  \nAmelia sees the snowflakes fall,  \nDancing like they\u2019re at a ball,  \nJingle bells go ring-a-ling,  \nHear the joy that Christmas brings!  \n\nChorus:  \nOh Amelia, sing along!  \nBeep-boop, vroom, it\u2019s our song!  \nRoar like reindeer, splash, hooray!  \nAmelia, let\u2019s sing today!  \n\nVerse 2:  \nBuilding snowmen, big and round,  \nCarrot noses, smiles abound,  \nFluffy scarves and mittens tight,  \nSnowball fights, oh what a sight!  \n\nChorus:  \nOh Amelia, sing along!  \nBeep-boop, vroom, it\u2019s our song!  \nRoar like reindeer, splash, hooray!  \nAmelia, let\u2019s sing today!",
+  "task_id": "173691963047937",
+  "date": "2026-11-24",
+  "caption": "This one's for every Amelia who loves Christmas \ud83c\udfb6\n\nImagine your kid hearing THEIR name in a song. Make one in about a minute, link in bio.\n\nFree preview, ready in about a minute.\n\nComment your kid's name + what they love and we might make the next one \ud83d\udc47\n\n#kidssongs #personalizedsong #customsong #kidsmusic #momlife #parenting #christmas #christmassong #santa #ameliasong",
+  "posted": {
+   "platforms": [
+    "tiktok",
+    "instagram",
+    "youtube",
+    "facebook"
+   ],
+   "response": {
+    "success": true,
+    "message": "Upload queued successfully in the durable worker.",
+    "request_id": "94560aefe0614367abb7fad7e31cc95c",
+    "total_platforms": 4,
+    "job_id": "26b5c318abb44f94a502ad01cf2c7b19"
+   }
+  }
  }
 ]
