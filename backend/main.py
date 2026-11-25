@@ -249,6 +249,11 @@ class AdultSongRequest(BaseModel):
     story_or_details: str
     genre: str = "pop"
     duration_seconds: int = Field(75, ge=30, le=240)
+    # Sent by the site's form; previously ignored (every adult song got "friend" / "fun")
+    relationship: str = "friend"
+    occasion: str = "occasion"
+    vibe: str = "fun"
+    voice_type: str = "any"
 
 
 class CreateShareLinkRequest(BaseModel):
@@ -293,12 +298,12 @@ def generate_kid_song(req: KidSongRequest):
 def generate_adult_song(req: AdultSongRequest):
     lyrics = generate_adult_lyrics(
         req.recipient_name,
-        "friend",
-        "occasion",
+        req.relationship or "friend",
+        req.occasion or "occasion",
         req.story_or_details,
         req.genre,
-        "fun",
-        "any",
+        req.vibe or "fun",
+        req.voice_type or "any",
     )
     task_id = start_song_generation(
         lyrics=lyrics,

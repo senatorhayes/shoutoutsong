@@ -352,12 +352,14 @@ def main():
         (OUT / f"{slug}.html").write_text(build_hub(slug, hub))
     (OUT / "faq.html").write_text(build_faq())
     paths = ["/", "/kids-songs", "/song-gifts", "/faq"] + ["/" + p["slug"] for p in ALL_PAGES]
-    # Example songs made by tools/marketing/daily.py
-    examples = ROOT / "tools" / "marketing" / "songs.json"
-    if examples.exists():
-        songs = json.loads(examples.read_text())
-        if songs:
-            paths += ["/example-songs"] + ["/" + s["slug"] for s in songs]
+    # Example songs made by tools/marketing/daily.py (kids) and adult.py (roasts etc.)
+    songs = []
+    for manifest in ("songs.json", "adult_songs.json"):
+        f = ROOT / "tools" / "marketing" / manifest
+        if f.exists():
+            songs += json.loads(f.read_text())
+    if songs:
+        paths += ["/example-songs"] + ["/" + s["slug"] for s in songs]
     (OUT / "sitemap.xml").write_text(build_sitemap(paths))
     (OUT / "robots.txt").write_text(ROBOTS)
     (OUT / "llms.txt").write_text(build_llms())

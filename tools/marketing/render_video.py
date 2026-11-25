@@ -390,3 +390,257 @@ def render_card(name, love, audio_path, captions, out_mp4, workdir, clip_path):
            "-c:a", "aac", "-b:a", "160k", "-shortest", "-movflags", "+faststart", str(out_mp4)]
     subprocess.run(cmd, check=True)
     return out_mp4
+
+
+# ======================================================================
+# Text card design (adult songs): no cartoon clip. Genre badge, name,
+# the roast/occasion line as the headline, animated waveform, lyrics.
+# ======================================================================
+TEXT_PALETTES = [
+    ((88, 24, 120), (255, 77, 170)),   # purple -> pink
+    ((20, 40, 110), (0, 170, 200)),    # navy -> teal
+    ((120, 30, 30), (255, 140, 40)),   # red -> orange
+    ((20, 80, 60), (120, 200, 80)),    # green
+    ((60, 20, 90), (60, 120, 255)),    # violet -> blue
+    ((110, 60, 0), (255, 200, 50)),    # amber
+]
+
+
+def text_card_background(palette_idx):
+    top, bottom = TEXT_PALETTES[palette_idx % len(TEXT_PALETTES)]
+    img = Image.new("RGB", (W, H))
+    d = ImageDraw.Draw(img)
+    for y in range(H):
+        k = y / H
+        d.line([(0, y), (W, y)], fill=tuple(int(top[i] + (bottom[i] - top[i]) * k) for i in range(3)))
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glow)
+    for (x, y, r, a) in [(200, 380, 420, 60), (900, 1100, 520, 50), (300, 1700, 480, 40)]:
+        gd.ellipse([x - r, y - r, x + r, y + r], fill=(255, 255, 255, a))
+    img = Image.alpha_composite(img.convert("RGBA"), glow.filter(ImageFilter.GaussianBlur(140)))
+    return img
+
+
+def brand_pill(layer, y=150):
+    d = ImageDraw.Draw(layer)
+    bf = ImageFont.truetype(LILITA, 46)
+    brand = "ShoutOutSong.com"
+    tw = d.textlength(brand, font=bf)
+    ls, gap, padx = 58, 12, 26
+    pw = ls + gap + tw + padx * 2
+    px = (W - pw) / 2
+    d.rounded_rectangle([px + 4, y + 6, px + pw + 4, y + 82], radius=40, fill=SHADOW)
+    d.rounded_rectangle([px, y, px + pw, y + 76], radius=38, fill=(255, 255, 255))
+    if LOGO.exists():
+        logo = Image.open(LOGO).convert("RGBA").resize((ls, ls))
+        layer.alpha_composite(logo, (int(px + padx), int(y + 9)))
+    d.text((px + padx + ls + gap, y + 38), brand, font=bf, fill=PURPLE, anchor="lm")
+
+
+def text_card_static(name, badge, line, cta, palette_idx, out_png):
+    img = text_card_background(palette_idx)
+    brand_pill(img)
+    d = ImageDraw.Draw(img)
+    # Genre badge, e.g. "METAL ROAST"
+    bf = fit(d, badge.upper(), LILITA, 50, 820)
+    bw = d.textlength(badge.upper(), font=bf)
+    x0, y0 = W / 2 - bw / 2 - 36, 285
+    d.rounded_rectangle([x0 + 5, y0 + 7, W - x0 + 5, y0 + 87], radius=40, fill=SHADOW)
+    d.rounded_rectangle([x0, y0, W - x0, y0 + 80], radius=40, fill=YELLOW)
+    d.text((W / 2, y0 + 41), badge.upper(), font=bf, fill=PURPLE, anchor="mm")
+
+    pop_text(d, 405, "a custom song for", fredoka(54), (255, 255, 255), 6, PURPLE, shadow=False)
+    nf = fit(d, name, LILITA, 200, 900)
+    pop_text(d, 465, name, nf, (255, 255, 255), 14, HOTPINK)
+
+    # Headline line (roast / occasion detail), up to 3 lines
+    lf = fredoka(66, "Bold")
+    lines = wrap(d, line, lf, 900)
+    if len(lines) > 3:
+        lf = fredoka(54, "Bold")
+        lines = wrap(d, line, lf, 900)[:3]
+    y = 700
+    for ln in lines:
+        pop_text(d, y, ln, lf, (255, 255, 255), 7, PURPLE)
+        y += lf.size * 1.18
+
+    # Call to action
+    cf = fit(d, cta, LILITA, 52, 860)
+    cw = d.textlength(cta, font=cf)
+    x0, y0 = W / 2 - cw / 2 - 44, 1410
+    d.rounded_rectangle([x0 + 6, y0 + 8, W - x0 + 6, y0 + 104], radius=50, fill=SHADOW)
+    d.rounded_rectangle([x0, y0, W - x0, y0 + 96], radius=48, fill=YELLOW)
+    d.text((W / 2, y0 + 48), cta, font=cf, fill=PURPLE, anchor="mm")
+    pop_text(d, y0 + 118, "Free preview at ShoutOutSong.com", fredoka(46, "Bold"), (255, 255, 255), 5, PURPLE, shadow=False)
+    img.convert("RGB").save(out_png)
+
+
+TEXT_WAVE_Y, TEXT_WAVE_H = 960, 170
+
+
+def render_text_card(name, badge, line, cta, audio_path, captions, out_mp4, workdir, palette_idx=0):
+    workdir = Path(workdir)
+    workdir.mkdir(parents=True, exist_ok=True)
+    bg_png = workdir / "text_bg.png"
+    text_card_static(name, badge, line, cta, palette_idx, bg_png)
+    inputs = ["-loop", "1", "-framerate", "30", "-i", str(bg_png), "-i", str(audio_path)]
+    filters = [
+        f"[1:a]showwaves=s=860x{TEXT_WAVE_H}:mode=cline:rate=30:scale=sqrt:draw=full:colors=0xffd23f|0xffffff,format=rgba[wave]",
+        f"[0:v][wave]overlay={(W - 860) // 2}:{TEXT_WAVE_Y}[v0]",
+    ]
+    last = "v0"
+    for i, (start, end, text) in enumerate(captions):
+        png = workdir / f"tlyric{i}.png"
+        card_caption(text, png)
+        inputs += ["-i", str(png)]
+        nxt = f"v{i + 1}"
+        filters.append(f"[{last}][{2 + i}:v]overlay=0:{LYRIC_Y}:enable='between(t,{start:.2f},{end:.2f})'[{nxt}]")
+        last = nxt
+    cmd = ["ffmpeg", "-y", "-loglevel", "error", *inputs, "-filter_complex", ";".join(filters),
+           "-map", f"[{last}]", "-map", "1:a",
+           "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-pix_fmt", "yuv420p",
+           "-c:a", "aac", "-b:a", "160k", "-shortest", "-movflags", "+faststart", str(out_mp4)]
+    subprocess.run(cmd, check=True)
+    return out_mp4
+
+
+# ======================================================================
+# Adult design v2: the original dark look (Poppins, orange→pink name,
+# waveform, orange button) + an optional genre background image
+# (tools/marketing/backgrounds/<genre>.jpg|png), darkened and slowly drifting.
+# ======================================================================
+BACKGROUNDS = HERE / "backgrounds"
+
+
+def genre_background(genre):
+    for ext in (".jpg", ".jpeg", ".png", ".webp"):
+        p = BACKGROUNDS / f"{genre}{ext}"
+        if p.exists():
+            return p
+    return None
+
+
+def adult_top_layer(name, badge, line, cta, out_png, tinted):
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    if tinted:
+        # darken the photo/illustration so text stays readable; darker at top/bottom
+        tint = Image.new("RGBA", (W, H))
+        td = ImageDraw.Draw(tint)
+        for y in range(H):
+            edge = abs(y - H / 2) / (H / 2)
+            td.line([(0, y), (W, y)], fill=(5, 7, 19, int(150 + 70 * edge)))
+        layer = Image.alpha_composite(layer, tint)
+    d = ImageDraw.Draw(layer)
+
+    # Brand row (logo + ShoutOutSong.com), as in the original design
+    bf = font(FONT_BOLD, 44)
+    brand = "ShoutOutSong.com"
+    tw = d.textlength(brand, font=bf)
+    ls, gap = 64, 14
+    x0 = (W - (tw + ls + gap)) / 2
+    if LOGO.exists():
+        logo = Image.open(LOGO).convert("RGBA").resize((ls, ls))
+        layer.alpha_composite(logo, (int(x0), 170))
+    d.text((x0 + ls + gap, 170 + ls / 2), brand, font=bf, fill=WHITE, anchor="lm")
+
+    # Genre badge: outlined pill
+    gf = font(FONT_BOLD, 40)
+    b = badge.upper()
+    bw = d.textlength(b, font=gf)
+    bx0 = W / 2 - bw / 2 - 34
+    d.rounded_rectangle([bx0, 285, W - bx0, 355], radius=35, outline=ORANGE, width=4)
+    d.text((W / 2, 320), b, font=gf, fill=ORANGE, anchor="mm")
+
+    d.text((W / 2, 400), "a custom song for", font=font(FONT_MED, 52), fill=MUTED, anchor="ma")
+    tmp = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    nf = fit_font(d, name, FONT_BOLD, 200, 900)
+    # gradient_text draws on an RGB image; draw on a copy and composite
+    base = Image.new("RGB", (W, H), (0, 0, 0))
+    mask = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(mask).text((W / 2, 455), name, font=nf, fill=255, anchor="ma")
+    l, t, r, bb = ImageDraw.Draw(base).textbbox((W / 2, 455), name, font=nf, anchor="ma")
+    grad = Image.new("RGB", (W, H))
+    gd = ImageDraw.Draw(grad)
+    for x in range(W):
+        k = min(1.0, max(0.0, (x - l) / max(1, r - l)))
+        gd.line([(x, 0), (x, H)], fill=tuple(int(ORANGE[i] + (PINK[i] - ORANGE[i]) * k) for i in range(3)))
+    glow = mask.filter(ImageFilter.GaussianBlur(22)).point(lambda v: int(v * 0.5))
+    tmp.paste(grad, (0, 0), glow)
+    tmp.paste(grad, (0, 0), mask)
+    layer = Image.alpha_composite(layer, tmp)
+    d = ImageDraw.Draw(layer)
+
+    lf = font(FONT_BOLD, 58)
+    lines = wrap(d, line, lf, 900)
+    if len(lines) > 3:
+        lf = font(FONT_BOLD, 48)
+        lines = wrap(d, line, lf, 900)[:3]
+    y = 700
+    for ln in lines:
+        d.text((W / 2, y), ln, font=lf, fill=WHITE, anchor="ma", stroke_width=4, stroke_fill=(10, 8, 25))
+        y += lf.size * 1.2
+
+    cf = fit_font(d, cta, FONT_BOLD, 48, 820)
+    cw = d.textlength(cta, font=cf)
+    d.rounded_rectangle([W / 2 - cw / 2 - 40, 1400, W / 2 + cw / 2 + 40, 1490], radius=45, fill=ORANGE)
+    d.text((W / 2, 1445), cta, font=cf, fill=(26, 13, 5), anchor="mm")
+    d.text((W / 2, 1510), "Create and preview for free on:", font=font(FONT_MED, 38), fill=WHITE, anchor="ma")
+    d.text((W / 2, 1560), "ShoutOutSong.com", font=font(FONT_BOLD, 56), fill=CYAN, anchor="ma")
+    layer.save(out_png)
+
+
+def adult_caption(text, out_png):
+    img = Image.new("RGBA", (W, CAP_H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    f = font(FONT_BOLD, 62)
+    lines = wrap(d, text, f, 900)
+    if len(lines) > 2:
+        f = font(FONT_BOLD, 50)
+        lines = wrap(d, text, f, 900)[:3]
+    lh = f.size * 1.2
+    y = (CAP_H - lh * len(lines)) / 2
+    for ln in lines:
+        d.text((W / 2, y), ln, font=f, fill=WHITE, anchor="ma", stroke_width=5, stroke_fill=(10, 8, 25))
+        y += lh
+    img.save(out_png)
+
+
+ADULT_WAVE_Y, ADULT_WAVE_H, ADULT_CAP_Y = 940, 170, 1150
+
+
+def render_adult(name, badge, line, cta, genre, audio_path, captions, out_mp4, workdir):
+    workdir = Path(workdir)
+    workdir.mkdir(parents=True, exist_ok=True)
+    bg_img = genre_background(genre)
+    top = workdir / "adult_top.png"
+    adult_top_layer(name, badge, line, cta, top, tinted=bool(bg_img))
+    if bg_img:
+        # Slow drift across a slightly enlarged background image
+        inputs = ["-loop", "1", "-framerate", "30", "-i", str(bg_img)]
+        filters = [f"[0:v]scale={W + 120}:{H + 214}:force_original_aspect_ratio=increase,"
+                   f"crop={W}:{H}:x='60+50*sin(t/5)':y='107+80*sin(t/7)',setsar=1,format=rgba[bg]"]
+    else:
+        plain = workdir / "adult_plain.png"
+        background().save(plain)
+        inputs = ["-loop", "1", "-framerate", "30", "-i", str(plain)]
+        filters = ["[0:v]format=rgba[bg]"]
+    inputs += ["-i", str(audio_path), "-loop", "1", "-framerate", "30", "-i", str(top)]
+    filters += [
+        "[bg][2:v]overlay=0:0[b1]",
+        f"[1:a]showwaves=s=860x{ADULT_WAVE_H}:mode=cline:rate=30:scale=sqrt:draw=full:colors=0xff8a3c|0xff4dd2,format=rgba[wave]",
+        f"[b1][wave]overlay={(W - 860) // 2}:{ADULT_WAVE_Y}[v0]",
+    ]
+    last = "v0"
+    for i, (start, end, text) in enumerate(captions):
+        png = workdir / f"acap{i}.png"
+        adult_caption(text, png)
+        inputs += ["-i", str(png)]
+        nxt = f"v{i + 1}"
+        filters.append(f"[{last}][{3 + i}:v]overlay=0:{ADULT_CAP_Y}:enable='between(t,{start:.2f},{end:.2f})'[{nxt}]")
+        last = nxt
+    cmd = ["ffmpeg", "-y", "-loglevel", "error", *inputs, "-filter_complex", ";".join(filters),
+           "-map", f"[{last}]", "-map", "1:a",
+           "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-pix_fmt", "yuv420p",
+           "-c:a", "aac", "-b:a", "160k", "-shortest", "-movflags", "+faststart", str(out_mp4)]
+    subprocess.run(cmd, check=True)
+    return out_mp4

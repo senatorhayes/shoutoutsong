@@ -49,13 +49,18 @@ def slugify(s):
 
 # ---------------------------------------------------------------- song
 def generate_song(name, love):
+    # timeout allows for the backend queueing behind other songs (it retries ~2.5 min)
     r = requests.post(f"{API}/generate-kid-song",
                       json={"child_name": name, "theme": love, "duration_seconds": config.SONG_SECONDS},
-                      timeout=120)
+                      timeout=300)
     r.raise_for_status()
     data = r.json()
     task_id, lyrics = data["task_id"], data.get("lyrics", "")
     print(f"Song task {task_id} started")
+    return task_id, lyrics, poll_song(task_id)
+
+
+def poll_song(task_id):
     deadline = time.time() + 15 * 60
     while time.time() < deadline:
         time.sleep(10)
@@ -64,7 +69,7 @@ def generate_song(name, love):
         st = s.json()
         status = st.get("status")
         if status == "succeeded" and st.get("choices"):
-            return task_id, lyrics, st["choices"][0]
+            return st["choices"][0]
         if status in ("failed", "error", "timeouted", "cancelled"):
             raise SystemExit(f"Song generation {status}: {json.dumps(st)[:500]}")
         print(f"  status: {status}")
@@ -246,7 +251,7 @@ def pick_clip(theme, n):
 
 
 # ---------------------------------------------------------------- posting
-def post_video(song, video_path, caption, title, description):
+def post_video(song, video_path, caption, title, description, made_for_kids=None):
     key, user = os.getenv("UPLOAD_POST_API_KEY"), os.getenv("UPLOAD_POST_USER")
     if not key or not user:
         print("Posting skipped: UPLOAD_POST_API_KEY / UPLOAD_POST_USER not set")
@@ -258,7 +263,7 @@ def post_video(song, video_path, caption, title, description):
             ("youtube_title", title), ("youtube_description", description),
             ("facebook_title", title), ("facebook_description", description),
             ("is_ai_generated", "true"), ("containsSyntheticMedia", "true"),
-            ("selfDeclaredMadeForKids", os.getenv("YT_MADE_FOR_KIDS", "true")),
+            ("selfDeclaredMadeForKids", made_for_kids or os.getenv("YT_MADE_FOR_KIDS", "true")),
             ("post_mode", "DIRECT_POST"), ("media_type", "REELS"),
             ("async_upload", "true")]
     data += [("platform[]", p) for p in platforms]
