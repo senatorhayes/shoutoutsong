@@ -1,5 +1,11 @@
 [
  {
+  "name": "Theodore",
+  "label": "Christmas",
+  "audio": "/audio/theodore-christmas-song.mp3",
+  "url": "/theodore-christmas-song"
+ },
+ {
   "name": "Amelia",
   "label": "Christmas",
   "audio": "/audio/amelia-christmas-song.mp3",
@@ -10,11 +16,5 @@
   "label": "Christmas",
   "audio": "/audio/ella-christmas-song.mp3",
   "url": "/ella-christmas-song"
- },
- {
-  "name": "Olivia",
-  "label": "Christmas",
-  "audio": "/audio/olivia-christmas-song.mp3",
-  "url": "/olivia-christmas-song"
  }
 ]

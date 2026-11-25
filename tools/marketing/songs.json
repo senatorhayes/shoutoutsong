@@ -212,5 +212,32 @@
     "job_id": "26b5c318abb44f94a502ad01cf2c7b19"
    }
   }
+ },
+ {
+  "slug": "theodore-christmas-song",
+  "name": "Theodore",
+  "love": "Christmas",
+  "label": "Christmas",
+  "page": "christmas-song-for-kids",
+  "audio": "/audio/theodore-christmas-song.mp3",
+  "lyrics": "Verse 1:  \nOne little snowman, standing so tall,  \nTwo jolly reindeer, having a ball.  \nThree shiny ornaments, bright on the tree,  \nFour little carolers, singing with glee!  \n\nChorus:  \nHey there, Theodore, come sing along,  \nCount the Christmas cheer, it won't be long!  \nDancing in the snow, we'll have some fun,  \nWith Theodore, oh yes, our joy's just begun!  \n\nVerse 2:  \nFive twinkling lights, sparkling at night,  \nSix fluffy snowflakes, oh what a sight!  \nSeven warm mittens, snug on your hands,  \nEight yummy cookies, fresh from the pans!  \n\nChorus:  \nHey there, Theodore, come sing along,  \nCount the Christmas cheer, it won't be long!  \nDancing in the snow, we'll have some fun,  \nWith Theodore, oh yes, our joy's just begun!",
+  "task_id": "173863182860290",
+  "date": "2026-11-25",
+  "caption": "POV: your kid hears their own name in a song about Christmas \ud83c\udfb5\n\nToday's star: Theodore. Want one starring your little one? Link in bio.\n\nComment your kid's name + what they love and we might make the next one \ud83d\udc47\n\n#kidssongs #personalizedsong #customsong #kidsmusic #momlife #parenting #christmas #christmassong #santa #theodoresong",
+  "posted": {
+   "platforms": [
+    "tiktok",
+    "instagram",
+    "youtube",
+    "facebook"
+   ],
+   "response": {
+    "success": true,
+    "message": "Upload queued successfully in the durable worker.",
+    "request_id": "433e08dd8329449caf6e8b42bc382823",
+    "total_platforms": 4,
+    "job_id": "8b36500863e54c69aa9a7e800f0fd85b"
+   }
+  }
  }
 ]
