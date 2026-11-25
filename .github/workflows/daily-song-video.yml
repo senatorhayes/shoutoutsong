@@ -12,14 +12,23 @@ name: Daily example song video
 
 on:
   schedule:
-    - cron: "37 22 * * *"   # 22:37 UTC daily = 5:37pm ET / 2:37pm PT
+    - cron: "37 22 * * *"   # kids video: 22:37 UTC = 5:37pm ET / 2:37pm PT
+    - cron: "37 1 * * *"    # adult video (roasts etc.): 01:37 UTC = 8:37pm ET / 5:37pm PT
   workflow_dispatch:
     inputs:
+      mode:
+        description: "Which video to make"
+        type: choice
+        options: [kids, adult]
+        default: kids
       name:
         description: "Kid's name (blank = next in the queue)"
         required: false
       theme:
-        description: "Theme, e.g. dinosaurs (blank = next in the queue)"
+        description: "Kids: theme, e.g. dinosaurs. Adult: occasion, e.g. roast, birthday (blank = next in the queue)"
+        required: false
+      genre:
+        description: "Adult only: genre, e.g. metal, country, musical (blank = next in the queue)"
         required: false
       post:
         description: "Post to social media?"
@@ -59,11 +68,19 @@ jobs:
           AUTO_POST: ${{ github.event_name == 'workflow_dispatch' && (inputs.post && 'true' || 'false') || vars.AUTO_POST }}
           IN_NAME: ${{ inputs.name }}
           IN_THEME: ${{ inputs.theme }}
+          IN_GENRE: ${{ inputs.genre }}
+          MODE: ${{ github.event_name == 'schedule' && (github.event.schedule == '37 1 * * *' && 'adult' || 'kids') || inputs.mode }}
         run: |
           args=()
           if [ -n "$IN_NAME" ]; then args+=(--name "$IN_NAME"); fi
-          if [ -n "$IN_THEME" ]; then args+=(--theme "$IN_THEME"); fi
-          python3 tools/marketing/daily.py "${args[@]}"
+          if [ "$MODE" = "adult" ]; then
+            if [ -n "$IN_THEME" ]; then args+=(--occasion "$IN_THEME"); fi
+            if [ -n "$IN_GENRE" ]; then args+=(--genre "$IN_GENRE"); fi
+            python3 tools/marketing/adult.py "${args[@]}"
+          else
+            if [ -n "$IN_THEME" ]; then args+=(--theme "$IN_THEME"); fi
+            python3 tools/marketing/daily.py "${args[@]}"
+          fi
 
       - name: Attach video to this run
         uses: actions/upload-artifact@v4
@@ -75,7 +92,7 @@ jobs:
         run: |
           git config user.name "shoutoutsong-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add frontend tools/marketing/songs.json tools/marketing/state.json
+          git add frontend tools/marketing/*.json
           git commit -m "Example song: ${{ steps.make.outputs.slug }}" || exit 0
           git pull --rebase
           git push
