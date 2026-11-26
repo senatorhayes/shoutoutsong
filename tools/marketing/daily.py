@@ -251,6 +251,23 @@ def pick_clip(theme, n):
 
 
 # ---------------------------------------------------------------- posting
+def scheduled_time():
+    """POST_AT="HH:MM" (UTC) -> ISO time of the next occurrence, so posts go out at the
+    planned time even when GitHub starts the job hours late. If we've just missed it
+    (next occurrence is 20+ hours away), post right away instead."""
+    at = os.getenv("POST_AT", "").strip()
+    if not at:
+        return None
+    hh, mm = map(int, at.split(":"))
+    now = datetime.datetime.now(datetime.timezone.utc)
+    target = now.replace(hour=hh, minute=mm, second=0, microsecond=0)
+    if target <= now + datetime.timedelta(minutes=10):
+        target += datetime.timedelta(days=1)
+    if target - now > datetime.timedelta(hours=20):
+        return None
+    return target.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def post_video(song, video_path, caption, title, description, made_for_kids=None):
     key, user = os.getenv("UPLOAD_POST_API_KEY"), os.getenv("UPLOAD_POST_USER")
     if not key or not user:
@@ -267,6 +284,10 @@ def post_video(song, video_path, caption, title, description, made_for_kids=None
             ("post_mode", "DIRECT_POST"), ("media_type", "REELS"),
             ("async_upload", "true")]
     data += [("platform[]", p) for p in platforms]
+    when = scheduled_time()
+    if when:
+        data.append(("scheduled_date", when))
+        print(f"Scheduling post for {when}")
     with open(video_path, "rb") as f:
         r = requests.post("https://api.upload-post.com/api/upload",
                           headers={"Authorization": f"Apikey {key}"},
