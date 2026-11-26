@@ -239,5 +239,32 @@
     "job_id": "8b36500863e54c69aa9a7e800f0fd85b"
    }
   }
+ },
+ {
+  "slug": "sophia-monster-truck-song",
+  "name": "Sophia",
+  "love": "monster trucks",
+  "label": "Monster Truck",
+  "page": "monster-truck-song-for-kids",
+  "audio": "/audio/sophia-monster-truck-song.mp3",
+  "lyrics": "Verse 1:  \nSophia's in her monster truck,  \nZooming fast with a happy cluck,  \nOver hills and through the mud,  \nSplashing puddles with a thud!  \n\nChorus:  \nVroom-vroom, roar, let's go, Sophia!  \nBeep-boop, woosh, put on a show,  \nSophia's truck goes zooming by,  \nMonster fun, oh me, oh my!  \n\nVerse 2:  \nJumping ramps, oh what a sight,  \nUp in the air, she's flying high,  \nRound and round, the tires squeal,  \nSophia's truck is a big deal!  \n\nChorus:  \nVroom-vroom, roar, let's go, Sophia!  \nBeep-boop, woosh, put on a show,  \nSophia's truck goes zooming by,  \nMonster fun, oh me, oh my!",
+  "task_id": "174039352147969",
+  "date": "2026-11-26",
+  "caption": "Know a little Sophia? Tag their mom or dad \ud83d\udc47\n\nWe made a monster truck song just for them. Make one with your kid's name at ShoutOutSong.com (link in bio).\n\nComment your kid's name + what they love and we might make the next one \ud83d\udc47\n\n#kidssongs #personalizedsong #customsong #kidsmusic #momlife #parenting #monstertrucks #trucksforkids #sophiasong",
+  "posted": {
+   "platforms": [
+    "tiktok",
+    "instagram",
+    "youtube",
+    "facebook"
+   ],
+   "response": {
+    "success": true,
+    "message": "Upload queued successfully in the durable worker.",
+    "request_id": "b15870a4c5164ae0b7f795a0c5e68abd",
+    "total_platforms": 4,
+    "job_id": "47a1d65336994d019f2b7bad6ed6eded"
+   }
+  }
  }
 ]
