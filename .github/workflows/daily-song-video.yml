@@ -1,5 +1,11 @@
-# Makes one example song a day, renders a vertical video, publishes its page on
-# shoutoutsong.com and (when AUTO_POST is "true") posts it via Upload-Post.
+# Makes the daily example songs (one kids, one adult), renders vertical videos,
+# publishes their pages on shoutoutsong.com and (when AUTO_POST is "true") posts them
+# via Upload-Post.
+#
+# GitHub often starts scheduled runs hours late (or skips them), so the job runs once
+# around midday UTC and asks Upload-Post to publish each post at a fixed time:
+#   kids video  -> 22:37 UTC (5:37pm ET / 2:37pm PT)
+#   adult video -> 01:37 UTC (8:37pm ET / 5:37pm PT)
 #
 # Setup (GitHub repo → Settings → Secrets and variables → Actions):
 #   Secret    UPLOAD_POST_API_KEY   from upload-post.com
@@ -7,22 +13,21 @@
 #   Variable  AUTO_POST             set to "true" when you're happy with the videos
 #   Variable  PLATFORMS (optional)  default tiktok,instagram,youtube,facebook
 #
-# Each run's video is attached to the run (Actions tab → run → Artifacts) so you can watch it.
+# Each run's videos are attached to the run (Actions tab → run → Artifacts) so you can watch them.
 name: Daily example song video
 
 on:
   schedule:
-    - cron: "37 22 * * *"   # kids video: 22:37 UTC = 5:37pm ET / 2:37pm PT
-    - cron: "37 1 * * *"    # adult video (roasts etc.): 01:37 UTC = 8:37pm ET / 5:37pm PT
+    - cron: "17 13 * * *"   # 13:17 UTC; posts are scheduled for the times above
   workflow_dispatch:
     inputs:
       mode:
-        description: "Which video to make"
+        description: "Which video(s) to make"
         type: choice
-        options: [kids, adult]
+        options: [kids, adult, both]
         default: kids
       name:
-        description: "Kid's name (blank = next in the queue)"
+        description: "Name (blank = next in the queue)"
         required: false
       theme:
         description: "Kids: theme, e.g. dinosaurs. Adult: occasion, e.g. roast, birthday (blank = next in the queue)"
@@ -31,7 +36,7 @@ on:
         description: "Adult only: genre, e.g. metal, country, musical (blank = next in the queue)"
         required: false
       post:
-        description: "Post to social media?"
+        description: "Post to social media? (manual runs post right away)"
         type: boolean
         default: false
 
@@ -45,7 +50,16 @@ concurrency:
 jobs:
   make:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    env:
+      UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
+      UPLOAD_POST_USER: ${{ vars.UPLOAD_POST_USER }}
+      PLATFORMS: ${{ vars.PLATFORMS }}
+      AUTO_POST: ${{ github.event_name == 'workflow_dispatch' && (inputs.post && 'true' || 'false') || vars.AUTO_POST }}
+      MODE: ${{ github.event_name == 'schedule' && 'both' || inputs.mode }}
+      IN_NAME: ${{ inputs.name }}
+      IN_THEME: ${{ inputs.theme }}
+      IN_GENRE: ${{ inputs.genre }}
     steps:
       - uses: actions/checkout@v4
 
@@ -54,45 +68,66 @@ jobs:
           python-version: "3.11"
 
       - name: Install tools
+        timeout-minutes: 10
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
           pip install -q pillow requests
 
-      - name: Make song, video and page
-        id: make
+      - name: Kids song, video and page
+        id: kids
+        if: env.MODE == 'kids' || env.MODE == 'both'
+        continue-on-error: true
         env:
-          UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
-          UPLOAD_POST_USER: ${{ vars.UPLOAD_POST_USER }}
-          PLATFORMS: ${{ vars.PLATFORMS }}
-          AUTO_POST: ${{ github.event_name == 'workflow_dispatch' && (inputs.post && 'true' || 'false') || vars.AUTO_POST }}
-          IN_NAME: ${{ inputs.name }}
-          IN_THEME: ${{ inputs.theme }}
-          IN_GENRE: ${{ inputs.genre }}
-          MODE: ${{ github.event_name == 'schedule' && (github.event.schedule == '37 1 * * *' && 'adult' || 'kids') || inputs.mode }}
+          POST_AT: ${{ github.event_name == 'schedule' && '22:37' || '' }}
         run: |
           args=()
-          if [ -n "$IN_NAME" ]; then args+=(--name "$IN_NAME"); fi
+          if [ "$MODE" = "kids" ]; then
+            if [ -n "$IN_NAME" ]; then args+=(--name "$IN_NAME"); fi
+            if [ -n "$IN_THEME" ]; then args+=(--theme "$IN_THEME"); fi
+          fi
+          python3 tools/marketing/daily.py "${args[@]}"
+
+      - name: Adult song, video and page
+        id: adult
+        if: env.MODE == 'adult' || env.MODE == 'both'
+        continue-on-error: true
+        env:
+          POST_AT: ${{ github.event_name == 'schedule' && '01:37' || '' }}
+        run: |
+          args=()
           if [ "$MODE" = "adult" ]; then
+            if [ -n "$IN_NAME" ]; then args+=(--name "$IN_NAME"); fi
             if [ -n "$IN_THEME" ]; then args+=(--occasion "$IN_THEME"); fi
             if [ -n "$IN_GENRE" ]; then args+=(--genre "$IN_GENRE"); fi
-            python3 tools/marketing/adult.py "${args[@]}"
-          else
-            if [ -n "$IN_THEME" ]; then args+=(--theme "$IN_THEME"); fi
-            python3 tools/marketing/daily.py "${args[@]}"
           fi
+          python3 tools/marketing/adult.py "${args[@]}"
 
-      - name: Attach video to this run
+      - name: Attach kids video to this run
+        if: steps.kids.outputs.video != ''
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.make.outputs.slug }}
-          path: ${{ steps.make.outputs.video }}
+          name: ${{ steps.kids.outputs.slug }}
+          path: ${{ steps.kids.outputs.video }}
 
-      - name: Publish page to the site
+      - name: Attach adult video to this run
+        if: steps.adult.outputs.video != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.adult.outputs.slug }}
+          path: ${{ steps.adult.outputs.video }}
+
+      - name: Publish pages to the site
         run: |
           git config user.name "shoutoutsong-bot"
           git config user.email "actions@users.noreply.github.com"
           git add frontend tools/marketing/*.json
-          git commit -m "Example song: ${{ steps.make.outputs.slug }}" || exit 0
+          git commit -m "Example songs: ${{ steps.kids.outputs.slug }} ${{ steps.adult.outputs.slug }}" || exit 0
           git pull --rebase
           git push
+
+      - name: Fail the run if a song step failed
+        if: steps.kids.outcome == 'failure' || steps.adult.outcome == 'failure'
+        run: |
+          echo "Kids step: ${{ steps.kids.outcome }}, adult step: ${{ steps.adult.outcome }}"
+          exit 1
