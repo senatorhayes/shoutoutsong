@@ -33,5 +33,39 @@
     "job_id": "b51e2be177714c1b9451b020f8bb1131"
    }
   }
+ },
+ {
+  "slug": "mike-broadway-christmas-roast-song",
+  "kind": "adult",
+  "name": "Mike",
+  "occasion": "Christmas",
+  "occasion_key": "christmas",
+  "label": "Christmas Roast",
+  "badge": "Broadway Christmas Roast",
+  "line": "who wears the ugly sweater all of December",
+  "genre": "musical",
+  "vibe": "silly",
+  "relationship": "coworker",
+  "page": "song-gifts",
+  "cta": "Make a holiday song for anyone",
+  "audio": "/audio/mike-broadway-christmas-roast-song.mp3",
+  "lyrics": "Intro:\nOh, Mike, you holiday delight!\n\nVerse 1:\nThere's a legend in the office, wearing wool and flair,  \nWhen December hits, he\u2019s got that jolly glare.  \nIt's Mike in his sweater with reindeer aflight,  \nRockin\u2019 Christmas fashion that's quite a sight.  \n\nChorus:\nMike, the king of ugly sweaters,  \nEvery day, he's making our fashion sense feel better.  \nWhen we see those snowmen dance across his chest,  \nWe know it's Mike, in his knitted Christmas fest!  \n\nVerse 2:\nHe brews the worst coffee, tastes like burnt toast,  \nBut he\u2019ll pour you a cup bragging he's the utmost.  \nIn meetings, his jokes cause groans all around,  \nBut when he laughs at his own, what a merry sound!  \n\nChorus:\nMike, the king of office cheer,  \nSpreading laughter with every holiday sneer.  \nFrom tinsel ties to flashy socks,  \nWe love ya, Mike, and your festive knocks!  \n\nBridge:\nUnder that mistletoe, if courage you'd find,  \nYou\u2019d still trip, and make it a slapstick kind.  \n\nFinal Chorus:\nMike, the king of ugly sweaters,  \nOur Christmas spirit's number-one inventor.  \nIn your company, the laughter won't cease,  \nHere's to Mike, may your sweaters never fleece!",
+  "task_id": "174175817957377",
+  "date": "2026-11-26",
+  "caption": "Tag the coworker who wears the ugly sweater all of December \ud83c\udf84\n\nMake one for anyone in about a minute. Free preview at ShoutOutSong.com (link in bio)\n\n#customsong #personalizedgift #funnygift #shoutoutsong #christmas #christmassong #secretsanta #christmasgift #broadway",
+  "posted": {
+   "platforms": [
+    "tiktok",
+    "instagram",
+    "youtube",
+    "facebook"
+   ],
+   "response": {
+    "success": true,
+    "job_id": "a6f772ba84ba44aba632f2df44a43534",
+    "scheduled_date": "2026-11-27T01:37:00+00:00",
+    "request_id": "2aab47a0f67143188af6c387f0d57b21"
+   }
+  }
  }
 ]
