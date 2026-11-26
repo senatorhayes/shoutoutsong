@@ -1,0 +1,37 @@
+[
+ {
+  "slug": "james-ska-roast-song",
+  "kind": "adult",
+  "name": "James",
+  "occasion": "roast",
+  "occasion_key": "roast",
+  "label": "Roast",
+  "badge": "Ska Roast",
+  "line": "who still can't parallel park",
+  "genre": "ska",
+  "vibe": "silly",
+  "relationship": "friend",
+  "page": "roast-song",
+  "cta": "Roast YOUR friend in a song",
+  "audio": "/audio/james-ska-roast-song.mp3",
+  "lyrics": "Intro:  \nHey James, you know we love ya,  \nBut it's time to lay it all out there!\n\nVerse 1:  \nOh James, with your parking skills that make us weep,  \nEvery time you're near the curb, we just can't take a peek.  \nYou twist and turn, like a skater on a board,  \nBut when it comes to parallel, man, you can't afford.  \nYou\u2019re the king of the three-point turn,  \nAnd we all know your car\u2019s got a permanent burn!  \n\nChorus:  \nJames, oh James, can't you see?  \nYou're taking up half the street, just let it be!  \nWith your parking woes, it's like a dance,  \nWe\u2019re all just waiting for your second chance!  \nJames, oh James, face the shame!  \nYou're the parallel parking champ of this wild game!  \n\nVerse 2:  \nYou claim you've got the skills, but we ain't falling for it,  \nWhen you back it up, we all just sit and witness it!  \nNeighbors gather round with popcorn in their hands,  \n'Cause watching you struggle, it's a comedy that lands!  \nYour car's got battle scars, it's like a game of dodge,  \nYou\u2019d win big points if only you could just massage!  \n\nChorus:  \nJames, oh James, can't you see?  \nYou're taking up half the street, just let it be!  \nWith your parking woes, it's like a dance,  \nWe\u2019re all just waiting for your second chance!  \nJames, oh James, face the shame!  \nYou're the parallel parking champ of this wild game!  \n\nBridge:  \nSo here's to you, our driving star,  \nJust think of us, we\u2019ll cheer from afar!  \n\nFinal Chorus:  \nJames, oh James, can't you see?  \nYou're taking up half the street, just let it be!  \nWith your parking woes, it's like a dance,  \nWe\u2019re all just waiting for your second chance!  \nJames, oh James, face the shame!  \nYou're the parallel parking champ of this wild game!  \n\n(Outro)  \nSo grab your keys, buddy, give it another try,  \n'Cause we'll always roast you, but we\u2019ll still love you by and by!",
+  "task_id": "174076794568708",
+  "date": "2026-11-26",
+  "caption": "Tag the friend who still can't parallel park \ud83d\udc47\n\nMake one for anyone in about a minute. Free preview at ShoutOutSong.com (link in bio)\n\n#customsong #personalizedgift #funnygift #shoutoutsong #roast #roastsong #funnysong #bestfriend #giftidea #ska",
+  "posted": {
+   "platforms": [
+    "tiktok",
+    "instagram",
+    "youtube",
+    "facebook"
+   ],
+   "response": {
+    "success": true,
+    "message": "Upload queued successfully in the durable worker.",
+    "request_id": "48f9e636dfae41408fc172de6d3a88f6",
+    "total_platforms": 4,
+    "job_id": "b51e2be177714c1b9451b020f8bb1131"
+   }
+  }
+ }
+]

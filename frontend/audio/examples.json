@@ -6,15 +6,15 @@
   "url": "/sophia-monster-truck-song"
  },
  {
+  "name": "James",
+  "label": "Ska Roast",
+  "audio": "/audio/james-ska-roast-song.mp3",
+  "url": "/james-ska-roast-song"
+ },
+ {
   "name": "Theodore",
   "label": "Christmas",
   "audio": "/audio/theodore-christmas-song.mp3",
   "url": "/theodore-christmas-song"
- },
- {
-  "name": "Amelia",
-  "label": "Christmas",
-  "audio": "/audio/amelia-christmas-song.mp3",
-  "url": "/amelia-christmas-song"
  }
 ]
