@@ -42,23 +42,45 @@ KID_STYLES = [
 HOLIDAY_STYLE = dict(name="jingle bells", feel="cozy, festive holiday sing-along",
                      music=f"{_BASE}, jingle bells, sleigh bells, bouncy piano, warm and festive")
 
+# Theme-matched flavors (still happy kids sing-alongs, just with a sound that fits).
+THEME_STYLES = [
+    (["monster truck", "truck", "race car", "car", "dinosaur", "dino", "construction", "digger",
+      "superhero", "robot", "fire truck"],
+     dict(name="kid rock", feel="loud, energetic stomp-and-roar sing-along with sound effects like VROOM and ROAR",
+          music="High-energy kids rock song, crunchy electric guitars, big pounding drums, hand claps, shout-along chorus, "
+                "enthusiastic friendly vocal, exciting and loud but kid-friendly")),
+    (["unicorn", "princess", "fairy", "ballet", "rainbow", "mermaid", "butterfl"],
+     dict(name="sparkly pop", feel="magical, sparkly sing-along",
+          music=f"{_BASE}, twinkling chimes and bells, sparkly synths, light strings, bouncy pop beat, magical and dreamy")),
+    (["space", "rocket", "planet", "astronaut", "airplane", "plane"],
+     dict(name="space pop", feel="exciting countdown sing-along with whooshes and beeps",
+          music=f"{_BASE}, bouncy beat, bubbly synths, whoosh and beep sound effects, adventurous and bright")),
+    (["pirate", "ship", "boat"],
+     dict(name="pirate stomp", feel="jolly stomp-along with 'heave-ho' group shouts",
+          music=f"{_BASE}, accordion, stomping drums, hand claps, rowdy group 'yo-ho' vocals, jolly adventure")),
+    (["shark", "ocean", "sea", "fish", "beach"],
+     dict(name="steel drum sunshine", feel="sunny under-the-sea sing-along",
+          music=f"{_BASE}, steel drums, marimba, bouncy bass, shakers, sunny and splashy")),
+    (["farm", "horse", "pony", "train", "tractor", "cow"],
+     dict(name="banjo hoedown", feel="foot-tapping farmyard sing-along with animal sounds",
+          music=f"{_BASE}, banjo and fiddle, foot-stomping rhythm, hand claps, yee-haw shouts, playful")),
+    (["soccer", "sport", "football", "basketball"],
+     dict(name="stadium chant", feel="cheering stadium chant sing-along",
+          music=f"{_BASE}, stomp-stomp-clap stadium beat, crowd chants, electric guitar, triumphant and energetic")),
+]
+
 
 def pick_kid_style(theme: str) -> dict:
-    """Random instrument mix; jingle bells only for Christmas-type themes."""
+    """Theme-matched flavor when the theme fits one, otherwise a random instrument mix.
+    Jingle bells only for Christmas-type themes."""
     t = (theme or "").lower()
     if any(k in t for k in ("christmas", "santa", "reindeer", "holiday")):
         return HOLIDAY_STYLE
+    for keywords, style in THEME_STYLES:
+        if any(k in t for k in keywords):
+            return style
     return random.choice(KID_STYLES)
 
-LYRIC_DEVICES = [
-    "call-and-response: the singer asks a question and the kids shout the answer back",
-    "action song: tell the listener to stomp, clap, jump, spin or wiggle in each verse",
-    "counting: count up (1, 2, 3...) with something from the theme",
-    "sound effects: fun noises from the theme (roar, vroom, splash, beep-boop) as part of the chorus",
-    "echo lines: the singer sings a line and it is echoed back",
-    "a tiny story: the child goes on a short adventure with a beginning, middle and happy ending",
-    "silly made-up words in the chorus that are fun to say out loud",
-]
 
 
 def generate_kid_lyrics(
@@ -216,11 +238,11 @@ def generate_adult_lyrics(
 
     # Voice hint (for wording only)
     if voice_type == "male":
-        voice_hint = "Imagine a natural male pop singer performing this."
+        voice_hint = "Imagine a natural male singer performing this."
     elif voice_type == "female":
-        voice_hint = "Imagine a natural female pop singer performing this."
+        voice_hint = "Imagine a natural female singer performing this."
     else:
-        voice_hint = "The vocal style is flexible, any expressive pop voice."
+        voice_hint = "The vocal style is flexible, any expressive voice that fits the genre."
 
     user_prompt = f"""
 Write original song lyrics for an adult listener.
@@ -241,7 +263,10 @@ Guidelines:
 - Lean into the tone: {vibe_desc}. If this is a roast/funny song, MAKE SURE to actually tease and make fun of them in a playful way!
 - Avoid explicit content, slurs, or mean-spirited insults. But roasting, teasing, and playful mockery are ENCOURAGED for funny songs.
 - Do NOT mention AI, technology, or that this is generated.
-- Keep it in a modern, singable style appropriate for a {genre} track.
+- Write it like a real {genre} song: use the genre's typical words, attitude and clichés (a country song mentions trucks and dirt roads, a metal song is epic and dramatic, a sea shanty has "heave-ho") — playing the genre straight is part of the joke for funny songs.
+- Be specific and concrete: turn the details into vivid little scenes and real jokes, not generic lines. Each verse should escalate.
+- Land punchlines at the end of lines. Never force a rhyme with a word that doesn't make sense; a near-rhyme is fine.
+- Keep lines short and singable.
 
 Structure:
 - Short intro line (optional)
@@ -265,21 +290,30 @@ etc.
 Do NOT use markdown formatting like **bold** or bullet points.
 """
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",  # Fixed: was "gpt-4.1-mini"
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "You are a professional pop songwriter who writes custom songs for people. "
-                    "You focus on clear hooks, emotional impact, and singable, modern phrasing."
-                ),
-            },
-            {"role": "user", "content": user_prompt},
-        ],
-        temperature=0.95,
-        max_tokens=600,
-    )
+    def _ask(model):
+        return client.chat.completions.create(
+            model=model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a versatile professional songwriter and comedy writer who writes custom songs in any genre. "
+                        "Funny songs are genuinely funny, with sharp specific jokes; heartfelt songs are warm and sincere. "
+                        "You write clear hooks and singable phrasing."
+                    ),
+                },
+                {"role": "user", "content": user_prompt},
+            ],
+            temperature=0.95,
+            max_tokens=600,
+        
+        )
+
+    try:
+        response = _ask("gpt-4o")  # better at funny, specific lyrics
+    except Exception as exc:
+        print(f"gpt-4o failed ({exc}); falling back to gpt-4o-mini")
+        response = _ask("gpt-4o-mini")
 
     lyrics = response.choices[0].message.content.strip()
     return lyrics

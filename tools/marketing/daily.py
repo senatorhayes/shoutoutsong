@@ -141,6 +141,15 @@ def build_captions(choice, lyrics, start, length):
     return [(i * step, (i + 1) * step, p) for i, p in enumerate(pairs) if p]
 
 
+# ---------------------------------------------------------------- names
+def pick_name(theme, i):
+    lean = theme.get("lean")
+    if lean in ("boy", "girl") and i % 5 != 4:
+        pool = config.NAMES[1::2] if lean == "boy" else config.NAMES[0::2]
+        return pool[(i // 2) % len(pool)]
+    return config.NAMES[i % len(config.NAMES)]
+
+
 # ---------------------------------------------------------------- themes
 def easter(year):
     """Western Easter date (anonymous Gregorian algorithm)."""
@@ -309,12 +318,12 @@ def main():
     state = load(STATE, {"next": 0})
     songs = load(MANIFEST, [])
     i = state["next"]
-    name = args.name or config.NAMES[i % len(config.NAMES)]
     theme = pick_theme(i, datetime.date.today())
     if args.theme:
         q = args.theme.lower()
         theme = next((t for t in config.THEMES + [x["theme"] for x in config.SEASONS] if q in (t["love"].lower(), t["label"].lower())), None) \
             or dict(love=args.theme.lower(), label=args.theme.title(), page="kids-songs", tags=[slugify(args.theme).replace("-", "")])
+    name = args.name or pick_name(theme, i)
     slug = f"{slugify(name)}-{slugify(theme['label'])}-song"
     if any(s["slug"] == slug for s in songs):
         slug += "-" + datetime.date.today().strftime("%y%m%d")
