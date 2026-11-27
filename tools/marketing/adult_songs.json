@@ -67,5 +67,39 @@
     "request_id": "2aab47a0f67143188af6c387f0d57b21"
    }
   }
+ },
+ {
+  "slug": "ashley-metal-roast-song",
+  "kind": "adult",
+  "name": "Ashley",
+  "occasion": "roast",
+  "occasion_key": "roast",
+  "label": "Roast",
+  "badge": "Metal Roast",
+  "line": "who still can't parallel park",
+  "genre": "metal",
+  "vibe": "silly",
+  "relationship": "friend",
+  "page": "roast-song",
+  "cta": "Roast YOUR friend in a song",
+  "audio": "/audio/ashley-metal-roast-song.mp3",
+  "lyrics": "Intro:  \nAshley, the queen of chaos, hear the roar!\n\nVerse 1:  \nIn the wild jungle of four-car streets,  \nThere's a legend whose fame repeats,  \nAshley rules but can't park her ride,  \nHer parallel quest, an epic slide.  \n\nWith a coffee in hand and a GPS,  \nStill getting lost, it's anyone's guess,  \nShe swears her car's haunted, an evil beast,  \nYet slays karaoke, she's a vocal feast.\n\nChorus:  \nAshley, Ashley, highway warrior!  \nOpposing traffic, your gladiator arena,  \nAshley, Ashley, parking disaster queen,  \nYour parking fails, the best show we've seen!\n\nVerse 2:  \nShe scorches the earth with every step,  \nA majestic mess, a delight in every rep,  \nBrings her own chaos, everywhere she goes,  \nIn her wake, just fireworks and woes.\n\nCannot tell who is friend, who foe,  \nBut give her snacks and watch her glow,  \nWith her shopping plan, she storms the mall,  \nAlways leaves with more than she can haul.\n\nChorus:  \nAshley, Ashley, highway warrior!  \nOpposing traffic, your gladiator arena,  \nAshley, Ashley, parking disaster queen,  \nYour parking fails, the best show we've seen!\n\nBridge:  \nIn the fire's glare, she stands alone,  \nRuler of her universe, her metal throne,  \nMisfit antics, a true showcase,  \nMaking glory of this parking disgrace!\n\nFinal Chorus:  \nAshley, Ashley, highway warrior!  \nTurning chaos into symphonic aria,  \nAshley, Ashley, parking disaster queen,  \nLegendary blunders, reign without keen!",
+  "task_id": "174354480627714",
+  "date": "2026-11-27",
+  "caption": "Tag the friend who still can't parallel park \ud83d\udc47\n\nMake one for anyone in about a minute. Free preview at ShoutOutSong.com (link in bio)\n\n#customsong #personalizedgift #funnygift #shoutoutsong #roast #roastsong #funnysong #bestfriend #giftidea #metal",
+  "posted": {
+   "platforms": [
+    "tiktok",
+    "instagram",
+    "youtube",
+    "facebook"
+   ],
+   "response": {
+    "success": true,
+    "job_id": "65e87d8742e548f1b06ecef76ed5d7f1",
+    "scheduled_date": "2026-11-28T01:37:00+00:00",
+    "request_id": "a15a5274087649e2a5a2e479f69bb9e7"
+   }
+  }
  }
 ]

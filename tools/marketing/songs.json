@@ -293,5 +293,31 @@
     "job_id": "4dddae6bb70d4ebc9678df62988aa2e8"
    }
   }
+ },
+ {
+  "slug": "james-christmas-song",
+  "name": "James",
+  "love": "Christmas",
+  "label": "Christmas",
+  "page": "christmas-song-for-kids",
+  "audio": "/audio/james-christmas-song.mp3",
+  "lyrics": "Verse 1:  \nSnowflakes dance and twirl around,  \nJames jumps high without a sound,  \nA giggle here, a giggle there,  \nChasing snowmen everywhere!  \n\nChorus:  \nJames, oh James, let's sing and play,  \nRumble, roar, it\u2019s Christmas Day!  \nVroom, vroom, zoom, we\u2019re on our way,  \nJames, oh James, hip-hip-hooray!  \n\nVerse 2:  \nHot cocoa sips and marshmallow dives,  \nJingle bells jingle, oh how it thrives!  \nWith gingerbread houses, sweet and tall,  \nJames builds the biggest one of all!  \n\nChorus:  \nJames, oh James, let's sing and play,  \nRumble, roar, it\u2019s Christmas Day!  \nVroom, vroom, zoom, we\u2019re on our way,  \nJames, oh James, hip-hip-hooray!",
+  "task_id": "174354298241025",
+  "date": "2026-11-27",
+  "caption": "Name + what they love = their very own song \ud83c\udfa4\n\nToday: James and Christmas. Your turn: free preview at ShoutOutSong.com (link in bio).\n\nComment your kid's name + what they love and we might make the next one \ud83d\udc47\n\n#kidssongs #personalizedsong #customsong #kidsmusic #momlife #parenting #christmas #christmassong #santa #jamessong",
+  "posted": {
+   "platforms": [
+    "tiktok",
+    "instagram",
+    "youtube",
+    "facebook"
+   ],
+   "response": {
+    "success": true,
+    "job_id": "08b36012bf684f1d952a1a2aef3e2db9",
+    "scheduled_date": "2026-11-27T22:37:00+00:00",
+    "request_id": "82c273aac2ef43b1b50617551a2786ce"
+   }
+  }
  }
 ]

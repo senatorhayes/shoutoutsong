@@ -6,15 +6,15 @@
   "url": "/hudson-christmas-song"
  },
  {
-  "name": "Sophia",
-  "label": "Monster Truck",
-  "audio": "/audio/sophia-monster-truck-song.mp3",
-  "url": "/sophia-monster-truck-song"
+  "name": "James",
+  "label": "Christmas",
+  "audio": "/audio/james-christmas-song.mp3",
+  "url": "/james-christmas-song"
  },
  {
-  "name": "James",
-  "label": "Ska Roast",
-  "audio": "/audio/james-ska-roast-song.mp3",
-  "url": "/james-ska-roast-song"
+  "name": "Ashley",
+  "label": "Metal Roast",
+  "audio": "/audio/ashley-metal-roast-song.mp3",
+  "url": "/ashley-metal-roast-song"
  }
 ]
