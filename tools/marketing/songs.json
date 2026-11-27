@@ -266,5 +266,32 @@
     "job_id": "47a1d65336994d019f2b7bad6ed6eded"
    }
   }
+ },
+ {
+  "slug": "hudson-christmas-song",
+  "name": "Hudson",
+  "love": "Christmas",
+  "label": "Christmas",
+  "page": "christmas-song-for-kids",
+  "audio": "/audio/hudson-christmas-song.mp3",
+  "lyrics": "Verse 1:  \nSnowflakes dance and twirl around,  \nHudson's laughing, what a sound!  \nBuilding snowmen, round and bright,  \nWaving hats with pure delight!  \n\nChorus:  \nHudson, Hudson, jingle bell cheer,  \nSinging loud for all to hear!  \nHudson, Hudson, snowflakes play,  \nEvery day's a Christmas day!  \n\nVerse 2:  \nHot cocoa in a big, warm mug,  \nMarshmallows melting like a hug!  \nSinging songs with friends so near,  \nHudson's joy is loud and clear!  \n\nChorus:  \nHudson, Hudson, jingle bell cheer,  \nSinging loud for all to hear!  \nHudson, Hudson, snowflakes play,  \nEvery day's a Christmas day!",
+  "task_id": "174261625028610",
+  "date": "2026-11-27",
+  "caption": "Christmas song for Hudson \ud83c\udfb6\n\nEvery kid deserves a song all about them. Type your kid's name and what they love, and hear it free. Link in bio.\n\nComment your kid's name + what they love and we might make the next one \ud83d\udc47\n\n#kidssongs #personalizedsong #customsong #kidsmusic #momlife #parenting #christmas #christmassong #santa #hudsonsong",
+  "posted": {
+   "platforms": [
+    "tiktok",
+    "instagram",
+    "youtube",
+    "facebook"
+   ],
+   "response": {
+    "success": true,
+    "message": "Upload queued successfully in the durable worker.",
+    "request_id": "69c117817d71472a9ad2e0e084c81b95",
+    "total_platforms": 4,
+    "job_id": "4dddae6bb70d4ebc9678df62988aa2e8"
+   }
+  }
  }
 ]

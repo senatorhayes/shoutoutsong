@@ -1,5 +1,11 @@
 [
  {
+  "name": "Hudson",
+  "label": "Christmas",
+  "audio": "/audio/hudson-christmas-song.mp3",
+  "url": "/hudson-christmas-song"
+ },
+ {
   "name": "Sophia",
   "label": "Monster Truck",
   "audio": "/audio/sophia-monster-truck-song.mp3",
@@ -10,11 +16,5 @@
   "label": "Ska Roast",
   "audio": "/audio/james-ska-roast-song.mp3",
   "url": "/james-ska-roast-song"
- },
- {
-  "name": "Mike",
-  "label": "Broadway Christmas Roast",
-  "audio": "/audio/mike-broadway-christmas-roast-song.mp3",
-  "url": "/mike-broadway-christmas-roast-song"
  }
 ]
