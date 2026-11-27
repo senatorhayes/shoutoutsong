@@ -83,6 +83,17 @@ def pick_kid_style(theme: str) -> dict:
 
 
 
+LYRIC_DEVICES = [
+    "call-and-response: the singer asks a question and the kids shout the answer back",
+    "action song: tell the listener to stomp, clap, jump, spin or wiggle in each verse",
+    "counting: count up (1, 2, 3...) with something from the theme",
+    "sound effects: fun noises from the theme (roar, vroom, splash, beep-boop) as part of the chorus",
+    "echo lines: the singer sings a line and it is echoed back",
+    "a tiny story: the child goes on a short adventure with a beginning, middle and happy ending",
+    "silly made-up words in the chorus that are fun to say out loud",
+]
+
+
 def generate_kid_lyrics(
     child_name: str,
     theme: str,
